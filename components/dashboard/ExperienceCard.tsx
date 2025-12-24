@@ -1,26 +1,26 @@
+
 'use client'
 
 import { useState } from 'react'
-import { Project } from '@/types/database.types'
-import { Calendar, Github, ExternalLink, Star, Pencil, Trash2, MoreVertical, Loader2, Clock } from 'lucide-react'
-import { createClient } from '@/utils/supabase/client'
+import { Experience } from '@/types/database.types'
+import { Calendar, Star, Pencil, Trash2, Loader2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Building2, Clock } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Link from 'next/link'
 
-interface ProjectCardProps {
-    project: Project
+interface ExperienceCardProps {
+    experience: Experience
     isFeatured?: boolean
     showInTimeline?: boolean
     onToggleFeatured?: (id: string, currentStatus: boolean) => void
     onToggleTimeline?: (id: string, currentStatus: boolean) => void
     onDelete?: (id: string) => void
-    onEdit?: (project: Project) => void
+    onEdit?: (experience: Experience) => void
     isReadOnly?: boolean
     username?: string
 }
 
-export default function ProjectCard({
-    project,
+export default function ExperienceCard({
+    experience,
     isFeatured = false,
     showInTimeline = true,
     onToggleFeatured,
@@ -29,14 +29,14 @@ export default function ProjectCard({
     onEdit,
     isReadOnly = false,
     username
-}: ProjectCardProps) {
+}: ExperienceCardProps) {
     const [isDeleting, setIsDeleting] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
 
     const handleDelete = async () => {
         if (!onDelete) return
         setIsDeleting(true)
-        await onDelete(project.id)
+        await onDelete(experience.id)
         setIsDeleting(false)
         setShowDeleteModal(false)
     }
@@ -46,25 +46,41 @@ export default function ProjectCard({
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'short',
-            day: 'numeric'
         })
     }
+
+    const getDateRange = () => {
+        if (!experience.start_date) return 'Fecha no definida'
+        const start = formatDate(experience.start_date)
+        const end = experience.is_current ? 'Presente' : (experience.end_date ? formatDate(experience.end_date) : '')
+        return `${start} - ${end}`
+    }
+
+    const categories = {
+        'liderazgo': { label: 'Liderazgo', icon: Award, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+        'social': { label: 'Social', icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
+        'emprendimiento': { label: 'Emprendimiento', icon: Zap, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
+        'empleo_sustento': { label: 'Empleo', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+        'academico': { label: 'Académico', icon: GraduationCap, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
+        'deportivo': { label: 'Deportivo', icon: Dumbbell, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+        'creativo': { label: 'Creativo', icon: Palette, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100' },
+        'cuidado_vida': { label: 'Cuidado y Vida', icon: HeartPulse, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+        'otro': { label: 'Otro', icon: Star, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-100' },
+    }
+
+    const category = categories[experience.type as keyof typeof categories] || categories['otro']
+    const Icon = category.icon
 
     return (
         <>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow group relative flex flex-col h-full">
 
-                {/* Header Image / Gradient Placeholder - Clickable */}
-                <Link href={isReadOnly ? `/${username || project.user_id}/proyectos/${project.id}` : `/dashboard/project/${project.id}`} className="block h-48 bg-gradient-to-br from-indigo-50 to-purple-50 relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-500 cursor-pointer">
-                    {project.cover_image ? (
-                        <img src={project.cover_image} alt={project.title} className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="flex items-center justify-center w-full h-full text-gray-300">
-                            {/* Pattern or Icon */}
-                            <svg className="w-16 h-16 opacity-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z" /></svg>
-                        </div>
-                    )}
-                </Link>
+                {/* Header Image (Optional) */}
+                {experience.cover_image && (
+                    <Link href={isReadOnly ? `/${username || experience.user_id}/experiencias/${experience.id}` : `/dashboard/experiencias/${experience.id}`} className="h-40 bg-gray-100 relative overflow-hidden block cursor-pointer group-hover:opacity-95 transition-opacity">
+                        <img src={experience.cover_image} alt={experience.title} className="w-full h-full object-cover" />
+                    </Link>
+                )}
 
                 {/* Featured & Timeline Buttons (Top Right) */}
                 {!isReadOnly && (onToggleFeatured || onToggleTimeline) && (
@@ -74,7 +90,7 @@ export default function ProjectCard({
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    onToggleTimeline(project.id, showInTimeline);
+                                    onToggleTimeline(experience.id, showInTimeline);
                                 }}
                                 className={`p-2 rounded-full backdrop-blur-md transition-all ${showInTimeline
                                     ? 'bg-purple-500 text-white shadow-lg scale-110'
@@ -90,13 +106,13 @@ export default function ProjectCard({
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    onToggleFeatured(project.id, isFeatured);
+                                    onToggleFeatured(experience.id, isFeatured);
                                 }}
                                 className={`p-2 rounded-full backdrop-blur-md transition-all ${isFeatured
                                     ? 'bg-yellow-400 text-white shadow-lg scale-110'
                                     : 'bg-white/50 text-gray-400 hover:bg-white hover:text-yellow-400'
                                     }`}
-                                title={isFeatured ? "Quitar de destacados" : "Destacar proyecto"}
+                                title={isFeatured ? "Quitar de destacados" : "Destacar experiencia"}
                             >
                                 <Star size={16} fill={isFeatured ? "currentColor" : "none"} />
                             </button>
@@ -110,7 +126,7 @@ export default function ProjectCard({
                         <button
                             onClick={(e) => {
                                 e.preventDefault();
-                                onEdit(project);
+                                onEdit(experience);
                             }}
                             className="p-2 bg-white/90 rounded-full text-gray-600 hover:text-purple-600 hover:bg-white transition-colors shadow-sm"
                             title="Editar"
@@ -134,68 +150,48 @@ export default function ProjectCard({
                 {/* Content */}
                 <div className="p-6 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-3">
-                        <span className={`text-xs px-2 py-1 rounded-md font-medium uppercase tracking-wider ${project.type === 'startup' ? 'bg-blue-100 text-blue-700' :
-                            project.type === 'personal' ? 'bg-green-100 text-green-700' :
-                                'bg-purple-100 text-purple-700'
-                            }`}>
-                            {project.type === 'academic' ? 'Académico' : project.type === 'startup' ? 'Startup' : 'Personal'}
+                        <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider flex items-center gap-1.5 border ${category.bg} ${category.color} ${category.border}`}>
+                            <Icon size={12} />
+                            {category.label}
                         </span>
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                            <Calendar size={14} />
-                            <span>{formatDate(project.created_at)}</span>
+                        <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                            <span>{getDateRange()}</span>
                         </div>
                     </div>
 
-                    <Link href={isReadOnly ? `/${username || project.user_id}/proyectos/${project.id}` : `/dashboard/project/${project.id}`} className="group-hover:text-purple-600 transition-colors">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
-                            {project.title}
-                        </h3>
+                    <Link href={isReadOnly ? `/${username || experience.user_id}/experiencias/${experience.id}` : `/dashboard/experiencias/${experience.id}`} className="block group-hover:text-purple-600 transition-colors">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight">{experience.title}</h3>
                     </Link>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 font-medium mb-3">
+                        <Building2 size={14} />
+                        {experience.organization}
+                    </div>
 
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
-                        {project.description || "Sin descripción"}
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1 leading-relaxed">
+                        {experience.description || "Sin descripción"}
                     </p>
 
-                    {/* Stack / Skills */}
-                    {project.skills && project.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-6">
-                            {project.skills.slice(0, 3).map(skill => (
-                                <span key={skill} className="text-xs bg-gray-50 text-gray-600 border border-gray-100 px-2 py-1 rounded-md">
+                    {/* Skills */}
+                    {experience.skills && experience.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-gray-100">
+                            {experience.skills.slice(0, 3).map(skill => (
+                                <span key={skill} className="text-[10px] font-medium bg-gray-50 text-gray-600 border border-gray-100 px-2 py-1 rounded-md">
                                     {skill}
                                 </span>
                             ))}
-                            {project.skills.length > 3 && (
-                                <span className="text-xs text-gray-400 px-1 py-1">+{project.skills.length - 3}</span>
+                            {experience.skills.length > 3 && (
+                                <span className="text-[10px] text-gray-400 px-1 py-1">+{experience.skills.length - 3}</span>
                             )}
                         </div>
                     )}
-
-                    {/* Links Footer */}
-                    <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-                        <div className="flex gap-3">
-                            {project.repo_url && (
-                                <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-900 transition-colors" title="Repositorio">
-                                    <Github size={18} />
-                                </a>
-                            )}
-                            {project.demo_url && (
-                                <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-purple-600 transition-colors" title="Ver Demo">
-                                    <ExternalLink size={18} />
-                                </a>
-                            )}
-                            {!project.repo_url && !project.demo_url && (
-                                <span className="text-xs text-gray-400 italic">Sin enlaces</span>
-                            )}
-                        </div>
-                    </div>
                 </div>
             </div>
 
             {/* Delete Modal */}
-            <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Eliminar Proyecto">
+            <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Eliminar Experiencia">
                 <div className="space-y-4">
                     <p className="text-gray-600">
-                        ¿Estás seguro de que quieres eliminar <strong>{project.title}</strong>? Esta acción no se puede deshacer.
+                        ¿Estás seguro de que quieres eliminar <strong>{experience.title}</strong>? Esta acción no se puede deshacer.
                     </p>
                     <div className="flex justify-end gap-3 pt-4">
                         <button

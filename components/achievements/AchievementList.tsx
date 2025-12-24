@@ -63,7 +63,7 @@ export default function AchievementList({ initialAchievements, userId, isReadOnl
             {/* Header Actions */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{isReadOnly ? 'Sala de Trofeos' : 'Mis Logros'}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">{isReadOnly ? 'Mis Logros' : 'Mis Logros'}</h2>
                     <p className="text-gray-500 text-sm mt-1">
                         {isReadOnly
                             ? 'Reconocimientos, certificaciones y méritos académicos destacados.'

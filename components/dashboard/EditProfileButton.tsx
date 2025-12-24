@@ -259,7 +259,7 @@ export default function EditProfileButton({ profile }: EditProfileButtonProps) {
                 className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-semibold transition-colors shadow-lg shadow-gray-200"
             >
                 <Pencil size={16} />
-                <span>Editar Perfil</span>
+                <span>Editar Datos del Perfil</span>
             </button>
 
             <Modal isOpen={isOpen} onClose={() => { setIsOpen(false); setIsAdjusting(false); }} title="Editar Perfil">
@@ -360,13 +360,13 @@ export default function EditProfileButton({ profile }: EditProfileButtonProps) {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Tu Link Personal (Username)</label>
                         <div className="relative group">
-                            <span className="absolute left-3 top-3 text-gray-400 font-medium text-sm">prisma.me/</span>
+                            <span className="absolute left-3 top-3 text-gray-400 font-medium text-sm">tuprisma.com/</span>
                             <input
                                 type="text"
                                 required
                                 value={formData.username}
                                 onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
-                                className={`w-full pl-24 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 font-bold ${usernameStatus === 'taken' ? 'border-red-300 focus:ring-red-500' :
+                                className={`w-full pl-[105px] pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 font-bold ${usernameStatus === 'taken' ? 'border-red-300 focus:ring-red-500' :
                                     usernameStatus === 'available' ? 'border-green-300 focus:ring-green-500' : 'border-gray-200 focus:ring-purple-500'
                                     }`}
                                 placeholder="tu_nombre"

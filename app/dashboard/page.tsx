@@ -2,24 +2,26 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { createClient } from '@/utils/supabase/server'
-import { Github, Linkedin, Globe, MessageCircle, MapPin, Code, FolderGit2, Users, CheckCircle2, BookOpen, Trophy, Rocket } from 'lucide-react'
+import { Github, Linkedin, Globe, MessageCircle, MapPin, Code, FolderGit2, Users, CheckCircle2, BookOpen, Trophy, Rocket, Briefcase, Sparkles } from 'lucide-react'
 import DashboardTrajectory from '@/components/dashboard/DashboardTrajectory'
 import DashboardCourseCard from '@/components/dashboard/DashboardCourseCard'
 import EditProfileButton from '@/components/dashboard/EditProfileButton'
 import ProjectList from '@/components/dashboard/ProjectList'
 import OverviewProjects from '@/components/dashboard/OverviewProjects'
+import OverviewExperiences from '@/components/dashboard/OverviewExperiences'
 import AchievementList from '@/components/achievements/AchievementList'
 import SkillsSection from '@/components/dashboard/SkillsSection'
 import TestimonialSection from '@/components/dashboard/TestimonialSection'
 import InterestsSection from '@/components/dashboard/InterestsSection'
 import ContactSettings from '@/components/dashboard/ContactSettings'
+import ExperienceList from '@/components/dashboard/ExperienceList'
 
 // Force dynamic rendering required for server components using cookies
 export const dynamic = 'force-dynamic'
 
 
 // Definir tipos para searchParams y tabs
-type TabType = 'overview' | 'proyectos' | 'credenciales' | 'contacto'
+type TabType = 'overview' | 'experiencias' | 'proyectos' | 'credenciales' | 'contacto'
 
 export default async function DashboardPage(props: {
     searchParams: Promise<{ tab?: string }>
@@ -87,21 +89,21 @@ export default async function DashboardPage(props: {
     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
     const hitosUnificados: any[] = []
 
-    // A. Experiencias Laborales/Voluntariado
-    experiences?.forEach(exp => {
+    // A. Experiencias (solo las que tienen show_in_timeline = true)
+    experiences?.filter(exp => exp.show_in_timeline !== false).forEach(exp => {
         hitosUnificados.push({
             id: exp.id,
-            title: exp.role,
-            subtitle: exp.company,
-            date: exp.start_date,
+            title: exp.title,
+            subtitle: exp.organization,
+            date: exp.start_date || exp.created_at,
             type: 'experience',
             category: exp.type,
             description: exp.description
         })
     })
 
-    // B. Proyectos
-    projects?.forEach(proj => {
+    // B. Proyectos (solo los que tienen show_in_timeline = true)
+    projects?.filter(proj => proj.show_in_timeline !== false).forEach(proj => {
         hitosUnificados.push({
             id: proj.id,
             title: proj.title,
@@ -116,13 +118,22 @@ export default async function DashboardPage(props: {
 
     // C. Logros / Credenciales
     achievements?.forEach(ach => {
+        let description: string | undefined = undefined
+        if (ach.professor_name) {
+            if (ach.category === 'course_chair') {
+                description = `Cátedra con Prof. ${ach.professor_name}`
+            } else if (ach.category === 'academic_role') {
+                description = `Con Prof. ${ach.professor_name}`
+            }
+        }
+
         hitosUnificados.push({
             id: ach.id,
             title: ach.title,
             subtitle: ach.organization || 'Logro/Certificación',
             date: ach.date || ach.created_at,
             type: 'achievement',
-            description: ach.category === 'course_chair' ? `Ayudantía con Prof. ${ach.professor_name}` : undefined,
+            description,
             link: '/dashboard?tab=credenciales'
         })
     })
@@ -234,74 +245,68 @@ export default async function DashboardPage(props: {
                             {/* Info */}
                             <div className="flex-1 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                                 <div className="flex-1">
-                                    <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
-                                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                                            {profile.full_name || profile.username || 'Usuario Sin Nombre'}
-                                        </h1>
-                                        <div className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full">
-                                            <CheckCircle2 size={14} />
-                                            <span className="text-xs font-semibold">User</span>
-                                        </div>
-                                    </div>
+                                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+                                        {profile.full_name || profile.username || 'Usuario Sin Nombre'}
+                                    </h1>
 
                                     {/* Info Académica Principal */}
-                                    <div className="flex flex-wrap items-center gap-2 mb-1 text-gray-900 font-medium">
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-gray-900 font-medium">
                                         <span>{careerName}</span>
-
                                         {profile.universities && (
                                             <>
                                                 <span className="text-gray-300">•</span>
-                                                <span>{universityName}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span>{universityName}</span>
+                                                    {profile.career_start_date && (
+                                                        <span className="text-[10px] md:text-xs font-bold px-2 py-0.5 bg-purple-50 text-purple-700 border border-purple-100 rounded-lg whitespace-nowrap">
+                                                            {(() => {
+                                                                const start = new Date(profile.career_start_date)
+                                                                const now = new Date()
+                                                                const isGraduated = profile.career_end_date && new Date(profile.career_end_date) < now
+
+                                                                if (isGraduated) return '🎓 Egresado'
+
+                                                                const yearNum = Math.max(1, now.getFullYear() - start.getFullYear() + 1)
+                                                                return `📚 ${yearNum}° Año`
+                                                            })()}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </>
-                                        )}
-
-                                        {profile.career_start_date && (
-                                            <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                                {(() => {
-                                                    const start = new Date(profile.career_start_date)
-                                                    const now = new Date()
-                                                    const isGraduated = profile.career_end_date && new Date(profile.career_end_date) < now
-
-                                                    if (isGraduated) return 'Egresado'
-
-                                                    const yearNum = Math.max(1, now.getFullYear() - start.getFullYear() + 1)
-                                                    return `${yearNum}° Año`
-                                                })()}
-                                            </span>
                                         )}
                                     </div>
 
                                     {/* Headline Secundario */}
-                                    {profile.headline && (
-                                        <p className="text-gray-500 text-sm mb-3">
-                                            {profile.headline}
-                                        </p>
-                                    )}
+                                    {profile.headline && <p className="text-gray-500 text-sm leading-tight">{profile.headline}</p>}
 
-                                    <p className="text-gray-500 text-sm flex items-center gap-1.5 mb-4">
+                                    <p className="text-gray-500 text-sm flex items-center gap-1.5 mt-1 mb-4">
                                         <MapPin size={14} className="text-purple-500" />
                                         Chile
                                     </p>
 
                                     {/* Stats */}
                                     <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg">
+                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                                             <Code size={16} className="text-purple-500" />
-                                            <span><strong className="text-gray-900">{allSkills.size}</strong> Skills</span>
+                                            <span><strong>{allSkills.size}</strong> Skills</span>
                                         </div>
-                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg">
+                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                            <Sparkles size={16} className="text-indigo-500" />
+                                            <span><strong>{experiences?.length || 0}</strong> Experiencias</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                                             <FolderGit2 size={16} className="text-purple-500" />
-                                            <span><strong className="text-gray-900">{projects?.length || 0}</strong> Proyectos</span>
+                                            <span><strong>{projects?.length || 0}</strong> Proyectos</span>
                                         </div>
-                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg">
+                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                                             <Trophy size={16} className="text-amber-500" />
-                                            <span><strong className="text-gray-900">{achievements?.length || 0}</strong> Logros</span>
+                                            <span><strong>{achievements?.length || 0}</strong> Logros</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Social Links */}
-                                <div className="flex items-center gap-2 md:gap-3 pt-2 md:pt-0">
+                                <div className="flex items-center gap-3 pt-2 md:pt-0">
                                     {socialLinks.github && (
                                         <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
                                             <Github size={20} className="text-gray-700" />
@@ -339,15 +344,6 @@ export default async function DashboardPage(props: {
                             Overview
                         </Link>
                         <Link
-                            href={`/dashboard?tab=proyectos`}
-                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'proyectos'
-                                ? 'text-purple-600 border-b-2 border-purple-600 font-semibold'
-                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                                }`}
-                        >
-                            Proyectos ({projects?.length || 0})
-                        </Link>
-                        <Link
                             href={`/dashboard?tab=credenciales`}
                             className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'credenciales'
                                 ? 'text-purple-600 border-b-2 border-purple-600 font-semibold'
@@ -355,6 +351,24 @@ export default async function DashboardPage(props: {
                                 }`}
                         >
                             Logros ({achievements?.length || 0})
+                        </Link>
+                        <Link
+                            href={`/dashboard?tab=experiencias`}
+                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'experiencias'
+                                ? 'text-purple-600 border-b-2 border-purple-600 font-semibold'
+                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                }`}
+                        >
+                            Experiencias ({experiences?.length || 0})
+                        </Link>
+                        <Link
+                            href={`/dashboard?tab=proyectos`}
+                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'proyectos'
+                                ? 'text-purple-600 border-b-2 border-purple-600 font-semibold'
+                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                }`}
+                        >
+                            Proyectos ({projects?.length || 0})
                         </Link>
                         <Link
                             href={`/dashboard?tab=contacto`}
@@ -379,23 +393,25 @@ export default async function DashboardPage(props: {
 
                             {/* Sobre mí */}
                             <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">
-                                    <span className="text-2xl">👋</span> Sobre mí
-                                </h2>
+                                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">👋 Sobre mí</h2>
                                 {profile.about ? (
                                     <p className="text-gray-700 leading-relaxed whitespace-pre-line">{profile.about}</p>
                                 ) : (
-                                    <div className="text-gray-400 italic">
+                                    <p className="text-gray-400 italic">
                                         Cuéntale al mundo sobre ti. Ve a editar perfil para agregar tu biografía.
-                                    </div>
+                                    </p>
                                 )}
+                            </section>
+
+                            {/* Experiencias Destacadas (Overview) */}
+                            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900">✨ Experiencias Destacadas</h2>
+                                <OverviewExperiences experiences={experiences || []} />
                             </section>
 
                             {/* Proyectos Destacados (Overview) */}
                             <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900">
-                                    <span className="text-2xl">⭐</span> Proyectos Destacados
-                                </h2>
+                                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900">⭐ Proyectos Destacados</h2>
                                 <OverviewProjects projects={projects || []} />
                             </section>
 
@@ -420,6 +436,10 @@ export default async function DashboardPage(props: {
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
                         </aside>
                     </div>
+                )}
+
+                {activeTab === 'experiencias' && (
+                    <ExperienceList initialExperiences={experiences || []} userId={user.id} />
                 )}
 
                 {activeTab === 'proyectos' && (

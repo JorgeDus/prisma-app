@@ -14,21 +14,25 @@ import {
     BookOpen,
     Trophy,
     Mail,
-    ExternalLink
+    ExternalLink,
+    Briefcase,
+    Sparkles
 } from 'lucide-react'
 import DashboardTrajectory from '@/components/dashboard/DashboardTrajectory'
 import DashboardCourseCard from '@/components/dashboard/DashboardCourseCard'
 import ProjectList from '@/components/dashboard/ProjectList'
 import OverviewProjects from '@/components/dashboard/OverviewProjects'
+import OverviewExperiences from '@/components/dashboard/OverviewExperiences'
 import AchievementList from '@/components/achievements/AchievementList'
 import SkillsSection from '@/components/dashboard/SkillsSection'
 import TestimonialSection from '@/components/dashboard/TestimonialSection'
 import InterestsSection from '@/components/dashboard/InterestsSection'
 import ContactSection from '@/components/public/ContactSection'
+import ExperienceList from '@/components/dashboard/ExperienceList'
 import { Metadata } from 'next'
 
 // Definir tipos para searchParams y tabs
-type TabType = 'overview' | 'proyectos' | 'credenciales' | 'contacto'
+type TabType = 'overview' | 'experiencias' | 'proyectos' | 'credenciales' | 'contacto'
 
 interface PublicProfileProps {
     params: Promise<{ username: string }>
@@ -111,12 +115,13 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
     const hitosUnificados: any[] = []
 
-    experiences?.forEach(exp => {
+    // A. Experiencias (solo las que tienen show_in_timeline = true)
+    experiences?.filter(exp => exp.show_in_timeline !== false).forEach(exp => {
         hitosUnificados.push({
             id: exp.id,
-            title: exp.role,
-            subtitle: exp.company,
-            date: exp.start_date,
+            title: exp.title,
+            subtitle: exp.organization,
+            date: exp.start_date || exp.created_at,
             type: 'experience',
             category: exp.type,
             description: exp.description
@@ -131,7 +136,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         ? profile.custom_career || 'Otra Carrera'
         : profile.careers?.name || 'Carrera'
 
-    projects?.forEach(proj => {
+    // B. Proyectos (solo los que tienen show_in_timeline = true)
+    projects?.filter(proj => proj.show_in_timeline !== false).forEach(proj => {
         hitosUnificados.push({
             id: proj.id,
             title: proj.title,
@@ -144,14 +150,24 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         })
     })
 
+    // C. Logros / Credenciales
     achievements?.forEach(ach => {
+        let description: string | undefined = undefined
+        if (ach.professor_name) {
+            if (ach.category === 'course_chair') {
+                description = `Cátedra con Prof. ${ach.professor_name}`
+            } else if (ach.category === 'academic_role') {
+                description = `Con Prof. ${ach.professor_name}`
+            }
+        }
+
         hitosUnificados.push({
             id: ach.id,
             title: ach.title,
             subtitle: ach.organization || 'Logro/Certificación',
             date: ach.date || ach.created_at,
             type: 'achievement',
-            description: ach.category === 'course_chair' ? `Ayudantía con Prof. ${ach.professor_name}` : undefined,
+            description,
             link: `/${username}?tab=credenciales`
         })
     })
@@ -288,6 +304,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                             <span><strong>{allSkills.size}</strong> Skills</span>
                                         </div>
                                         <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                            <Sparkles size={16} className="text-indigo-500" />
+                                            <span><strong>{experiences?.length || 0}</strong> Experiencias</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                                             <FolderGit2 size={16} className="text-purple-500" />
                                             <span><strong>{projects?.length || 0}</strong> Proyectos</span>
                                         </div>
@@ -337,16 +357,22 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             Overview
                         </Link>
                         <Link
-                            href={`/${username}?tab=proyectos`}
-                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'proyectos' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
-                        >
-                            Proyectos ({projects?.length || 0})
-                        </Link>
-                        <Link
                             href={`/${username}?tab=credenciales`}
                             className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'credenciales' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
                         >
                             Logros ({achievements?.length || 0})
+                        </Link>
+                        <Link
+                            href={`/${username}?tab=experiencias`}
+                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'experiencias' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
+                        >
+                            Experiencias ({experiences?.length || 0})
+                        </Link>
+                        <Link
+                            href={`/${username}?tab=proyectos`}
+                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'proyectos' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
+                        >
+                            Proyectos ({projects?.length || 0})
                         </Link>
                         <Link
                             href={`/${username}?tab=contacto`}
@@ -369,6 +395,11 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                 ) : (
                                     <p className="text-gray-400 italic">Este usuario aún no ha agregado una biografía.</p>
                                 )}
+                            </section>
+
+                            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900">✨ Experiencia Destacada</h2>
+                                <OverviewExperiences experiences={experiences || []} isReadOnly={true} username={username} />
                             </section>
 
                             <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -395,6 +426,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
                         </aside>
                     </div>
+                )}
+
+                {activeTab === 'experiencias' && (
+                    <ExperienceList initialExperiences={experiences || []} userId={profile.id} isReadOnly={true} username={username} />
                 )}
 
                 {activeTab === 'proyectos' && (

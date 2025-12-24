@@ -133,6 +133,7 @@ export interface Database {
                     team_members: string | null
                     learnings: string | null
                     gallery_images: string[]
+                    show_in_timeline: boolean
                     created_at: string
                     updated_at: string
                 }
@@ -155,6 +156,7 @@ export interface Database {
                     team_members?: string | null
                     learnings?: string | null
                     gallery_images?: string[]
+                    show_in_timeline?: boolean
                     created_at?: string
                 }
                 Update: {
@@ -174,6 +176,7 @@ export interface Database {
                     team_members?: string | null
                     learnings?: string | null
                     gallery_images?: string[]
+                    show_in_timeline?: boolean
                     updated_at?: string
                 }
                 Relationships: [
@@ -229,32 +232,59 @@ export interface Database {
                 Row: {
                     id: string
                     user_id: string
-                    role: string
-                    company: string
-                    start_date: string
-                    end_date: string | null
+                    title: string
+                    organization: string
+                    type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
                     description: string | null
-                    type: 'job' | 'internship' | 'volunteering' | 'leadership'
+                    achievements: string | null
+                    value_reflection: string | null
+                    start_date: string | null
+                    end_date: string | null
+                    is_current: boolean | null
+                    cover_image: string | null
+                    gallery_images: string[] | null
+                    skills: string[] | null
+                    is_featured: boolean | null
+                    show_in_timeline: boolean | null
                     created_at: string
                     updated_at: string
                 }
                 Insert: {
                     id?: string
                     user_id: string
-                    role: string
-                    company: string
-                    start_date: string
-                    end_date?: string | null
+                    title: string
+                    organization: string
+                    type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
                     description?: string | null
-                    type?: 'job' | 'internship' | 'volunteering' | 'leadership'
+                    achievements?: string | null
+                    value_reflection?: string | null
+                    start_date?: string | null
+                    end_date?: string | null
+                    is_current?: boolean | null
+                    cover_image?: string | null
+                    gallery_images?: string[] | null
+                    skills?: string[] | null
+                    is_featured?: boolean | null
+                    show_in_timeline?: boolean | null
+                    created_at?: string
+                    updated_at?: string
                 }
                 Update: {
-                    role?: string
-                    company?: string
-                    start_date?: string
-                    end_date?: string | null
+                    title?: string
+                    organization?: string
+                    type?: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
                     description?: string | null
-                    type?: 'job' | 'internship' | 'volunteering' | 'leadership'
+                    achievements?: string | null
+                    value_reflection?: string | null
+                    start_date?: string | null
+                    end_date?: string | null
+                    is_current?: boolean | null
+                    cover_image?: string | null
+                    gallery_images?: string[] | null
+                    skills?: string[] | null
+                    is_featured?: boolean | null
+                    show_in_timeline?: boolean | null
+                    updated_at?: string
                 }
                 Relationships: [
                     {
@@ -337,7 +367,7 @@ export interface Database {
         Enums: {
             project_type: 'academic' | 'startup' | 'personal'
             achievement_type: 'award' | 'certification' | 'course_chair'
-            experience_type: 'job' | 'internship' | 'volunteering' | 'leadership'
+            experience_type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
         }
         CompositeTypes: {
             [_ in never]: never

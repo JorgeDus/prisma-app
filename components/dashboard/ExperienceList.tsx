@@ -1,46 +1,46 @@
+
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Plus } from 'lucide-react'
-import { Project } from '@/types/database.types'
-import ProjectCard from './ProjectCard'
-import ProjectFormModal from './ProjectFormModal'
+import { Plus, Briefcase } from 'lucide-react'
+import { Experience } from '@/types/database.types'
+import ExperienceCard from './ExperienceCard'
+import ExperienceFormModal from './ExperienceFormModal'
 
-interface ProjectListProps {
-    initialProjects: Project[]
+interface ExperienceListProps {
+    initialExperiences: Experience[]
     userId: string
     isReadOnly?: boolean
     username?: string
 }
 
-export default function ProjectList({ initialProjects, userId, isReadOnly = false, username }: ProjectListProps) {
+export default function ExperienceList({ initialExperiences, userId, isReadOnly = false, username }: ExperienceListProps) {
     const router = useRouter()
     const supabase = createClient()
-    const [projects, setProjects] = useState(initialProjects)
+    const [experiences, setExperiences] = useState(initialExperiences)
 
     // Modal controls
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [editingProject, setEditingProject] = useState<Project | null>(null)
+    const [editingExperience, setEditingExperience] = useState<Experience | null>(null)
 
     useEffect(() => {
-        setProjects(initialProjects)
-    }, [initialProjects])
+        setExperiences(initialExperiences)
+    }, [initialExperiences])
 
-    // Update is_featured in Supabase when featured changes
+    // Update is_featured in Supabase
     const toggleFeatured = async (id: string, currentStatus: boolean) => {
         try {
             const { error } = await supabase
-                .from('projects')
+                .from('experiences')
                 .update({ is_featured: !currentStatus })
                 .eq('id', id)
 
             if (error) throw error
 
-            // Update local state for immediate UI feedback
-            setProjects(prev => prev.map(p =>
-                p.id === id ? { ...p, is_featured: !currentStatus } : p
+            setExperiences(prev => prev.map(e =>
+                e.id === id ? { ...e, is_featured: !currentStatus } : e
             ))
 
             router.refresh()
@@ -54,14 +54,14 @@ export default function ProjectList({ initialProjects, userId, isReadOnly = fals
     const toggleTimeline = async (id: string, currentStatus: boolean) => {
         try {
             const { error } = await supabase
-                .from('projects')
+                .from('experiences')
                 .update({ show_in_timeline: !currentStatus })
                 .eq('id', id)
 
             if (error) throw error
 
-            setProjects(prev => prev.map(p =>
-                p.id === id ? { ...p, show_in_timeline: !currentStatus } : p
+            setExperiences(prev => prev.map(e =>
+                e.id === id ? { ...e, show_in_timeline: !currentStatus } : e
             ))
 
             router.refresh()
@@ -73,24 +73,23 @@ export default function ProjectList({ initialProjects, userId, isReadOnly = fals
 
     const handleDelete = async (id: string) => {
         try {
-            const { error } = await supabase.from('projects').delete().eq('id', id)
+            const { error } = await supabase.from('experiences').delete().eq('id', id)
             if (error) throw error
-            // Remove from local state immediately for UI snappiness
-            setProjects(prev => prev.filter(p => p.id !== id))
+            setExperiences(prev => prev.filter(e => e.id !== id))
             router.refresh()
         } catch (error) {
-            console.error('Error deleting project:', error)
-            alert('Error al eliminar proyecto')
+            console.error('Error deleting experience:', error)
+            alert('Error al eliminar experiencia')
         }
     }
 
-    const handleEdit = (project: Project) => {
-        setEditingProject(project)
+    const handleEdit = (experience: Experience) => {
+        setEditingExperience(experience)
         setIsModalOpen(true)
     }
 
     const handleCreate = () => {
-        setEditingProject(null)
+        setEditingExperience(null)
         setIsModalOpen(true)
     }
 
@@ -103,11 +102,11 @@ export default function ProjectList({ initialProjects, userId, isReadOnly = fals
             {/* Header Actions */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{isReadOnly ? 'Proyectos' : 'Mis Proyectos'}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">{isReadOnly ? 'Experiencias' : 'Mis Experiencias'}</h2>
                     <p className="text-gray-500 text-sm mt-1">
                         {isReadOnly
-                            ? 'Portafolio de proyectos académicos y personales.'
-                            : 'Gestiona tu portafolio académico y personal. Destaca (⭐) los que quieras mostrar en tu perfil principal.'}
+                            ? 'Trayectoria profesional, liderazgo y voluntariado.'
+                            : 'Gestiona tu historia personal. Agrega experiencias académicas, personales, profesionales, voluntariados, de liderazgo y más. Destaca (⭐) los que quieras mostrar en tu perfil principal'}
                     </p>
                 </div>
                 {!isReadOnly && (
@@ -116,20 +115,20 @@ export default function ProjectList({ initialProjects, userId, isReadOnly = fals
                         className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-200"
                     >
                         <Plus size={20} />
-                        Añadir Proyecto
+                        Añadir Experiencia
                     </button>
                 )}
             </div>
 
             {/* Grid */}
-            {projects && projects.length > 0 ? (
+            {experiences && experiences.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {projects.map(project => (
-                        <ProjectCard
-                            key={project.id}
-                            project={project}
-                            isFeatured={project.is_featured}
-                            showInTimeline={project.show_in_timeline ?? true}
+                    {experiences.map(experience => (
+                        <ExperienceCard
+                            key={experience.id}
+                            experience={experience}
+                            isFeatured={experience.is_featured || false}
+                            showInTimeline={experience.show_in_timeline ?? true}
                             onToggleFeatured={isReadOnly ? undefined : toggleFeatured}
                             onToggleTimeline={isReadOnly ? undefined : toggleTimeline}
                             onDelete={isReadOnly ? undefined : handleDelete}
@@ -142,25 +141,27 @@ export default function ProjectList({ initialProjects, userId, isReadOnly = fals
             ) : (
                 <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
                     <div className="w-16 h-16 bg-purple-50 text-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Plus size={32} />
+                        <Briefcase size={32} />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900">No hay proyectos aún</h3>
-                    <p className="text-gray-500 mt-1 mb-6">Comienza añadiendo tu primer proyecto académico o personal.</p>
-                    <button
-                        onClick={handleCreate}
-                        className="text-purple-600 font-semibold hover:text-purple-700"
-                    >
-                        + Crear primer proyecto
-                    </button>
+                    <h3 className="text-lg font-medium text-gray-900">No hay experiencias aún</h3>
+                    <p className="text-gray-500 mt-1 mb-6">Comienza añadiendo tu primera experiencia laboral o de voluntariado.</p>
+                    {!isReadOnly && (
+                        <button
+                            onClick={handleCreate}
+                            className="text-purple-600 font-semibold hover:text-purple-700"
+                        >
+                            + Crear primera experiencia
+                        </button>
+                    )}
                 </div>
             )}
 
             {!isReadOnly && (
-                <ProjectFormModal
+                <ExperienceFormModal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     userId={userId}
-                    projectToEdit={editingProject}
+                    experienceToEdit={editingExperience}
                     onSuccess={handleSuccess}
                 />
             )}

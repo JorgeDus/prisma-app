@@ -20,10 +20,14 @@ export default function LoginPage() {
         setError(null)
 
         try {
+            const baseUrl = process.env.NODE_ENV === 'development'
+                ? 'http://localhost:3000'
+                : 'https://prisma-app-bay.vercel.app'
+
             const { error } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+                    emailRedirectTo: `${baseUrl}/auth/callback?next=/onboarding`,
                 },
             })
 

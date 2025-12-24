@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Briefcase, GraduationCap, Trophy, Rocket, Heart, Award, Star } from 'lucide-react'
+import { ChevronDown, ChevronUp, Briefcase, GraduationCap, Trophy, Rocket, Heart, Award, Star, Palette, Dumbbell, HeartPulse } from 'lucide-react'
 
 export type MilestoneType = 'project' | 'achievement' | 'experience' | 'education'
 
@@ -31,9 +31,17 @@ const getMilestoneIcon = (hito: Milestone) => {
         case 'education':
             return <GraduationCap size={14} />
         case 'experience':
-            if (hito.category === 'volunteering') return <Heart size={14} />
-            if (hito.category === 'leadership') return <Award size={14} />
-            return <Briefcase size={14} />
+            switch (hito.category) {
+                case 'liderazgo': return <Award size={14} />
+                case 'social': return <Heart size={14} />
+                case 'emprendimiento': return <Rocket size={14} />
+                case 'empleo_sustento': return <Briefcase size={14} />
+                case 'academico': return <GraduationCap size={14} />
+                case 'deportivo': return <Dumbbell size={14} />
+                case 'creativo': return <Palette size={14} />
+                case 'cuidado_vida': return <HeartPulse size={14} />
+                default: return <Briefcase size={14} />
+            }
         default:
             return <Star size={14} />
     }
@@ -72,7 +80,7 @@ export default function DashboardTrajectory({
         return (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 text-center">
                 <h3 className="font-bold text-lg mb-2 flex items-center justify-center gap-2 text-gray-900">
-                    <span className="text-purple-600">📊</span>
+                    <span className="text-purple-600">🚀</span>
                     Trayectoria
                 </h3>
                 <p className="text-sm text-gray-500">Aún no hay hitos registrados en tu trayectoria.</p>
@@ -83,7 +91,7 @@ export default function DashboardTrajectory({
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-gray-900">
-                <span className="text-purple-600">📊</span>
+                <span className="text-purple-600">🚀</span>
                 Trayectoria
             </h3>
 
