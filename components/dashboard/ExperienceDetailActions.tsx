@@ -42,39 +42,37 @@ export default function ExperienceDetailActions({ experience, userId }: Experien
     return (
         <>
             {/* Navbar Actions */}
-            <nav className="bg-white border-b sticky top-0 z-50">
-                <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+            <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                     <Link
                         href="/dashboard?tab=experiencias"
-                        className="text-gray-600 hover:text-purple-600 flex items-center gap-2 font-medium transition-colors"
+                        className="text-slate-500 hover:text-indigo-600 flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors group"
                     >
-                        <ArrowLeft size={20} />
-                        Volver a experiencias
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                        Dashboard
                     </Link>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         <button
                             onClick={() => setIsEditModalOpen(true)}
-                            className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex items-center gap-2"
-                            title="Editar Experiencia"
+                            className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-all flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest shadow-sm"
                         >
-                            <Pencil size={18} />
-                            <span className="hidden sm:inline text-sm font-medium">Editar</span>
+                            <Pencil size={14} />
+                            <span className="hidden sm:inline">Editar Perfil</span>
                         </button>
                         <button
                             onClick={() => setIsDeleteModalOpen(true)}
-                            className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                             title="Eliminar Experiencia"
                         >
                             <Trash2 size={18} />
-                            <span className="hidden sm:inline text-sm font-medium">Eliminar</span>
                         </button>
-                        <div className="w-px h-6 bg-gray-200 mx-2 hidden sm:block"></div>
+                        <div className="w-px h-6 bg-slate-200 mx-2 hidden sm:block"></div>
                         <Link
                             href="/dashboard"
-                            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="p-2 text-slate-400 hover:text-slate-900 transition-colors"
                         >
-                            <X size={24} />
+                            <X size={20} />
                         </Link>
                     </div>
                 </div>

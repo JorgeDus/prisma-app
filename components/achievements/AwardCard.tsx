@@ -23,6 +23,12 @@ export default function AwardCard({ achievement, onEdit }: AwardCardProps) {
             </div>
 
             <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-100 text-amber-600 text-[9px] font-black rounded-md uppercase tracking-wider">
+                        <Trophy size={10} />
+                        Premio / Reconocimiento
+                    </span>
+                </div>
                 <div className="flex justify-between items-start gap-2">
                     <h4 className="text-lg font-black text-gray-900 truncate tracking-tight uppercase">
                         {achievement.title}

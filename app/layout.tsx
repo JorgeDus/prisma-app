@@ -1,9 +1,21 @@
 import type { Metadata } from "next";
+import { Instrument_Serif, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+const instrumentSerif = Instrument_Serif({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-serif",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
+
 export const metadata: Metadata = {
-  title: "Prisma - Donde el talento universitario encuentra su luz",
-  description: "Prisma es la plataforma donde estudiantes universitarios construyen perfiles profesionales integrales, conectan con oportunidades reales, y encuentran colaboradores para crear juntos.",
+  title: "Prisma | Portafolio de Evidencia Dinámico",
+  description: "Plataforma de validación de talento y portafolio de evidencia dinámica con rigor científico y autoridad académica.",
   icons: {
     icon: "/Prisma Icono.png",
     shortcut: "/favicon.ico",
@@ -18,11 +30,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className="scroll-smooth">
       <head>
-        <meta name="theme-color" content="#9333ea" />
+        <meta name="theme-color" content="#4f46e5" />
       </head>
-      <body className="antialiased">
+      <body className={`${instrumentSerif.variable} ${geistMono.variable} antialiased bg-[#F9FAFB] text-slate-900`}>
         {children}
       </body>
     </html>

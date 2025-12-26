@@ -3,43 +3,78 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import {
-    Github,
-    Linkedin,
-    Globe,
-    MapPin,
-    Code,
-    FolderGit2,
-    Users,
-    CheckCircle2,
-    BookOpen,
-    Trophy,
-    Mail,
-    ExternalLink,
     Briefcase,
-    Sparkles
+    FolderGit2,
+    Trophy,
+    MessageSquare,
+    Mail,
+    LayoutGrid,
+    Calendar,
+    Award,
+    FileBadge,
+    GraduationCap,
+    Users,
+    Sparkles,
+    Heart,
+    Zap,
+    Dumbbell,
+    Palette,
+    HeartPulse,
+    Star
 } from 'lucide-react'
+
+// Nuevos Componentes Shared
+import { NavRail } from '@/components/shared/NavRail'
+import { ImpactHeader } from '@/components/shared/ImpactHeader'
+import { BentoHighlights } from '@/components/shared/BentoHighlights'
+import { BaseCard } from '@/components/shared/BaseCard'
+import { EvidenceBadge } from '@/components/shared/EvidenceBadge'
+import { EmptyState } from '@/components/shared/EmptyState'
+
 import DashboardTrajectory from '@/components/dashboard/DashboardTrajectory'
-import DashboardCourseCard from '@/components/dashboard/DashboardCourseCard'
-import ProjectList from '@/components/dashboard/ProjectList'
-import OverviewProjects from '@/components/dashboard/OverviewProjects'
-import OverviewExperiences from '@/components/dashboard/OverviewExperiences'
-import AchievementList from '@/components/achievements/AchievementList'
 import SkillsSection from '@/components/dashboard/SkillsSection'
 import TestimonialSection from '@/components/dashboard/TestimonialSection'
 import InterestsSection from '@/components/dashboard/InterestsSection'
 import ContactSection from '@/components/public/ContactSection'
-import ExperienceList from '@/components/dashboard/ExperienceList'
 import { Metadata } from 'next'
-
-// Definir tipos para searchParams y tabs
-type TabType = 'overview' | 'experiencias' | 'proyectos' | 'credenciales' | 'contacto'
 
 interface PublicProfileProps {
     params: Promise<{ username: string }>
-    searchParams: Promise<{ tab?: string }>
 }
 
-// Metadata Dinámica
+const CATEGORY_MAP: Record<string, string> = {
+    certification: "Certificación",
+    award: "Premio / Reconocimiento",
+    course_chair: "Cátedra Destacada",
+    academic_role: "Ayudantía / Investigación"
+}
+
+const EXP_CATEGORY_MAP: Record<string, { label: string, color: string, bg: string, border: string, icon: any }> = {
+    liderazgo: { label: 'Liderazgo', icon: Award, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+    social: { label: 'Social', icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
+    emprendimiento: { label: 'Emprendimiento', icon: Zap, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
+    empleo_sustento: { label: 'Trayectoria', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+    academico: { label: 'Académico', icon: GraduationCap, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
+    deportivo: { label: 'Deportivo', icon: Dumbbell, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+    creativo: { label: 'Creativo', icon: Palette, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100' },
+    cuidado_vida: { label: 'Cuidado y Vida', icon: HeartPulse, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+    otro: { label: 'Otro', icon: Star, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100' }
+}
+
+const CATEGORY_ICON: Record<string, any> = {
+    certification: FileBadge,
+    award: Trophy,
+    course_chair: GraduationCap,
+    academic_role: Users
+}
+
+const CATEGORY_COLOR: Record<string, string> = {
+    certification: "text-blue-500",
+    award: "text-amber-500",
+    course_chair: "text-indigo-500",
+    academic_role: "text-cyan-500"
+}
+
 export async function generateMetadata(props: PublicProfileProps): Promise<Metadata> {
     const params = await props.params
     const supabase = await createClient()
@@ -53,20 +88,17 @@ export async function generateMetadata(props: PublicProfileProps): Promise<Metad
     if (!profile) return { title: 'Perfil no encontrado | Prisma' }
 
     return {
-        title: `${profile.full_name || profile.username} | Prisma`,
-        description: `Conoce el portafolio y trayectoria de ${profile.full_name || profile.username} en Prisma.`
+        title: `${profile.full_name || profile.username} | Portafolio de Evidencia`,
+        description: `Protocolo de validación académica y trayectoria profesional de ${profile.full_name || profile.username}.`
     }
 }
 
 export default async function PublicProfilePage(props: PublicProfileProps) {
     const params = await props.params
-    const searchParams = await props.searchParams
-    const activeTab = (searchParams.tab as TabType) || 'overview'
     const username = params.username
-
     const supabase = await createClient()
 
-    // 1. Obtener datos del perfil por username
+    // 1. Obtener datos del perfil
     const { data: profile } = await supabase
         .from('profiles')
         .select(`
@@ -77,11 +109,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         .eq('username', username)
         .single()
 
-    if (!profile) {
-        notFound()
-    }
+    if (!profile) notFound()
 
-    // Parsear social_links
     const socialLinks = typeof profile.social_links === 'string'
         ? JSON.parse(profile.social_links)
         : profile.social_links || {}
@@ -105,17 +134,32 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         .eq('user_id', profile.id)
         .order('date', { ascending: false })
 
-    // 6. Obtener Testimonios
     const { data: testimonials } = await supabase
         .from('testimonials')
         .select('*')
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
 
+    // Preparar UI
+    const universityName = profile.universities?.name || 'Universidad'
+    const careerName = profile.careers?.name || 'Carrera'
+
+    const getAcademicStatus = () => {
+        const today = new Date()
+        if (profile.career_end_date && new Date(profile.career_end_date) <= today) return "EGRESADO"
+        if (!profile.career_start_date) return "EN CURSO"
+
+        const start = new Date(profile.career_start_date)
+        const diffYears = today.getFullYear() - start.getFullYear() + 1
+        return diffYears > 0 ? `${diffYears}º AÑO` : "EN CURSO"
+    }
+
+    const academicStatus = getAcademicStatus()
+
     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
     const hitosUnificados: any[] = []
 
-    // A. Experiencias (solo las que tienen show_in_timeline = true)
+    // 1. Experiencias
     experiences?.filter(exp => exp.show_in_timeline !== false).forEach(exp => {
         hitosUnificados.push({
             id: exp.id,
@@ -124,24 +168,17 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
             date: exp.start_date || exp.created_at,
             type: 'experience',
             category: exp.type,
-            description: exp.description
+            description: exp.description,
+            link: `/${username}/experiencias/${exp.id}`
         })
     })
 
-    const universityName = (profile.universities?.name.toLowerCase().includes('otro') || profile.universities?.name.toLowerCase().includes('no listada'))
-        ? profile.custom_university || 'Otra Universidad'
-        : profile.universities?.name || 'Universidad'
-
-    const careerName = (profile.careers?.name.toLowerCase().includes('otro') || profile.careers?.name.toLowerCase().includes('no listada'))
-        ? profile.custom_career || 'Otra Carrera'
-        : profile.careers?.name || 'Carrera'
-
-    // B. Proyectos (solo los que tienen show_in_timeline = true)
+    // 2. Proyectos
     projects?.filter(proj => proj.show_in_timeline !== false).forEach(proj => {
         hitosUnificados.push({
             id: proj.id,
             title: proj.title,
-            subtitle: `Proyecto ${proj.type === 'academic' ? 'Académico' : proj.type === 'startup' ? 'Startup' : 'Personal'}`,
+            subtitle: 'Proyecto',
             date: proj.created_at,
             type: 'project',
             category: proj.type,
@@ -150,303 +187,297 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         })
     })
 
-    // C. Logros / Credenciales
+    // 3. Logros (Achievements)
     achievements?.forEach(ach => {
-        let description: string | undefined = undefined
-        if (ach.professor_name) {
-            if (ach.category === 'course_chair') {
-                description = `Cátedra con Prof. ${ach.professor_name}`
-            } else if (ach.category === 'academic_role') {
-                description = `Con Prof. ${ach.professor_name}`
-            }
-        }
-
         hitosUnificados.push({
             id: ach.id,
             title: ach.title,
-            subtitle: ach.organization || 'Logro/Certificación',
+            subtitle: ach.organization || 'Logro',
             date: ach.date || ach.created_at,
             type: 'achievement',
-            description,
-            link: `/${username}?tab=credenciales`
+            category: ach.category,
+            description: [
+                ach.distinction,
+                ach.professor_name ? `Prof. ${ach.professor_name}` : null
+            ].filter(Boolean).join(' • ')
         })
     })
 
-    if (profile.career_start_date && profile.careers) {
+    // 4. Educación Universitaria (Hitos automáticos)
+    if (profile.career_start_date) {
         hitosUnificados.push({
             id: `edu-start-${profile.id}`,
-            title: `Ingreso a ${careerName}`,
+            title: `Inicio de ${careerName}`,
             subtitle: universityName,
             date: profile.career_start_date,
-            type: 'education'
+            type: 'education',
+            category: 'academic'
         })
-
-        const now = new Date()
-        const endDate = profile.career_end_date ? new Date(profile.career_end_date) : null
-        const isGraduated = endDate && endDate <= now
-
-        if (isGraduated) {
-            hitosUnificados.push({
-                id: `edu-end-${profile.id}`,
-                title: `Egreso de ${careerName}`,
-                subtitle: universityName,
-                date: profile.career_end_date as string,
-                type: 'education'
-            })
-        }
+    }
+    if (profile.career_end_date) {
+        const isPast = new Date(profile.career_end_date) <= new Date()
+        hitosUnificados.push({
+            id: `edu-end-${profile.id}`,
+            title: isPast ? `Egreso de ${careerName}` : `Fecha Estimada de Egreso`,
+            subtitle: universityName,
+            date: profile.career_end_date,
+            type: 'education',
+            category: 'academic'
+        })
     }
 
     hitosUnificados.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-    // Preparar LinkedIn o Mail para contacto
-    const contactMethod = socialLinks.linkedin
-        ? socialLinks.linkedin
-        : (socialLinks.email ? `mailto:${socialLinks.email}` : null)
-
-    const defaultGradient = "from-purple-400 via-pink-400 to-rose-400"
-    const catedrasDestacadas = achievements?.filter(a => a.category === 'course_chair') || []
-
-    const allSkills = new Set<string>()
-    projects?.forEach(p => p.skills?.forEach(s => allSkills.add(s)))
-
-    // Calcular estado académico (Badge)
-    const now = new Date()
-    const endDate = profile.career_end_date ? new Date(profile.career_end_date) : null
-    const isGraduated = endDate && endDate <= now
-
-    let academicStatus = ""
-    if (isGraduated) {
-        academicStatus = "🎓 Egresado"
-    } else if (profile.career_start_date) {
-        const startYear = new Date(profile.career_start_date).getFullYear()
-        const currentYear = now.getFullYear()
-        const yearNumber = (currentYear - startYear) + 1
-        academicStatus = `📚 ${yearNumber > 0 ? `${yearNumber}° Año` : 'Primer Año'}`
-    }
+    const sections = [
+        { id: "highlights", label: "Highlights" },
+        { id: "experiencia", label: "Experiencia" },
+        { id: "proyectos", label: "Proyectos" },
+        { id: "logros", label: "Logros" },
+        ...(testimonials && testimonials.length > 0 ? [{ id: "testimonios", label: "Testimonios" }] : []),
+        { id: "contacto", label: "Contacto" },
+    ]
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Navbar Público */}
-            <nav className="bg-white border-b sticky top-0 z-50 backdrop-blur-sm bg-white/90">
-                <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-                    <Link href="/" className="flex items-center">
+        <div className="bg-[#F9FAFB] min-h-screen pb-24 selection:bg-indigo-100 selection:text-indigo-900">
+            {/* Nav Rail (Scroll-spy) */}
+            <NavRail sections={sections} />
+
+            {/* Top Navigation Bar */}
+            <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
+                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2">
                         <Image
                             src="/logo-prisma.png"
                             alt="Prisma Logo"
                             width={120}
-                            height={40}
+                            height={32}
                             className="h-8 w-auto object-contain"
                         />
+                        <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-900"> / {username}</span>
                     </Link>
-                    <div className="flex items-center gap-4">
-                        <Link href="/" className="text-sm font-semibold text-purple-600 hover:text-purple-700">
-                            Crea tu perfil
-                        </Link>
-                    </div>
+                    <Link href="/" className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">
+                        Protocolo de Validación →
+                    </Link>
                 </div>
             </nav>
 
-            <header>
-                <div className="h-48 md:h-64 relative overflow-hidden bg-gray-900">
-                    <div className={`w-full h-full bg-gradient-to-r ${defaultGradient} opacity-80`} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                </div>
-
-                <div className="container mx-auto px-4 -mt-20 md:-mt-24 relative z-10 pb-6">
-                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
-                        <div className="flex flex-col md:flex-row gap-5 md:gap-6">
-
-                            <div className="flex-shrink-0">
-                                <div className={`w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br ${defaultGradient} flex items-center justify-center border-4 border-white shadow-xl overflow-hidden`}>
-                                    {profile.avatar_url ? (
-                                        <img src={profile.avatar_url} alt={profile.full_name || 'Avatar'} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="text-4xl md:text-5xl font-bold text-white">
-                                            {(profile.full_name || profile.username).charAt(0).toUpperCase()}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="flex-1 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                                <div className="flex-1">
-                                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
-                                        {profile.full_name || profile.username}
-                                    </h1>
-
-                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-gray-900 font-medium">
-                                        <span>{careerName}</span>
-                                        {profile.universities && (
-                                            <>
-                                                <span className="text-gray-300">•</span>
-                                                <div className="flex items-center gap-2">
-                                                    <span>{universityName}</span>
-                                                    {academicStatus && (
-                                                        <span className="text-[10px] md:text-xs font-bold px-2 py-0.5 bg-purple-50 text-purple-700 border border-purple-100 rounded-lg whitespace-nowrap">
-                                                            {academicStatus}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {profile.headline && <p className="text-gray-500 text-sm leading-tight">{profile.headline}</p>}
-
-                                    <p className="text-gray-500 text-sm flex items-center gap-1.5 mt-1 mb-4">
-                                        <MapPin size={14} className="text-purple-500" />
-                                        Chile
-                                    </p>
-
-                                    <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                                            <Code size={16} className="text-purple-500" />
-                                            <span><strong>{allSkills.size}</strong> Skills</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                                            <Sparkles size={16} className="text-indigo-500" />
-                                            <span><strong>{experiences?.length || 0}</strong> Experiencias</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                                            <FolderGit2 size={16} className="text-purple-500" />
-                                            <span><strong>{projects?.length || 0}</strong> Proyectos</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                                            <Trophy size={16} className="text-amber-500" />
-                                            <span><strong>{achievements?.length || 0}</strong> Logros</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 pt-2 md:pt-0">
-                                    {socialLinks.github && (
-                                        <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                                            <Github size={20} className="text-gray-700" />
-                                        </a>
-                                    )}
-                                    {socialLinks.linkedin && (
-                                        <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-100 flex items-center justify-center transition-colors">
-                                            <Linkedin size={20} className="text-blue-600" />
-                                        </a>
-                                    )}
-                                    {contactMethod && (
-                                        <a
-                                            href={contactMethod}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="h-10 px-6 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-purple-100"
-                                        >
-                                            {socialLinks.linkedin ? <Linkedin size={18} /> : <Mail size={18} />}
-                                            Contactar
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <div className="bg-white border-b sticky top-[57px] z-40 shadow-sm">
-                <div className="container mx-auto px-4">
-                    <div className="flex gap-2 overflow-x-auto">
-                        <Link
-                            href={`/${username}?tab=overview`}
-                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'overview' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
-                        >
-                            Overview
-                        </Link>
-                        <Link
-                            href={`/${username}?tab=credenciales`}
-                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'credenciales' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
-                        >
-                            Logros ({achievements?.length || 0})
-                        </Link>
-                        <Link
-                            href={`/${username}?tab=experiencias`}
-                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'experiencias' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
-                        >
-                            Experiencias ({experiences?.length || 0})
-                        </Link>
-                        <Link
-                            href={`/${username}?tab=proyectos`}
-                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'proyectos' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
-                        >
-                            Proyectos ({projects?.length || 0})
-                        </Link>
-                        <Link
-                            href={`/${username}?tab=contacto`}
-                            className={`px-4 py-4 font-medium whitespace-nowrap transition-colors ${activeTab === 'contacto' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
-                        >
-                            Contacto
-                        </Link>
-                    </div>
-                </div>
+            {/* Impact Header (Thesis) */}
+            <div className="mt-16">
+                <ImpactHeader
+                    name={profile.full_name || username}
+                    headline={profile.headline || undefined}
+                    thesis={profile.about || "Transformando el conocimiento académico en impacto real a través de la evidencia dinámica."}
+                    career={careerName}
+                    university={universityName}
+                    academicStatus={academicStatus}
+                    avatarUrl={profile.avatar_url || undefined}
+                    socialLinks={socialLinks}
+                />
             </div>
 
-            <div className="container mx-auto px-4 py-8">
-                {activeTab === 'overview' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <main className="lg:col-span-8 space-y-8">
-                            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">👋 Sobre mí</h2>
-                                {profile.about ? (
-                                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">{profile.about}</p>
-                                ) : (
-                                    <p className="text-gray-400 italic">Este usuario aún no ha agregado una biografía.</p>
-                                )}
-                            </section>
+            <main className="max-w-7xl mx-auto px-6 space-y-32">
 
-                            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900">✨ Experiencia Destacada</h2>
-                                <OverviewExperiences experiences={experiences || []} isReadOnly={true} username={username} />
-                            </section>
-
-                            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900">⭐ Proyecto Destacado</h2>
-                                <OverviewProjects projects={projects || []} isReadOnly={true} username={username} />
-                            </section>
-
-
-                            {/* Habilidades calculadas */}
-                            <SkillsSection projects={projects || []} />
-
-                            {/* Testimonios (Mi Vitrina) */}
-                            <TestimonialSection
-                                testimonials={testimonials || []}
-                                userId={profile.id}
-                                isReadOnly={true}
-                            />
-
-                            {/* Intereses */}
-                            <InterestsSection interests={profile.interests} isReadOnly={true} />
-                        </main>
-                        <aside className="lg:col-span-4">
-                            <h2 className="sr-only">📊 Trayectoria</h2>
-                            <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
-                        </aside>
+                {/* 1. highlights Bento Grid */}
+                <section id="highlights" className="section-anchor">
+                    <div className="space-y-8">
+                        <div className="flex flex-col space-y-2">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">01 / Experiencias Destacadas</h2>
+                                <EvidenceBadge label="Verificado por Prisma" />
+                            </div>
+                            <p className="text-xs font-mono text-slate-500 uppercase tracking-tight">Acceso directo a mis experiencias de mayor impacto</p>
+                        </div>
+                        <BentoHighlights items={[...(projects || []), ...(experiences || [])]} username={profile.username} isEditable={false} />
                     </div>
-                )}
+                </section>
 
-                {activeTab === 'experiencias' && (
-                    <ExperienceList initialExperiences={experiences || []} userId={profile.id} isReadOnly={true} username={username} />
-                )}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+                    {/* Contenido Principal */}
+                    <div className="lg:col-span-8 space-y-32">
 
-                {activeTab === 'proyectos' && (
-                    <ProjectList initialProjects={projects || []} userId={profile.id} isReadOnly={true} username={username} />
-                )}
+                        {/* 2. Experiencia */}
+                        <section id="experiencia" className="section-anchor space-y-8">
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">02 / Trayectoria Personal</h2>
+                            <div className="space-y-6">
+                                {experiences?.length ? (
+                                    experiences.map((exp) => (
+                                        <BaseCard
+                                            key={exp.id}
+                                            title={exp.title}
+                                            subtitle={exp.organization}
+                                            overline={
+                                                (() => {
+                                                    const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
+                                                    const Icon = cat.icon;
+                                                    return (
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${cat.bg} ${cat.color} ${cat.border}`}>
+                                                            <Icon size={12} strokeWidth={2.5} />
+                                                            {cat.label}
+                                                        </span>
+                                                    )
+                                                })()
+                                            }
+                                            description={exp.description || ""}
+                                            imageUrl={exp.cover_image || undefined}
+                                            dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
+                                            tags={exp.skills || []}
+                                            href={`/${username}/experiencias/${exp.id}`}
+                                            isEditable={false}
+                                        />
+                                    ))
+                                ) : (
+                                    <p className="text-slate-400 font-serif italic">No hay experiencias registradas bajo este protocolo.</p>
+                                )}
+                            </div>
+                        </section>
 
-                {activeTab === 'credenciales' && (
-                    <AchievementList initialAchievements={achievements || []} userId={profile.id} isReadOnly={true} />
-                )}
+                        {/* 3. Proyectos */}
+                        <section id="proyectos" className="section-anchor space-y-8">
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">03 / Portafolio de Proyectos</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {projects?.length ? (
+                                    projects.map((proj) => (
+                                        <BaseCard
+                                            key={proj.id}
+                                            title={proj.title}
+                                            subtitle={proj.role || proj.type}
+                                            description={proj.description || ""}
+                                            imageUrl={proj.cover_image || undefined}
+                                            tags={proj.skills || []}
+                                            href={`/${username}/proyectos/${proj.id}`}
+                                            isEditable={false}
+                                            is_featured={proj.is_featured}
+                                        // is_learning_artifact={proj.is_learning_artifact} // Pendiente de migración o lógica
+                                        />
+                                    ))
+                                ) : (
+                                    <div className="col-span-2">
+                                        <p className="text-slate-400 font-serif italic text-center">Sin artefactos de proyecto disponibles.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
 
-                {activeTab === 'contacto' && (
-                    <ContactSection
-                        profileEmail={profile.email}
-                        profileName={profile.full_name || profile.username}
-                        linkedinUrl={socialLinks.linkedin}
-                    />
-                )}
+                        {/* 4. Logros */}
+                        <section id="logros" className="section-anchor space-y-8">
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">04 / Logros</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {achievements?.map((ach) => (
+                                    <BaseCard
+                                        key={ach.id}
+                                        title={ach.title}
+                                        subtitle={ach.organization || ""}
+                                        overline={
+                                            <div className="flex items-center gap-2">
+                                                {(() => {
+                                                    const Icon = CATEGORY_ICON[ach.category] || Sparkles;
+                                                    const colorClass = CATEGORY_COLOR[ach.category] || "text-slate-400";
+                                                    return <Icon size={12} className={colorClass} strokeWidth={2.5} />;
+                                                })()}
+                                                <span className="text-[10px] font-mono font-black text-slate-400 uppercase tracking-[0.2em]">
+                                                    {CATEGORY_MAP[ach.category] || ach.category}
+                                                </span>
+                                            </div>
+                                        }
+                                        dateRange={ach.date || ""}
+                                        isEditable={false}
+                                        className="h-full"
+                                    >
+                                        {(ach.professor_name || ach.distinction) && (
+                                            <div className="mt-3 pt-3 border-t border-slate-100 space-y-1">
+                                                {ach.professor_name && (
+                                                    <p className="text-[10px] leading-relaxed">
+                                                        <span className="font-mono font-bold text-slate-400 uppercase mr-1">Prof:</span>
+                                                        <span className="font-serif italic text-slate-600">{ach.professor_name}</span>
+                                                    </p>
+                                                )}
+                                                {ach.distinction && (
+                                                    <p className="text-[10px] leading-relaxed">
+                                                        <span className="font-mono font-bold text-slate-400 uppercase mr-1">Nota:</span>
+                                                        <span className="text-slate-600">{ach.distinction}</span>
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+                                    </BaseCard>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* 5. Testimonios */}
+                        {testimonials && testimonials.length > 0 && (
+                            <section id="testimonios" className="section-anchor space-y-8">
+                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">05 / Red de Testimonios</h2>
+                                <TestimonialSection testimonials={testimonials || []} userId={profile.id} isReadOnly={true} />
+                            </section>
+                        )}
+                    </div>
+
+                    {/* Sidebar / Trayectoria */}
+                    <aside className="lg:col-span-4 space-y-12 h-fit sticky top-24">
+                        <section className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 space-y-8 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl -mr-16 -mt-16 rounded-full" />
+
+                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-600/60 pb-4 border-b border-slate-200">
+                                Cronología de Impacto
+                            </h2>
+                            <div className="relative z-10">
+                                <DashboardTrajectory hitos={hitosUnificados} initialCount={10} />
+                            </div>
+
+                            <div className="pt-8 border-t border-slate-200 space-y-8">
+                                <SkillsSection projects={projects || []} />
+                                <div className="border-t border-slate-100 pt-8">
+                                    <InterestsSection interests={profile.interests} isReadOnly={true} />
+                                </div>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+            </main>
+
+            {/* Dark Closing Section */}
+            <div className="bg-slate-900 mt-32 relative overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+
+                <main className="max-w-7xl mx-auto px-6">
+                    {/* 6. Contacto */}
+                    <section id="contacto" className="section-anchor pt-32 pb-48">
+                        <div className="max-w-2xl mx-auto space-y-12 text-center">
+                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400">06 / Establecer Conexión</h2>
+                            <p className="text-4xl font-serif italic text-white leading-tight">
+                                ¿Buscas establecer una conexión profesional?
+                            </p>
+                            <ContactSection
+                                profileEmail={profile.email}
+                                profileName={profile.full_name || username}
+                                linkedinUrl={socialLinks.linkedin}
+                            />
+                        </div>
+                    </section>
+                </main>
+
+                <footer className="border-t border-slate-800 py-12 px-6">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                        <div className="flex items-center gap-2 grayscale invert opacity-80">
+                            <Image
+                                src="/logo-prisma.png"
+                                alt="Prisma Logo"
+                                width={120}
+                                height={32}
+                                className="h-8 w-auto object-contain"
+                            />
+                        </div>
+                        <p className="text-[9px] font-mono text-slate-500 uppercase tracking-[0.3em]">
+                            © 2025 Somos Prisma
+                        </p>
+                        <div className="flex gap-8 font-mono text-[10px] uppercase font-bold text-slate-400">
+                            <Link href="/about" className="hover:text-white transition-colors">Rigor</Link>
+                            <Link href="/privacy" className="hover:text-white transition-colors">Privacidad</Link>
+                            <Link href="/terms" className="hover:text-white transition-colors">Términos</Link>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </div>
     )

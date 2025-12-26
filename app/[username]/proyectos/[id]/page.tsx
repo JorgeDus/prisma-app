@@ -43,213 +43,208 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
     }
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Simple Navbar */}
-            <nav className="bg-white/80 border-b sticky top-0 z-50 backdrop-blur-md">
-                <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-                    <Link href={`/${params.username}`} className="flex items-center gap-2 text-gray-600 hover:text-purple-600 font-medium transition-colors">
-                        <ArrowLeft size={18} />
-                        <span className="text-sm border-b border-transparent hover:border-purple-200">Volver al perfil</span>
+        <div className="min-h-screen bg-[#F9FAFB] selection:bg-indigo-100">
+            {/* Nav */}
+            <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
+                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                    <Link href={`/${params.username}`} className="flex items-center gap-2 group">
+                        <ArrowLeft size={16} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                        <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 group-hover:text-slate-900 transition-colors">Volver</span>
                     </Link>
-                    <Link href="/" className="flex items-center opacity-80 hover:opacity-100 transition-opacity">
-                        <Image src="/logo-prisma.png" alt="Prisma Logo" width={90} height={30} className="h-7 w-auto object-contain" />
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-serif text-lg">P</span>
+                        </div>
+                        <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-900 truncate max-w-[120px]">
+                            / {params.username}
+                        </span>
+                    </div>
                 </div>
             </nav>
 
-            <main className="container mx-auto px-4 py-8 max-w-5xl animate-fade-in">
+            <main className="max-w-7xl mx-auto px-6 pt-32 pb-32">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
 
-                {/* Project Gallery & Hero */}
-                <div className="mb-8">
-                    <ProjectGallery
-                        coverImage={project.cover_image}
-                        galleryImages={project.gallery_images || []}
-                    />
-                </div>
+                    {/* Left Column: Content */}
+                    <div className="lg:col-span-8 space-y-24">
 
-                {/* Header Information */}
-                <header className="mb-12">
-                    <div className="flex flex-wrap items-center gap-3 mb-4">
-                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-[0.2em] border ${project.type === 'startup' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                            project.type === 'academic' ? 'bg-purple-50 text-purple-700 border-purple-100' :
-                                'bg-green-50 text-green-700 border-green-100'
-                            }`}>
-                            {project.type === 'academic' ? 'Académico' : project.type === 'startup' ? 'Startup' : 'Innovación'}
-                        </span>
-                        <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-gray-50">
-                            <Calendar size={12} className="text-purple-400" />
-                            <span>{formatDate(project.created_at)}</span>
-                        </div>
-                    </div>
+                        {/* Header */}
+                        <header className="space-y-8">
+                            <div className="flex items-center gap-4">
+                                <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                                    {project.type}
+                                </span>
+                                <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">
+                                    {formatDate(project.created_at)}
+                                </span>
+                            </div>
 
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div className="flex-1">
-                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight leading-tight">
+                            <h1 className="text-5xl md:text-7xl font-serif italic text-slate-900 leading-[1.1] tracking-tight">
                                 {project.title}
                             </h1>
+
                             {project.role && (
-                                <div className="text-purple-600 font-bold bg-purple-50 w-fit px-4 py-1.5 rounded-xl border border-purple-100 text-sm shadow-sm">
+                                <p className="text-xl font-serif text-slate-500 border-l-2 border-slate-200 pl-6 italic">
                                     {project.role}
-                                </div>
+                                </p>
                             )}
+                        </header>
+
+                        {/* Gallery */}
+                        <div className="rounded-3xl overflow-hidden border border-slate-100 bg-white p-2">
+                            <ProjectGallery
+                                coverImage={project.cover_image}
+                                galleryImages={project.gallery_images || []}
+                            />
                         </div>
-                    </div>
-                </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                        {/* Content Sections */}
+                        <div className="space-y-24">
+                            {/* Summary / Impact Thesis */}
+                            <section className="space-y-6">
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">01 / Tesis del Proyecto</h2>
+                                <p className="text-2xl font-serif text-slate-800 leading-relaxed italic">
+                                    {project.description || "Este proyecto describe una solución innovadora dentro de su categoría."}
+                                </p>
+                            </section>
 
-                    {/* Main Content Area - FLAT (No white cards) */}
-                    <div className="lg:col-span-8 space-y-12">
+                            {/* Desafío */}
+                            {project.challenges && (
+                                <section className="space-y-6">
+                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">02 / Contexto y Desafío</h2>
+                                    <div className="text-lg font-serif text-slate-700 leading-relaxed whitespace-pre-line">
+                                        {project.challenges}
+                                    </div>
+                                </section>
+                            )}
 
-                        {/* Description */}
-                        <section className="prose prose-lg prose-purple max-w-none">
-                            <p className="text-xl text-gray-600 italic leading-relaxed font-medium border-l-4 border-purple-100 pl-6">
-                                {project.description || "Este proyecto describe una solución innovadora dentro de su categoría."}
-                            </p>
-                        </section>
-
-                        {/* Desafío */}
-                        {project.challenges && (
-                            <section>
-                                <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-3">
-                                    <span className="text-rose-500">🚀</span> Contexto y Desafío
-                                </h3>
-                                <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
-                                    {project.challenges}
+                            {/* Solución */}
+                            <section className="space-y-6">
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">03 / Implementación y Estrategia</h2>
+                                <div className="text-lg font-serif text-slate-700 leading-relaxed whitespace-pre-line">
+                                    {project.content || "Desarrollo de una solución técnica enfocada en eficiencia y escalabilidad."}
                                 </div>
                             </section>
-                        )}
 
-                        {/* Solución */}
-                        <section>
-                            <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-3">
-                                <span className="text-indigo-500">🛠</span> Mi Solución
-                            </h3>
-                            <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
-                                {project.content || "Desarrollo de una solución técnica enfocada en eficiencia y escalabilidad."}
+                            {/* Resultados */}
+                            {(project.results || project.learnings) && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-slate-100">
+                                    {project.results && (
+                                        <section className="space-y-4">
+                                            <h3 className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600">Impacto y Resultados</h3>
+                                            <div className="text-sm font-mono font-bold text-slate-600 leading-relaxed uppercase tracking-tight">
+                                                {project.results}
+                                            </div>
+                                        </section>
+                                    )}
+                                    {project.learnings && (
+                                        <section className="space-y-4">
+                                            <h3 className="text-[10px] font-mono font-bold tracking-widest uppercase text-rose-600">Lecciones Técnicas</h3>
+                                            <div className="text-sm font-mono font-bold text-slate-600 leading-relaxed uppercase tracking-tight">
+                                                {project.learnings}
+                                            </div>
+                                        </section>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Links */}
+                            <div className="flex flex-wrap gap-4 pt-8">
+                                {project.repo_url && (
+                                    <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-white border border-slate-200 rounded-xl hover:border-indigo-600 transition-all font-mono text-[10px] font-bold uppercase tracking-widest text-slate-900 flex items-center gap-2">
+                                        <Github size={14} />
+                                        Protocolo / GitHub
+                                    </a>
+                                )}
+                                {project.demo_url && (
+                                    <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="px-8 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                                        <Globe size={14} />
+                                        Artefacto Vivo ↗
+                                    </a>
+                                )}
                             </div>
-                        </section>
-
-                        {/* Resultados y Aprendizajes */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            {project.results && (
-                                <section>
-                                    <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
-                                        <span className="text-amber-500">🏆</span> Resultados
-                                    </h3>
-                                    <div className="text-gray-600 leading-relaxed whitespace-pre-line border-t border-gray-100 pt-4">
-                                        {project.results}
-                                    </div>
-                                </section>
-                            )}
-                            {project.learnings && (
-                                <section>
-                                    <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
-                                        <span className="text-green-500">💡</span> Aprendizajes
-                                    </h3>
-                                    <div className="text-gray-600 leading-relaxed whitespace-pre-line border-t border-gray-100 pt-4">
-                                        {project.learnings}
-                                    </div>
-                                </section>
-                            )}
-                        </div>
-
-                        {/* Action Buttons at the bottom of content */}
-                        <div className="flex flex-wrap gap-4 pt-10 border-t border-gray-100">
-                            {project.repo_url && (
-                                <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all font-bold text-gray-700 shadow-sm">
-                                    <Github size={18} />
-                                    Ver Código
-                                </a>
-                            )}
-                            {project.demo_url && (
-                                <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-8 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-bold shadow-lg shadow-purple-100">
-                                    <ExternalLink size={18} />
-                                    Ver Proyecto
-                                </a>
-                            )}
                         </div>
                     </div>
 
-                    {/* Aside Area */}
-                    <aside className="lg:col-span-4 space-y-10">
-                        {/* Stack - FIRST */}
-                        <div>
-                            <h3 className="font-black text-gray-400 mb-4 text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
-                                <Code size={14} className="text-purple-400" />
-                                Stack Tecnológico
-                            </h3>
-                            {project.skills && project.skills.length > 0 ? (
-                                <div className="flex flex-wrap gap-2">
-                                    {project.skills.map((skill, i) => (
-                                        <span key={i} className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold border border-purple-100 shadow-sm">
-                                            {skill}
-                                        </span>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-xs text-gray-400 italic">No especificado.</p>
-                            )}
-                        </div>
+                    {/* Right Column: Sidebar */}
+                    <aside className="lg:col-span-4 space-y-16">
+                        <section className="sticky top-24 space-y-12">
 
-                        {/* Team */}
-                        {project.team_members && (
-                            <div>
-                                <h3 className="font-black text-gray-400 mb-4 text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Users size={14} className="text-purple-400" />
-                                    Equipo
-                                </h3>
-                                <div className="flex items-center gap-3 text-gray-700 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-                                    <span className="text-sm font-bold">{project.team_members}</span>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Profile Link Card */}
-                        <div className="bg-gray-50 rounded-[2rem] p-8 border border-gray-100 flex flex-col items-center">
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 border-4 border-white shadow-xl overflow-hidden mb-4 transition-transform hover:scale-105">
-                                {profile.avatar_url ? (
-                                    <img src={profile.avatar_url} alt={profile.full_name || ''} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-3xl font-black text-purple-600 bg-white">
-                                        {(profile.full_name || profile.username).charAt(0).toUpperCase()}
+                            {/* Stack */}
+                            <div className="space-y-4">
+                                <h3 className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Tecnologías Aplicadas</h3>
+                                {project.skills && project.skills.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {project.skills.map((skill, i) => (
+                                            <span key={i} className="px-3 py-1 bg-white border border-slate-100 text-slate-900 rounded-lg text-[10px] font-mono font-bold uppercase">
+                                                {skill}
+                                            </span>
+                                        ))}
                                     </div>
+                                ) : (
+                                    <p className="text-[10px] font-mono text-slate-400 italic">No documentado.</p>
                                 )}
                             </div>
-                            <span className="font-black text-gray-900 text-lg mb-1">{profile.full_name || profile.username}</span>
-                            <Link href={`/${profile.username}`} className="text-[10px] font-black text-purple-600 uppercase tracking-widest hover:text-purple-700 transition-colors">
-                                Ver Perfil →
-                            </Link>
-                        </div>
+
+                            {/* Team */}
+                            {project.team_members && (
+                                <div className="space-y-4">
+                                    <h3 className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Sinergia de Equipo</h3>
+                                    <div className="bg-white border border-slate-100 p-4 rounded-2xl">
+                                        <p className="text-xs font-mono font-bold text-slate-900 uppercase tracking-tight">{project.team_members}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Profile Highlight */}
+                            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center text-center space-y-4">
+                                <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 overflow-hidden">
+                                    {profile.avatar_url ? (
+                                        <img src={profile.avatar_url} alt={profile.full_name || ''} className="w-full h-full object-cover grayscale" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-xl font-serif text-slate-400">
+                                            {(profile.full_name || profile.username).charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <p className="font-serif text-lg text-slate-900 italic">{profile.full_name || profile.username}</p>
+                                    <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">Autor del Protocolo</p>
+                                </div>
+                                <Link href={`/${profile.username}`} className="text-[10px] font-mono font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest transition-colors pt-2">
+                                    Ver Perfil Completo ↗
+                                </Link>
+                            </div>
+                        </section>
                     </aside>
                 </div>
 
-                {/* Footer Navigation: Other Projects */}
+                {/* Footer Projects */}
                 {otherProjects && otherProjects.length > 0 && (
-                    <footer className="mt-24 pt-12 border-t border-gray-100">
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-                                Otros proyectos
-                            </h2>
-                            <Link href={`/${profile.username}`} className="text-xs font-bold text-gray-400 hover:text-purple-600 transition-colors uppercase tracking-widest">
-                                Ver todos
+                    <footer className="mt-32 pt-24 border-t border-slate-100 space-y-12">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-serif italic text-slate-900 underline decoration-indigo-200 underline-offset-8">Otros Protocolos</h2>
+                            <Link href={`/${profile.username}`} className="text-[10px] font-mono font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest">
+                                Ver Todo ↗
                             </Link>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                             {otherProjects.map(p => (
-                                <Link key={p.id} href={`/${profile.username}/proyectos/${p.id}`} className="group">
-                                    <div className="aspect-video rounded-2xl bg-gray-50 mb-4 overflow-hidden relative border border-gray-100 group-hover:border-purple-200 transition-all">
+                                <Link key={p.id} href={`/${profile.username}/proyectos/${p.id}`} className="group space-y-4">
+                                    <div className="aspect-[16/10] rounded-2xl bg-white border border-slate-100 overflow-hidden relative group-hover:border-indigo-200 transition-all">
                                         {p.cover_image ? (
-                                            <img src={p.cover_image} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            <img src={p.cover_image} alt={p.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-purple-100">
+                                            <div className="w-full h-full flex items-center justify-center text-slate-100">
                                                 <FolderGit2 size={32} />
                                             </div>
                                         )}
                                     </div>
-                                    <h4 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-1 truncate">{p.title}</h4>
-                                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{p.type}</p>
+                                    <div className="space-y-1">
+                                        <h4 className="font-serif italic text-lg text-slate-900 group-hover:text-indigo-600 transition-colors">{p.title}</h4>
+                                        <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{p.type}</p>
+                                    </div>
                                 </Link>
                             ))}
                         </div>

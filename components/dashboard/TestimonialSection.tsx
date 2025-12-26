@@ -30,69 +30,70 @@ export default function TestimonialSection({ testimonials, userId, isReadOnly = 
     if (isReadOnly && testimonials.length === 0) return null
 
     return (
-        <section className="bg-gradient-to-br from-purple-50 via-white to-pink-50 rounded-2xl shadow-sm border border-purple-100 p-8 overflow-hidden relative">
-            {/* Decoration */}
-            <Star className="absolute top-6 right-6 text-purple-100 pointer-events-none" size={120} strokeWidth={1} />
+        <section className="space-y-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="space-y-1">
+                    <h3 className="text-xs font-mono font-bold tracking-[0.2em] uppercase text-slate-400">Mi Vitrina / Validaciones</h3>
+                </div>
+                {!isReadOnly && (
+                    <button
+                        onClick={handleCreate}
+                        className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
+                    >
+                        + Gestionar Vitrina
+                    </button>
+                )}
+            </div>
 
-            <div className="relative z-10">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                    <h2 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                        <span className="text-3xl">🤝</span>
-                        Mi Vitrina
-                    </h2>
+            {testimonials.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {testimonials.map((t) => (
+                        <div
+                            key={t.id}
+                            onClick={() => handleEdit(t)}
+                            className={`group relative bg-white border border-slate-100 p-8 rounded-2xl transition-all duration-300 ${!isReadOnly ? 'cursor-pointer hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5' : ''}`}
+                        >
+                            <div className="absolute -top-3 -left-3 w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform duration-300">
+                                <Quote size={16} fill="currentColor" />
+                            </div>
+
+                            <p className="text-lg font-serif italic text-slate-700 leading-relaxed mb-8">
+                                "{t.content}"
+                            </p>
+
+                            <div className="flex items-center gap-4 pt-6 border-t border-slate-50">
+                                <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-900 font-mono text-xs font-bold">
+                                    {t.author_name.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-sm font-bold text-slate-900">{t.author_name}</p>
+                                    <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest truncate">
+                                        {t.author_role || 'Referencia'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 border-2 border-dashed border-slate-200 rounded-3xl group">
+                    <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center mb-4 text-slate-400 group-hover:text-indigo-600 group-hover:border-indigo-100 transition-colors">
+                        <Quote size={20} strokeWidth={1.5} />
+                    </div>
+                    <h4 className="text-lg font-serif text-slate-800 mb-1">Sin testimonios aún</h4>
+                    <p className="text-slate-500 text-xs font-mono uppercase tracking-tight text-center max-w-[280px]">
+                        Tu vitrina está esperando testimonios.
+                    </p>
                     {!isReadOnly && (
                         <button
                             onClick={handleCreate}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-purple-200 text-purple-600 rounded-xl text-sm font-bold hover:bg-purple-50 transition-all shadow-sm"
+                            className="mt-6 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-mono tracking-widest uppercase hover:bg-slate-800 transition-colors"
                         >
-                            <Plus size={18} />
-                            Gestionar Vitrina
+                            Añadir Testimonio
                         </button>
                     )}
                 </div>
-
-                {testimonials.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {testimonials.map((t) => (
-                            <div
-                                key={t.id}
-                                onClick={() => handleEdit(t)}
-                                className={`relative bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all group ${!isReadOnly ? 'cursor-pointer hover:border-purple-300 hover:shadow-md' : ''}`}
-                            >
-                                <div className="absolute top-4 left-4 text-gray-100 group-hover:text-purple-100 transition-colors">
-                                    <Quote size={40} fill="currentColor" />
-                                </div>
-                                <p className="text-gray-700 italic leading-relaxed mb-6 relative z-10 pl-6">
-                                    "{t.content}"
-                                </p>
-                                <div className="flex items-center gap-4 pt-4 border-t border-gray-50 mt-auto">
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-black text-lg border-2 border-white shadow-sm shrink-0">
-                                        {t.author_name.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="font-bold text-gray-900 truncate">{t.author_name}</p>
-                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest truncate">{t.author_role || 'Referencia'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-12 bg-white/50 rounded-2xl border border-dashed border-purple-200">
-                        <Quote className="mx-auto text-purple-200 mb-4" size={48} />
-                        <h4 className="text-lg font-bold text-gray-800 mb-1 line-clamp-1">Tu vitrina está esperando testimonios.</h4>
-                        <p className="text-gray-500 text-sm max-w-xs mx-auto">Comparte lo que otros dicen de tu trabajo para generar confianza.</p>
-                        {!isReadOnly && (
-                            <button
-                                onClick={handleCreate}
-                                className="mt-4 text-purple-600 font-bold hover:underline"
-                            >
-                                + Agregar el primero
-                            </button>
-                        )}
-                    </div>
-                )}
-            </div>
+            )}
 
             {!isReadOnly && (
                 <TestimonialModal

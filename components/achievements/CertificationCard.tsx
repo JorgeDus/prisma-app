@@ -19,7 +19,8 @@ export default function CertificationCard({ achievement, onEdit }: Certification
 
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-[9px] font-black rounded-md uppercase tracking-wider">
+                    <span className="flex items-center gap-1.5 px-2 py-0.5 bg-blue-100 text-blue-600 text-[9px] font-black rounded-md uppercase tracking-wider">
+                        <FileBadge size={10} />
                         Certificación
                     </span>
                     {achievement.distinction && (

@@ -26,24 +26,23 @@ export default function SkillsSection({ projects }: SkillsSectionProps) {
     if (sortedSkills.length === 0) return null
 
     return (
-        <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-2xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                <span className="text-3xl">⚡</span>
-                Skills
+        <section className="w-full">
+            <h2 className="font-mono text-[10px] font-black tracking-[0.2em] uppercase text-indigo-600/60 mb-6 pb-4 border-b border-slate-200">
+                Ecosistema de Competencias
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <div className="space-y-4">
                 {sortedSkills.map((skill) => {
                     const count = skillCounts[skill]
                     return (
                         <div
                             key={skill}
-                            className="group flex flex-col gap-1"
+                            className="group flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
                         >
-                            <span className="font-bold text-gray-800 group-hover:text-purple-700 transition-colors">
+                            <span className="font-serif text-lg text-slate-800 group-hover:text-indigo-600 transition-colors">
                                 {skill}
                             </span>
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                            <span className="font-mono text-[9px] font-black text-slate-500 uppercase tracking-widest bg-slate-100/50 px-2 py-0.5 rounded border border-slate-200/50 transition-colors group-hover:border-indigo-200 group-hover:bg-indigo-50 group-hover:text-indigo-600">
                                 {count} {count === 1 ? 'Proyecto' : 'Proyectos'}
                             </span>
                         </div>

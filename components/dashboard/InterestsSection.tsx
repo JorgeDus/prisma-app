@@ -17,29 +17,24 @@ export default function InterestsSection({ interests: rawInterests, isReadOnly =
     if (isReadOnly && interests.length === 0) return null
 
     return (
-        <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 relative overflow-hidden group">
-            {/* Decoration */}
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-green-50 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="flex justify-between items-center mb-8 relative z-10">
-                <h2 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                    <span className="text-3xl">🌱</span>
+        <section className="bg-white rounded-xl border border-slate-200 p-6 relative group">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="font-mono text-xs font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
                     Intereses
                 </h2>
 
                 {!isReadOnly && (
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl text-sm font-bold hover:bg-green-100 transition-all border border-green-100"
+                        className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
                     >
-                        <Plus size={16} />
-                        Gestionar Intereses
+                        + Editar
                     </button>
                 )}
             </div>
 
             {interests.length > 0 ? (
-                <div className="flex flex-wrap gap-4 relative z-10">
+                <div className="flex flex-wrap gap-2">
                     {interests.map((interest, idx) => {
                         const emojiMatch = interest.match(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u)
                         const emoji = emojiMatch ? emojiMatch[0] : null
@@ -48,10 +43,10 @@ export default function InterestsSection({ interests: rawInterests, isReadOnly =
                         return (
                             <div
                                 key={idx}
-                                className="flex items-center gap-3 px-5 py-2.5 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-2xl hover:shadow-md hover:scale-[1.02] transition-all cursor-default group/tag"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-slate-700 hover:border-slate-300 transition-all cursor-default"
                             >
-                                {emoji && <span className="text-2xl group-hover/tag:scale-125 transition-transform">{emoji}</span>}
-                                <span className="font-bold text-gray-700">
+                                {emoji && <span className="text-base">{emoji}</span>}
+                                <span className="font-serif text-sm italic">
                                     {text}
                                 </span>
                             </div>
@@ -61,11 +56,10 @@ export default function InterestsSection({ interests: rawInterests, isReadOnly =
             ) : (
                 <div
                     onClick={() => !isReadOnly && setIsModalOpen(true)}
-                    className={`text-center py-10 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 relative z-10 ${!isReadOnly ? 'cursor-pointer hover:bg-gray-100/50 transition-colors' : ''}`}
+                    className={`text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-200 ${!isReadOnly ? 'cursor-pointer hover:bg-slate-100/50 transition-colors' : ''}`}
                 >
-                    <p className="text-gray-400 text-sm italic">
-                        ¿Tienes hobbies o intereses que quieras compartir? <br />
-                        {isReadOnly ? 'Este usuario aún no ha agregado intereses.' : 'Haz clic aquí o en el botón superior para agregar tus pasiones.'}
+                    <p className="text-slate-400 text-[11px] font-serif italic">
+                        {isReadOnly ? 'Sin intereses registrados.' : 'Añade tus áreas de exploración personal.'}
                     </p>
                 </div>
             )}

@@ -26,7 +26,10 @@ export default function CourseChairCard({ achievement, onEdit }: CourseChairCard
                             <h4 className="text-xl font-black text-gray-900 tracking-tight uppercase leading-tight">
                                 {achievement.title}
                             </h4>
-                            <p className="text-[10px] text-indigo-500 font-black uppercase tracking-[0.2em]">Cátedra Académica</p>
+                            <div className="flex items-center gap-1.5">
+                                <GraduationCap size={10} className="text-indigo-400" />
+                                <p className="text-[10px] text-indigo-500 font-black uppercase tracking-[0.2em]">Cátedra Destacada</p>
+                            </div>
                         </div>
                     </div>
 

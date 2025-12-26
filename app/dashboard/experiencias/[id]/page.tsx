@@ -61,43 +61,41 @@ export default async function ExperienceDetailPage(props: PageProps) {
     const CategoryIcon = category.icon
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-slate-50">
             {/* Actions & Navigation (Client Component) */}
             <ExperienceDetailActions experience={experience} userId={user.id} />
 
-            <div className="container mx-auto px-4 py-8 max-w-5xl animate-fade-in">
-                {/* Gallery & Hero */}
+            <div className="max-w-7xl mx-auto px-6 py-12 space-y-16 animate-fade-in">
+                {/* 1. Project Gallery & Hero */}
                 {(experience.cover_image || (experience.gallery_images && experience.gallery_images.length > 0)) && (
-                    <div className="mb-12">
+                    <section className="max-w-5xl mx-auto">
                         <ProjectGallery
                             coverImage={experience.cover_image}
                             galleryImages={experience.gallery_images || []}
                         />
-                    </div>
+                    </section>
                 )}
 
-                {/* Header Information */}
-                <header className="mb-12">
-                    <div className="flex flex-wrap items-center gap-3 mb-4">
-                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-[0.2em] border flex items-center gap-2 ${category.bg} ${category.color} ${category.border}`}>
+                {/* 2. Header Information */}
+                <header className="max-w-4xl mx-auto text-center space-y-6">
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                        <span className={`text-[10px] px-3 py-1 rounded-full font-mono font-bold uppercase tracking-[0.2em] border flex items-center gap-2 ${category.bg} ${category.color} ${category.border}`}>
                             <CategoryIcon size={12} />
                             {category.label}
                         </span>
-                        <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-gray-50">
-                            <Calendar size={12} className="text-purple-400" />
+                        <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 bg-white">
+                            <Calendar size={12} className="text-indigo-400" />
                             <span>{getDateRange()}</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div className="flex-1">
-                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight leading-tight">
-                                {experience.title}
-                            </h1>
-                            <div className="flex items-center gap-2 text-xl text-gray-600 font-medium">
-                                <Building2 size={24} className="text-gray-400" />
-                                {experience.organization}
-                            </div>
+                    <div className="space-y-4">
+                        <h1 className="text-4xl md:text-6xl font-serif italic text-slate-900 leading-tight">
+                            {experience.title}
+                        </h1>
+                        <div className="flex items-center justify-center gap-2 text-xl text-slate-500 font-medium">
+                            <Building2 size={24} className="text-slate-400" />
+                            {experience.organization}
                         </div>
                     </div>
                 </header>
@@ -105,65 +103,74 @@ export default async function ExperienceDetailPage(props: PageProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                     {/* Left Column: Main Content */}
                     <div className="lg:col-span-8 space-y-12">
-                        {/* Description */}
-                        <section className="prose prose-lg prose-purple max-w-none">
-                            <p className="text-xl text-gray-600 italic leading-relaxed font-medium border-l-4 border-purple-100 pl-6">
-                                {experience.description || "Sin descripción."}
-                            </p>
-                        </section>
-
-                        {/* Logros */}
-                        {experience.achievements && (
-                            <section>
-                                <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-3">
-                                    <span className="text-amber-500">🏆</span> Logros Clave
-                                </h3>
-                                <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
-                                    {experience.achievements}
-                                </div>
+                        {/* Description Section */}
+                        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-12">
+                            {/* Description */}
+                            <section className="prose prose-lg prose-slate max-w-none">
+                                <p className="text-xl text-slate-600 italic leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
+                                    {experience.description || "Sin descripción disponible."}
+                                </p>
                             </section>
-                        )}
 
-                        {/* Reflexión */}
-                        {experience.value_reflection && (
-                            <section>
-                                <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-3">
-                                    <span className="text-rose-500">❤️</span> Aprendizaje y Valor
-                                </h3>
-                                <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
-                                    {experience.value_reflection}
-                                </div>
-                            </section>
-                        )}
+                            <div className="grid grid-cols-1 gap-12 pt-12 border-t border-slate-50">
+                                {/* Logros */}
+                                {experience.achievements && (
+                                    <section className="space-y-4">
+                                        <h3 className="text-sm font-mono font-black tracking-widest uppercase text-slate-400 flex items-center gap-3">
+                                            <span className="w-8 h-px bg-slate-200" />
+                                            Logros Clave
+                                        </h3>
+                                        <div className="text-slate-700 leading-relaxed whitespace-pre-line text-lg pl-11">
+                                            {experience.achievements}
+                                        </div>
+                                    </section>
+                                )}
+
+                                {/* Reflexión */}
+                                {experience.value_reflection && (
+                                    <section className="space-y-4">
+                                        <h3 className="text-sm font-mono font-black tracking-widest uppercase text-slate-400 flex items-center gap-3">
+                                            <span className="w-8 h-px bg-slate-200" />
+                                            Impacto y Valor
+                                        </h3>
+                                        <div className="text-slate-700 leading-relaxed whitespace-pre-line text-lg pl-11">
+                                            {experience.value_reflection}
+                                        </div>
+                                    </section>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Right Column: Aside */}
-                    <aside className="lg:col-span-4 space-y-10">
-                        {/* Skills */}
-                        <div>
-                            <h3 className="font-black text-gray-400 mb-4 text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
-                                <span className="text-purple-400">⚡</span>
+                    <aside className="lg:col-span-4 space-y-8">
+                        {/* Skills Widget */}
+                        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
+                            <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-6 flex items-center gap-2">
+                                <Zap size={14} className="text-indigo-500" />
                                 Skills Aplicadas
                             </h3>
                             {experience.skills && experience.skills.length > 0 ? (
                                 <div className="flex flex-wrap gap-2">
                                     {experience.skills.map((tag, idx) => (
-                                        <span key={idx} className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold border border-purple-100 shadow-sm">
+                                        <span key={idx} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold border border-slate-100 shadow-sm font-mono uppercase tracking-tighter">
                                             {tag}
                                         </span>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-xs text-gray-400 italic">No especificado.</p>
+                                <p className="text-xs text-slate-400 italic">No especificado.</p>
                             )}
-                        </div>
 
-                        {/* Warning/Info for owner */}
-                        <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100">
-                            <h4 className="text-amber-800 font-bold text-xs uppercase tracking-widest mb-2">Vista Previa de Dueño</h4>
-                            <p className="text-amber-700 text-xs leading-relaxed">
-                                Esta es la página detallada de tu experiencia. Los cambios se guardan y reflejan aquí.
-                            </p>
+                            {/* Divider and Owner Info */}
+                            <div className="mt-8 pt-8 border-t border-slate-50 space-y-4">
+                                <div className="flex items-center gap-3 text-amber-600 bg-amber-50/50 p-4 rounded-xl border border-amber-100/50">
+                                    <Star size={16} className="shrink-0" />
+                                    <p className="text-[10px] font-bold uppercase tracking-wider leading-relaxed">
+                                        Esta es la vista de gestión. Los cambios se reflejarán en tu perfil público automáticamente.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </aside>
                 </div>

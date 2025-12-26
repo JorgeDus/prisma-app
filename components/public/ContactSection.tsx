@@ -62,81 +62,81 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl 
     }
 
     return (
-        <section className="animate-fade-in py-4">
+        <section className="animate-fade-in py-12">
             <div className="max-w-xl mx-auto">
                 {/* Formulario */}
-                <div className="bg-white rounded-[2.5rem] shadow-xl shadow-purple-100/20 border border-gray-100 p-8 md:p-10">
+                <div className="bg-slate-800/50 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-black/20 border border-slate-700/50 p-8 md:p-12">
                     {status === 'success' ? (
                         <div className="h-full flex flex-col items-center justify-center text-center py-10 animate-in zoom-in-95 duration-500">
-                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                                <CheckCircle2 size={40} className="text-green-600" />
+                            <div className="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6">
+                                <CheckCircle2 size={40} className="text-indigo-400" />
                             </div>
-                            <h3 className="text-2xl font-black text-gray-900 mb-2">¡Mensaje Enviado!</h3>
-                            <p className="text-gray-600 mb-8 max-w-xs">Gracias por contactarme. Te responderé lo antes posible.</p>
+                            <h3 className="text-2xl font-serif italic text-white mb-2">¡Mensaje Enviado!</h3>
+                            <p className="text-slate-400 mb-8 max-w-xs">Gracias por contactarme. Te responderé lo antes posible.</p>
                             <button
                                 onClick={() => setStatus('idle')}
-                                className="text-purple-600 font-bold hover:underline"
+                                className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors uppercase text-[10px] tracking-widest"
                             >
                                 Enviar otro mensaje
                             </button>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="text-center mb-6">
-                                <h2 className="text-2xl font-black text-gray-900 mb-2">Envíame un mensaje 💬</h2>
-                                <p className="text-gray-500 text-sm">Completa el formulario y me pondré en contacto contigo.</p>
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            <div className="text-center mb-10">
+                                <h2 className="text-3xl font-serif italic text-white mb-3 tracking-tight">Conectémonos</h2>
+                                <p className="text-slate-400 text-sm font-mono uppercase tracking-wide">Mensajería Directa</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2 px-1">Tu Nombre</label>
+                                <label className="block text-[10px] font-mono font-black text-slate-500 mb-3 px-1 uppercase tracking-widest">Tu Nombre</label>
                                 <input
                                     type="text"
                                     required
-                                    placeholder="Juan Pérez"
+                                    placeholder="Nombre completo"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 font-medium placeholder-gray-400"
+                                    className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all text-white font-medium placeholder-slate-600"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2 px-1">Tu Email</label>
+                                <label className="block text-[10px] font-mono font-black text-slate-500 mb-3 px-1 uppercase tracking-widest">Tu Email</label>
                                 <input
                                     type="email"
                                     required
-                                    placeholder="juan@ejemplo.com"
+                                    placeholder="email@ejemplo.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 font-medium placeholder-gray-400"
+                                    className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all text-white font-medium placeholder-slate-600"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2 px-1">Mensaje</label>
+                                <label className="block text-[10px] font-mono font-black text-slate-500 mb-3 px-1 uppercase tracking-widest">Mensaje</label>
                                 <textarea
                                     required
-                                    placeholder="¿En qué puedo ayudarte?"
+                                    placeholder="¿Cómo podemos colaborar?"
                                     rows={4}
                                     value={formData.message}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 font-medium placeholder-gray-400 resize-none"
+                                    className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all text-white font-medium placeholder-slate-600 resize-none h-32"
                                 />
                             </div>
 
                             {status === 'error' && (
-                                <p className="text-rose-500 text-sm font-bold px-1">❌ {errorMsg}</p>
+                                <p className="text-rose-400 text-[10px] font-mono font-bold px-1 uppercase tracking-tight">❌ {errorMsg}</p>
                             )}
 
                             <button
                                 type="submit"
                                 disabled={status === 'sending' || !profileEmail}
-                                className="w-full py-4 bg-purple-600 text-white rounded-2xl font-black text-lg transition-all hover:bg-purple-700 hover:scale-[1.02] active:scale-95 shadow-lg shadow-purple-200 disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3"
+                                className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-indigo-500 hover:scale-[1.01] active:scale-95 shadow-xl shadow-indigo-900/20 disabled:opacity-50 flex items-center justify-center gap-3 border border-indigo-400/20"
                             >
                                 {status === 'sending' ? (
                                     <>
-                                        <Loader2 className="animate-spin" />
+                                        <Loader2 size={16} className="animate-spin opacity-50" />
                                         Enviando...
                                     </>
                                 ) : (
                                     <>
-                                        <Send size={20} />
+                                        <Send size={16} className="opacity-70" />
                                         Enviar Mensaje
                                     </>
                                 )}

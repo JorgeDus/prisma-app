@@ -47,7 +47,9 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
         challenges: '',
         results: '',
         learnings: '',
-        gallery_images: [] as string[]
+        gallery_images: [] as string[],
+        is_featured: false,
+        show_in_timeline: true
     })
 
     // Estado local para el input de skills
@@ -71,7 +73,9 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 challenges: projectToEdit.challenges || '',
                 results: projectToEdit.results || '',
                 learnings: projectToEdit.learnings || '',
-                gallery_images: projectToEdit.gallery_images || []
+                gallery_images: projectToEdit.gallery_images || [],
+                is_featured: projectToEdit.is_featured || false,
+                show_in_timeline: projectToEdit.show_in_timeline !== false
             })
             setImagePreview(projectToEdit.cover_image || null)
             setGalleryPreviews(projectToEdit.gallery_images || [])
@@ -95,7 +99,9 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 challenges: '',
                 results: '',
                 learnings: '',
-                gallery_images: []
+                gallery_images: [],
+                is_featured: false,
+                show_in_timeline: true
             })
             setImagePreview(null)
             setGalleryPreviews([])
@@ -268,6 +274,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 results: formData.results || null,
                 learnings: formData.learnings || null,
                 gallery_images: finalGalleryUrls,
+                is_featured: formData.is_featured,
+                show_in_timeline: formData.show_in_timeline,
                 updated_at: new Date().toISOString()
             }
 
@@ -598,6 +606,43 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 text-sm font-bold cursor-pointer"
                         />
+                    </div>
+                </div>
+
+                {/* 12. Visibility & Featured Toggles */}
+                <div className="flex flex-col md:flex-row gap-4">
+                    {/* Mostrar en Timeline */}
+                    <div className="flex items-center gap-3 p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex-1">
+                        <input
+                            type="checkbox"
+                            id="show_timeline"
+                            checked={formData.show_in_timeline}
+                            onChange={(e) => setFormData({ ...formData, show_in_timeline: e.target.checked })}
+                            className="w-5 h-5 text-indigo-600 rounded-lg border-gray-300 focus:ring-indigo-500"
+                        />
+                        <div className="flex-1">
+                            <label htmlFor="show_timeline" className="text-sm font-black text-indigo-900 uppercase tracking-tight cursor-pointer block">
+                                Mostrar en Mi Trayectoria
+                            </label>
+                            <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">Aparecerá en el Timeline del perfil</p>
+                        </div>
+                    </div>
+
+                    {/* Destacar */}
+                    <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-2xl border border-yellow-200 flex-1">
+                        <input
+                            type="checkbox"
+                            id="is_featured"
+                            checked={formData.is_featured}
+                            onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                            className="w-5 h-5 text-yellow-500 rounded focus:ring-yellow-500 border-yellow-300 cursor-pointer"
+                        />
+                        <div className="flex-1">
+                            <label htmlFor="is_featured" className="text-sm font-black text-yellow-800 uppercase tracking-tight cursor-pointer block">
+                                Destacar en Perfil Público
+                            </label>
+                            <p className="text-[10px] text-yellow-600 font-bold uppercase tracking-widest">Se mostrará en la sección "Destacados"</p>
+                        </div>
                     </div>
                 </div>
 

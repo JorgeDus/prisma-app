@@ -19,31 +19,37 @@ export default function ProjectGallery({ coverImage, galleryImages }: ProjectGal
         <div className="space-y-4">
             {/* Main Featured Image / Display */}
             <div
-                className="relative aspect-[21/9] bg-gray-100 rounded-[2rem] overflow-hidden cursor-zoom-in group shadow-sm border border-gray-100"
+                className="relative aspect-[21/9] bg-slate-100 rounded-[2.5rem] overflow-hidden cursor-zoom-in group shadow-sm border border-slate-200"
                 onClick={() => setSelectedImage(coverImage || galleryImages[0])}
             >
                 {coverImage ? (
-                    <img src={coverImage} alt="Cover" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img
+                        src={coverImage}
+                        alt="Cover"
+                        className="w-full h-full object-cover transition-all duration-700 grayscale group-hover:grayscale-0 group-hover:scale-105"
+                    />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                    <div className="w-full h-full flex items-center justify-center text-slate-300">
                         <Maximize2 size={48} strokeWidth={1} />
                     </div>
                 )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <Maximize2 className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" size={32} />
+                <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
+                    <div className="p-4 bg-white/10 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100">
+                        <Maximize2 className="text-white" size={24} />
+                    </div>
                 </div>
             </div>
 
             {/* Thumbnails */}
             {galleryImages.length > 0 && (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-4 px-2">
                     {allImages.map((url, idx) => (
                         <div
                             key={idx}
                             onClick={() => setSelectedImage(url)}
-                            className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all hover:shadow-md hover:-translate-y-0.5 ${selectedImage === url ? 'border-purple-500 ring-2 ring-purple-100' : 'border-transparent hover:border-purple-200'}`}
+                            className={`relative w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all hover:shadow-lg hover:-translate-y-1 ${selectedImage === url ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-slate-100 hover:border-indigo-200'}`}
                         >
-                            <img src={url} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                            <img src={url} alt={`Gallery ${idx}`} className={`w-full h-full object-cover transition-all duration-500 ${selectedImage === url ? 'grayscale-0' : 'grayscale group-hover:grayscale-0'}`} />
                         </div>
                     ))}
                 </div>
