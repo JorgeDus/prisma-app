@@ -64,7 +64,7 @@ export const ImpactHeader = ({
                     {/* Identity Masthead */}
                     <div className="space-y-4">
                         <div className="space-y-1">
-                            <h1 className="text-5xl md:text-7xl font-serif font-black text-slate-900 tracking-tight leading-[1.1]">
+                            <h1 className="text-5xl md:text-7xl font-serif font-black text-slate-800 tracking-tight leading-[1.1]">
                                 {name}
                             </h1>
                             {headline && (
@@ -81,9 +81,9 @@ export const ImpactHeader = ({
                             </div>
                             <div className="w-1 h-1 rounded-full bg-slate-300" />
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest leading-none pt-0.5">{university}</span>
+                                <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest leading-none pt-0.5">{university}</span>
                                 {academicStatus && (
-                                    <span className="text-[9px] font-mono font-black text-slate-900 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded uppercase tracking-tighter">
+                                    <span className="text-[9px] font-mono font-black text-slate-800 bg-slate-100/50 border border-slate-200/50 px-2 py-0.5 rounded uppercase tracking-tighter">
                                         {academicStatus}
                                     </span>
                                 )}

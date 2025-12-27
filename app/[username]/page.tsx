@@ -230,9 +230,9 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
     const sections = [
         { id: "highlights", label: "Highlights" },
-        { id: "experiencia", label: "Experiencia" },
-        { id: "proyectos", label: "Proyectos" },
         { id: "logros", label: "Logros" },
+        { id: "experiencia", label: "Experiencias" },
+        { id: "proyectos", label: "Proyectos" },
         ...(testimonials && testimonials.length > 0 ? [{ id: "testimonios", label: "Testimonios" }] : []),
         { id: "contacto", label: "Contacto" },
     ]
@@ -253,7 +253,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             height={32}
                             className="h-8 w-auto object-contain"
                         />
-                        <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-900"> / {username}</span>
+                        <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-800"> / {username}</span>
                     </Link>
                     <Link href="/" className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">
                         Protocolo de Validación →
@@ -295,72 +295,9 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     {/* Contenido Principal */}
                     <div className="lg:col-span-8 space-y-32">
 
-                        {/* 2. Experiencia */}
-                        <section id="experiencia" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">02 / Trayectoria Personal</h2>
-                            <div className="space-y-6">
-                                {experiences?.length ? (
-                                    experiences.map((exp) => (
-                                        <BaseCard
-                                            key={exp.id}
-                                            title={exp.title}
-                                            subtitle={exp.organization}
-                                            overline={
-                                                (() => {
-                                                    const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
-                                                    const Icon = cat.icon;
-                                                    return (
-                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${cat.bg} ${cat.color} ${cat.border}`}>
-                                                            <Icon size={12} strokeWidth={2.5} />
-                                                            {cat.label}
-                                                        </span>
-                                                    )
-                                                })()
-                                            }
-                                            description={exp.description || ""}
-                                            imageUrl={exp.cover_image || undefined}
-                                            dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
-                                            tags={exp.skills || []}
-                                            href={`/${username}/experiencias/${exp.id}`}
-                                            isEditable={false}
-                                        />
-                                    ))
-                                ) : (
-                                    <p className="text-slate-400 font-serif italic">No hay experiencias registradas bajo este protocolo.</p>
-                                )}
-                            </div>
-                        </section>
-
-                        {/* 3. Proyectos */}
-                        <section id="proyectos" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">03 / Portafolio de Proyectos</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {projects?.length ? (
-                                    projects.map((proj) => (
-                                        <BaseCard
-                                            key={proj.id}
-                                            title={proj.title}
-                                            subtitle={proj.role || proj.type}
-                                            description={proj.description || ""}
-                                            imageUrl={proj.cover_image || undefined}
-                                            tags={proj.skills || []}
-                                            href={`/${username}/proyectos/${proj.id}`}
-                                            isEditable={false}
-                                            is_featured={proj.is_featured}
-                                        // is_learning_artifact={proj.is_learning_artifact} // Pendiente de migración o lógica
-                                        />
-                                    ))
-                                ) : (
-                                    <div className="col-span-2">
-                                        <p className="text-slate-400 font-serif italic text-center">Sin artefactos de proyecto disponibles.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </section>
-
-                        {/* 4. Logros */}
+                        {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">04 / Logros</h2>
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">02 / Logros</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {achievements?.map((ach) => (
                                     <BaseCard
@@ -401,6 +338,69 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                         )}
                                     </BaseCard>
                                 ))}
+                            </div>
+                        </section>
+
+                        {/* 3. Experiencia */}
+                        <section id="experiencia" className="section-anchor space-y-8">
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">03 / Experiencias</h2>
+                            <div className="space-y-6">
+                                {experiences?.length ? (
+                                    experiences.map((exp) => (
+                                        <BaseCard
+                                            key={exp.id}
+                                            title={exp.title}
+                                            subtitle={exp.organization}
+                                            overline={
+                                                (() => {
+                                                    const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
+                                                    const Icon = cat.icon;
+                                                    return (
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${cat.bg} ${cat.color} ${cat.border}`}>
+                                                            <Icon size={12} strokeWidth={2.5} />
+                                                            {cat.label}
+                                                        </span>
+                                                    )
+                                                })()
+                                            }
+                                            description={exp.description || ""}
+                                            imageUrl={exp.cover_image || undefined}
+                                            dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
+                                            tags={exp.skills || []}
+                                            href={`/${username}/experiencias/${exp.id}`}
+                                            isEditable={false}
+                                        />
+                                    ))
+                                ) : (
+                                    <p className="text-slate-400 font-serif italic">No hay experiencias registradas bajo este protocolo.</p>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* 4. Proyectos */}
+                        <section id="proyectos" className="section-anchor space-y-8">
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">04 / Portafolio de Proyectos</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {projects?.length ? (
+                                    projects.map((proj) => (
+                                        <BaseCard
+                                            key={proj.id}
+                                            title={proj.title}
+                                            subtitle={proj.role || proj.type}
+                                            description={proj.description || ""}
+                                            imageUrl={proj.cover_image || undefined}
+                                            tags={proj.skills || []}
+                                            href={`/${username}/proyectos/${proj.id}`}
+                                            isEditable={false}
+                                            is_featured={proj.is_featured}
+                                        // is_learning_artifact={proj.is_learning_artifact} // Pendiente de migración o lógica
+                                        />
+                                    ))
+                                ) : (
+                                    <div className="col-span-2">
+                                        <p className="text-slate-400 font-serif italic text-center">Sin artefactos de proyecto disponibles.</p>
+                                    </div>
+                                )}
                             </div>
                         </section>
 

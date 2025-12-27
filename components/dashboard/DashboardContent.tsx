@@ -124,9 +124,9 @@ export default function DashboardContent({
 
     const sections = [
         { id: "highlights", label: "Highlights" },
-        { id: "experiencia", label: "Experiencia" },
-        { id: "proyectos", label: "Proyectos" },
         { id: "logros", label: "Logros" },
+        { id: "experiencia", label: "Experiencias" },
+        { id: "proyectos", label: "Proyectos" },
         { id: "testimonios", label: "Validaciones" },
         { id: "contacto", label: "Contacto" },
     ]
@@ -205,7 +205,7 @@ export default function DashboardContent({
                                 height={32}
                                 className="h-8 w-auto object-contain"
                             />
-                            <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-900">Dashboard de Gestión</span>
+                            <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-800">Dashboard de Gestión</span>
                         </Link>
                         <div className="h-4 w-px bg-slate-200" />
                         <Link href={`/${profile.username}`} target="_blank" className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 hover:text-indigo-600 transition-colors">
@@ -279,105 +279,10 @@ export default function DashboardContent({
                     {/* Main Content */}
                     <div className="lg:col-span-8 space-y-32">
 
-                        {/* 2. Experiencia */}
-                        <section id="experiencia" className="section-anchor space-y-8">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">02 / Trayectoria Personal</h2>
-                                <button
-                                    onClick={() => { setEditingExp(null); setIsExpModalOpen(true); }}
-                                    className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
-                                >
-                                    + Nueva Experiencia
-                                </button>
-                            </div>
-                            <div className="space-y-6">
-                                {experiences?.length ? (
-                                    experiences.map((exp) => (
-                                        <BaseCard
-                                            key={exp.id}
-                                            title={exp.title}
-                                            subtitle={exp.organization}
-                                            overline={
-                                                (() => {
-                                                    const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
-                                                    const Icon = cat.icon;
-                                                    return (
-                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${cat.bg} ${cat.color} ${cat.border}`}>
-                                                            <Icon size={12} strokeWidth={2.5} />
-                                                            {cat.label}
-                                                        </span>
-                                                    )
-                                                })()
-                                            }
-                                            description={exp.description || ""}
-                                            imageUrl={exp.cover_image || undefined}
-                                            dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
-                                            tags={exp.skills || []}
-                                            href={`/dashboard/experiencias/${exp.id}`}
-                                            isEditable={true}
-                                            onEdit={() => { setEditingExp(exp); setIsExpModalOpen(true); }}
-                                            onDelete={() => handleDelete('experiences', exp.id)}
-                                        />
-                                    ))
-                                ) : (
-                                    <EmptyState
-                                        title="Registra tu Trayectoria"
-                                        description="Añade experiencias que validen tus habilidades en el campo real."
-                                        actionLabel="Añadir Experiencia"
-                                        onAction={() => setIsExpModalOpen(true)}
-                                        isEditable={true}
-                                    />
-                                )}
-                            </div>
-                        </section>
-
-                        {/* 3. Proyectos */}
-                        <section id="proyectos" className="section-anchor space-y-8">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">03 / Portafolio de Proyectos</h2>
-                                <button
-                                    onClick={() => { setEditingProj(null); setIsProjModalOpen(true); }}
-                                    className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
-                                >
-                                    + Nuevo Proyecto
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {projects?.length ? (
-                                    projects.map((proj) => (
-                                        <BaseCard
-                                            key={proj.id}
-                                            title={proj.title}
-                                            subtitle={proj.role || proj.type}
-                                            description={proj.description || ""}
-                                            imageUrl={proj.cover_image || undefined}
-                                            tags={proj.skills || []}
-                                            href={`/dashboard/project/${proj.id}`}
-                                            isEditable={true}
-                                            is_featured={proj.is_featured}
-                                            is_learning_artifact={proj.is_startup}
-                                            onEdit={() => { setEditingProj(proj); setIsProjModalOpen(true); }}
-                                            onDelete={() => handleDelete('projects', proj.id)}
-                                        />
-                                    ))
-                                ) : (
-                                    <div className="col-span-2">
-                                        <EmptyState
-                                            title="Crea tu Portafolio"
-                                            description="Sube proyectos que demuestren tu capacidad de ejecución."
-                                            actionLabel="Añadir Proyecto"
-                                            onAction={() => setIsProjModalOpen(true)}
-                                            isEditable={true}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </section>
-
-                        {/* 4. Logros */}
+                        {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">04 / Logros</h2>
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">02 / Logros</h2>
                                 <button
                                     onClick={() => { setEditingAch(null); setIsAchModalOpen(true); }}
                                     className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
@@ -435,6 +340,101 @@ export default function DashboardContent({
                                             description="Añade logros, becas o certificaciones académicas."
                                             actionLabel="Añadir Logro"
                                             onAction={() => setIsAchModalOpen(true)}
+                                            isEditable={true}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* 3. Experiencia */}
+                        <section id="experiencia" className="section-anchor space-y-8">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">03 / Experiencias</h2>
+                                <button
+                                    onClick={() => { setEditingExp(null); setIsExpModalOpen(true); }}
+                                    className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
+                                >
+                                    + Nueva Experiencia
+                                </button>
+                            </div>
+                            <div className="space-y-6">
+                                {experiences?.length ? (
+                                    experiences.map((exp) => (
+                                        <BaseCard
+                                            key={exp.id}
+                                            title={exp.title}
+                                            subtitle={exp.organization}
+                                            overline={
+                                                (() => {
+                                                    const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
+                                                    const Icon = cat.icon;
+                                                    return (
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${cat.bg} ${cat.color} ${cat.border}`}>
+                                                            <Icon size={12} strokeWidth={2.5} />
+                                                            {cat.label}
+                                                        </span>
+                                                    )
+                                                })()
+                                            }
+                                            description={exp.description || ""}
+                                            imageUrl={exp.cover_image || undefined}
+                                            dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
+                                            tags={exp.skills || []}
+                                            href={`/dashboard/experiencias/${exp.id}`}
+                                            isEditable={true}
+                                            onEdit={() => { setEditingExp(exp); setIsExpModalOpen(true); }}
+                                            onDelete={() => handleDelete('experiences', exp.id)}
+                                        />
+                                    ))
+                                ) : (
+                                    <EmptyState
+                                        title="Registra tu Trayectoria"
+                                        description="Añade experiencias que validen tus habilidades en el campo real."
+                                        actionLabel="Añadir Experiencia"
+                                        onAction={() => setIsExpModalOpen(true)}
+                                        isEditable={true}
+                                    />
+                                )}
+                            </div>
+                        </section>
+
+                        {/* 4. Proyectos */}
+                        <section id="proyectos" className="section-anchor space-y-8">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">04 / Portafolio de Proyectos</h2>
+                                <button
+                                    onClick={() => { setEditingProj(null); setIsProjModalOpen(true); }}
+                                    className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
+                                >
+                                    + Nuevo Proyecto
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {projects?.length ? (
+                                    projects.map((proj) => (
+                                        <BaseCard
+                                            key={proj.id}
+                                            title={proj.title}
+                                            subtitle={proj.role || proj.type}
+                                            description={proj.description || ""}
+                                            imageUrl={proj.cover_image || undefined}
+                                            tags={proj.skills || []}
+                                            href={`/dashboard/project/${proj.id}`}
+                                            isEditable={true}
+                                            is_featured={proj.is_featured}
+                                            is_learning_artifact={proj.is_startup}
+                                            onEdit={() => { setEditingProj(proj); setIsProjModalOpen(true); }}
+                                            onDelete={() => handleDelete('projects', proj.id)}
+                                        />
+                                    ))
+                                ) : (
+                                    <div className="col-span-2">
+                                        <EmptyState
+                                            title="Crea tu Portafolio"
+                                            description="Sube proyectos que demuestren tu capacidad de ejecución."
+                                            actionLabel="Añadir Proyecto"
+                                            onAction={() => setIsProjModalOpen(true)}
                                             isEditable={true}
                                         />
                                     </div>

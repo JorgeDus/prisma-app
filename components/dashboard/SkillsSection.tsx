@@ -37,13 +37,13 @@ export default function SkillsSection({ projects }: SkillsSectionProps) {
                     return (
                         <div
                             key={skill}
-                            className="group flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
+                            className="group flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0"
                         >
-                            <span className="font-serif text-lg text-slate-800 group-hover:text-indigo-600 transition-colors">
+                            <span className="font-serif text-base text-slate-800 group-hover:text-indigo-600 transition-colors">
                                 {skill}
                             </span>
-                            <span className="font-mono text-[9px] font-black text-slate-500 uppercase tracking-widest bg-slate-100/50 px-2 py-0.5 rounded border border-slate-200/50 transition-colors group-hover:border-indigo-200 group-hover:bg-indigo-50 group-hover:text-indigo-600">
-                                {count} {count === 1 ? 'Proyecto' : 'Proyectos'}
+                            <span className="font-mono text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] transition-colors group-hover:text-indigo-600">
+                                {count} {count === 1 ? 'PROYECTO' : 'PROYECTOS'}
                             </span>
                         </div>
                     )

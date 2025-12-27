@@ -97,13 +97,13 @@ export default function DashboardTrajectory({
             {/* Timeline compacto */}
             <div className="relative">
                 {/* Línea vertical */}
-                <div className="absolute left-[11px] top-2 bottom-8 w-px bg-slate-100"></div>
+                <div className="absolute left-[12px] top-2 bottom-8 w-px bg-slate-100"></div>
 
-                <div className="space-y-8">
+                <div className="space-y-10">
                     {visibleHitos.map((hito) => (
-                        <div key={hito.id} className="relative flex gap-4 group">
-                            {/* Dot */}
-                            <div className="relative z-10 w-6 h-6 rounded-full bg-white border border-slate-300 flex items-center justify-center text-slate-500 flex-shrink-0 group-hover:border-indigo-600 group-hover:text-indigo-600 group-hover:bg-indigo-50 transition-all duration-500 shadow-sm ring-4 ring-transparent group-hover:ring-indigo-500/10">
+                        <div key={hito.id} className="relative flex gap-6 group">
+                            {/* Dot with Icon */}
+                            <div className="relative z-10 w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 flex-shrink-0 group-hover:border-indigo-600 group-hover:text-indigo-600 transition-all duration-500 shadow-sm">
                                 {getMilestoneIcon(hito)}
                             </div>
 
@@ -111,28 +111,31 @@ export default function DashboardTrajectory({
                             <div className="flex-1 pb-1">
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1">
-                                        {hito.link ? (
-                                            <a href={hito.link} className="block group/link">
-                                                <h4 className="font-serif text-lg text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-[10px] text-slate-400 font-mono font-black tracking-widest uppercase">
+                                                {formatDate(hito.date)}
+                                            </span>
+                                            <div className="h-px w-4 bg-slate-100" />
+                                            {hito.link ? (
+                                                <a href={hito.link} className="block group/link">
+                                                    <h4 className="font-serif text-lg text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
+                                                        {hito.title}
+                                                    </h4>
+                                                </a>
+                                            ) : (
+                                                <h4 className="font-serif text-lg text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
                                                     {hito.title}
                                                 </h4>
-                                            </a>
-                                        ) : (
-                                            <h4 className="font-serif text-lg text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">
-                                                {hito.title}
-                                            </h4>
-                                        )}
-                                        <p className="text-[10px] text-slate-500 font-mono font-black uppercase tracking-[0.1em] mt-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-slate-500 font-mono font-black uppercase tracking-[0.1em] mt-1 opacity-70 group-hover:opacity-100 transition-opacity">
                                             {hito.subtitle}
                                         </p>
                                     </div>
-                                    <span className="text-[9px] text-indigo-600 font-mono font-black tracking-widest bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100/50 flex-shrink-0">
-                                        {formatDate(hito.date)}
-                                    </span>
                                 </div>
 
                                 {hito.description && (
-                                    <p className={`text-xs text-slate-500 mt-2 leading-relaxed font-serif italic ${expanded ? '' : 'line-clamp-2'}`}>
+                                    <p className={`text-xs text-slate-500 mt-3 leading-relaxed font-serif italic ${expanded ? '' : 'line-clamp-2'}`}>
                                         {hito.description}
                                     </p>
                                 )}

@@ -45,7 +45,7 @@ export const BaseCard = ({
     className = "",
     children,
 }: BaseCardProps) => {
-    const commonClasses = `evidence-card group relative bg-white border border-slate-200 rounded-xl overflow-hidden transition-editorial hover:border-slate-300 hover:shadow-xl ${className} ${is_learning_artifact ? "border-l-4 border-l-amber-400" : ""}`;
+    const commonClasses = `evidence-card group relative bg-white border border-slate-200 rounded-xl overflow-hidden transition-all duration-500 hover:border-slate-300 hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.01] ${className} ${is_learning_artifact ? "border-l-4 border-l-amber-400" : ""}`;
 
     return (
         <div className={commonClasses}>
@@ -97,7 +97,7 @@ export const BaseCard = ({
                                 {overline}
                             </div>
                         )}
-                        <h3 className="text-2xl font-serif text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">
+                        <h3 className="text-2xl font-serif text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
                             {title}
                         </h3>
                         {subtitle && (

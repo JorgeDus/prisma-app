@@ -2,6 +2,18 @@
 
 import React from "react";
 
+const EXP_CATEGORY_MAP: Record<string, string> = {
+    liderazgo: 'Liderazgo',
+    social: 'Social',
+    emprendimiento: 'Emprendimiento',
+    empleo_sustento: 'Trayectoria',
+    academico: 'Académico',
+    deportivo: 'Deportivo',
+    creativo: 'Creativo',
+    cuidado_vida: 'Cuidado y Vida',
+    otro: 'Otro'
+}
+
 interface BentoHighlightsProps {
     items: any[];
     username: string;
@@ -43,31 +55,33 @@ export const BentoHighlights = ({
                         className={`${isLarge ? "md:col-span-8 md:row-span-2" : "md:col-span-4"
                             } group relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-100 shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-indigo-500/10 min-h-[240px] md:min-h-0`}
                     >
-                        {/* Background Image with Grayscale Logic */}
+                        {/* Background Image with Dark Overlay */}
                         <div className="absolute inset-0 z-0">
                             {item.cover_image ? (
                                 <>
                                     <img
                                         src={item.cover_image}
                                         alt={item.title}
-                                        className="w-full h-full object-cover grayscale brightness-50 contrast-125 transition-all duration-700 group-hover:grayscale-0 group-hover:brightness-75 group-hover:scale-105"
+                                        className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                                    {/* Subtly darker overlay */}
+                                    <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/20 transition-colors duration-700" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
                                 </>
                             ) : (
-                                <div className="w-full h-full bg-slate-800 flex items-center justify-center opacity-40">
+                                <div className="w-full h-full bg-slate-800 flex items-center justify-center">
                                     <span className="font-serif text-slate-600 text-6xl italic">P</span>
                                 </div>
                             )}
                         </div>
 
-                        {/* Content Overlay */}
+                        {/* Content Overlay - Purely Visual */}
                         <div className="relative z-10 h-full p-8 flex flex-col justify-end">
-                            <div className="space-y-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                                <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                    {isProject ? 'Proyecto' : item.type}
+                            <div className="space-y-3 transform transition-transform duration-700 group-hover:-translate-y-2">
+                                <span className="inline-block text-[9px] font-mono font-black tracking-[0.3em] uppercase text-indigo-300 opacity-80 group-hover:opacity-100 group-hover:text-white transition-all">
+                                    {isProject ? 'PROYECTO' : (EXP_CATEGORY_MAP[item.type] || item.type).toUpperCase()}
                                 </span>
-                                <h3 className="text-2xl md:text-3xl font-serif italic text-white leading-tight">
+                                <h3 className="text-3xl md:text-4xl font-serif font-black text-white leading-[1.1] tracking-tight group-hover:text-indigo-50 transition-colors">
                                     {item.title}
                                 </h3>
                             </div>

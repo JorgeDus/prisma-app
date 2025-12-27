@@ -20,8 +20,8 @@ const getIcon = (id: string, isActive: boolean) => {
     const props = { size: 18, strokeWidth: isActive ? 2 : 1.5 };
     switch (id) {
         case "highlights": return <LayoutGrid {...props} />;
-        case "experiencia": return <Briefcase {...props} />;
-        case "proyectos": return <FolderGit2 {...props} />;
+        case "experiencia": return <Sparkles {...props} />;
+        case "proyectos": return <Briefcase {...props} />;
         case "logros": return <Trophy {...props} />;
         case "testimonios": return <MessageSquare {...props} />;
         case "contacto": return <Mail {...props} />;
@@ -92,7 +92,7 @@ export const NavRail = ({ sections }: NavRailProps) => {
                     >
                         <div
                             className={`w-10 h-10 rounded-full border transition-all duration-500 flex items-center justify-center ${isActive
-                                ? "bg-slate-900 border-slate-900 text-white shadow-lg scale-110"
+                                ? "bg-slate-800 border-slate-800 text-white shadow-lg scale-110"
                                 : "bg-white border-slate-200 text-slate-400 hover:border-slate-400 hover:text-slate-600"
                                 }`}
                         >
@@ -100,7 +100,7 @@ export const NavRail = ({ sections }: NavRailProps) => {
                         </div>
 
                         {/* Label Tooltip */}
-                        <span className={`absolute left-14 px-3 py-1 bg-slate-900 text-white text-[10px] font-mono uppercase tracking-widest rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap ${isActive ? "opacity-100" : ""
+                        <span className={`absolute left-14 px-3 py-1 bg-slate-800 text-white text-[10px] font-mono uppercase tracking-widest rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap ${isActive ? "opacity-100" : ""
                             }`}>
                             {section.label}
                         </span>
