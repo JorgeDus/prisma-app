@@ -31,8 +31,15 @@ const getIcon = (id: string, isActive: boolean) => {
 
 export const NavRail = ({ sections }: NavRailProps) => {
     const [activeSection, setActiveSection] = useState("");
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isMounted) return;
+
         const handleScroll = () => {
             // Check if we are at the bottom of the page
             const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
@@ -70,7 +77,10 @@ export const NavRail = ({ sections }: NavRailProps) => {
             observer.disconnect();
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [sections]);
+    }, [sections, isMounted]);
+
+    // Don't render on server to avoid hydration mismatch
+    if (!isMounted) return null;
 
     const scrollToSection = (id: string) => {
         const el = document.getElementById(id);

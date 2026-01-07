@@ -35,6 +35,7 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
     const [formData, setFormData] = useState({
         title: '',
         organization: '',
+        role: '',
         type: 'otro' as Experience['type'],
         start_date: new Date().toISOString().split('T')[0],
         end_date: '',
@@ -57,7 +58,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         if (isOpen && experienceToEdit) {
             setFormData({
                 title: experienceToEdit.title,
-                organization: experienceToEdit.organization,
+                organization: experienceToEdit.organization || '',
+                role: experienceToEdit.role || '',
                 type: experienceToEdit.type || 'otro',
                 start_date: experienceToEdit.start_date || new Date().toISOString().split('T')[0],
                 end_date: experienceToEdit.end_date || '',
@@ -81,6 +83,7 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
             setFormData({
                 title: '',
                 organization: '',
+                role: '',
                 type: 'otro',
                 start_date: new Date().toISOString().split('T')[0],
                 end_date: '',
@@ -252,7 +255,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
 
             const experienceData = {
                 title: formData.title,
-                organization: formData.organization,
+                organization: formData.organization || null,
+                role: formData.role || null,
                 type: formData.type,
                 start_date: formData.start_date || null,
                 end_date: formData.is_current ? null : (formData.end_date || null),
@@ -314,11 +318,11 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         <Modal isOpen={isOpen} onClose={() => { onClose(); setIsAdjusting(false); }} title={experienceToEdit ? "Editar Experiencia" : "Nueva Experiencia"}>
             <form onSubmit={handleSubmit} className="space-y-6 pb-4">
 
-                {/* 1. Título y Organización */}
+                {/* 1. Título e Institución */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <Type size={16} className="text-purple-500" /> Título / Rol
+                            <Type size={16} className="text-purple-500" /> Título de la Experiencia
                         </label>
                         <input
                             type="text"
@@ -326,20 +330,35 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
-                            placeholder="Ej: Presidente del CEE"
+                            placeholder="Ej: Liderazgo Estudiantil"
                         />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <Building2 size={16} className="text-purple-500" /> Organización
+                            <Building2 size={16} className="text-purple-500" /> Institución / Contexto (Opcional)
                         </label>
                         <input
                             type="text"
-                            required
                             value={formData.organization}
                             onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
                             placeholder="Ej: Universidad de Chile"
+                        />
+                    </div>
+                </div>
+
+                {/* 1b. Rol / Responsabilidad */}
+                <div className="grid grid-cols-1 gap-5">
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                            <Briefcase size={16} className="text-purple-500" /> Rol / Responsabilidad
+                        </label>
+                        <input
+                            type="text"
+                            value={formData.role}
+                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
+                            placeholder="Ej: Presidente del Centro de Estudiantes"
                         />
                     </div>
                 </div>
@@ -413,9 +432,12 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
 
                 {/* 4. Imagen de Portada */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2.5 flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
                         <ImageIcon size={16} className="text-purple-500" /> Imagen de Portada (Opcional)
                     </label>
+                    <p className="text-[10px] text-slate-500 mb-2.5 italic">
+                        Si no subes una foto, asignaremos una de alta calidad según la categoría elegida.
+                    </p>
                     {imagePreview ? (
                         <div className="space-y-4">
                             <div className="relative group w-full h-40 rounded-2xl border-2 border-purple-200 overflow-hidden bg-gray-100 shadow-sm">
@@ -485,16 +507,27 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 {/* 6. Descripción y Narrativa */}
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <Tag size={16} className="text-purple-500" /> Resumen Corto (Card)
-                        </label>
+                        <div className="flex justify-between items-center mb-1.5">
+                            <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                <Tag size={16} className="text-purple-500" /> Resumen Corto (Card)
+                            </label>
+                            <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full ${formData.description.length >= 170 ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-400'
+                                }`}>
+                                {formData.description.length} / 180
+                            </span>
+                        </div>
                         <textarea
                             required
+                            maxLength={180}
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 text-sm min-h-[80px] font-medium resize-none"
+                            className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 text-sm min-h-[80px] font-medium resize-none ${formData.description.length >= 180 ? 'border-amber-400' : 'border-gray-200'
+                                }`}
                             placeholder="Breve descripción del rol..."
                         />
+                        <p className="mt-1.5 text-[10px] text-slate-400 italic">
+                            Este resumen aparecerá en la tarjeta de la experiencia. Sé breve y directo.
+                        </p>
                     </div>
 
                     <div>
@@ -505,13 +538,13 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                             value={formData.achievements}
                             onChange={(e) => setFormData({ ...formData, achievements: e.target.value })}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 text-sm min-h-[100px] font-medium"
-                            placeholder="¿Qué lograste? ¿Hubo un impacto medible?"
+                            placeholder="¿Qué lograste? ¿Hubo resultados claves?"
                         />
                     </div>
 
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <Heart size={16} className="text-rose-500" /> Reflexión o Valor (Opcional)
+                            <Heart size={16} className="text-rose-500" /> Impacto y Aprendizaje (Opcional)
                         </label>
                         <textarea
                             value={formData.value_reflection}

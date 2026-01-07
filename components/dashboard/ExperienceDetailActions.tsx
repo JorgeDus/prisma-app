@@ -58,7 +58,7 @@ export default function ExperienceDetailActions({ experience, userId }: Experien
                             className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-all flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest shadow-sm"
                         >
                             <Pencil size={14} />
-                            <span className="hidden sm:inline">Editar Perfil</span>
+                            <span className="hidden sm:inline">Editar Experiencia</span>
                         </button>
                         <button
                             onClick={() => setIsDeleteModalOpen(true)}

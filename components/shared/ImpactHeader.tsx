@@ -42,7 +42,7 @@ export const ImpactHeader = ({
                                 className="w-full h-full object-cover transition-all duration-700 filter grayscale group-hover:grayscale-0"
                             />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300 font-serif text-5xl">
+                            <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300 font-bold text-5xl">
                                 {name.charAt(0)}
                             </div>
                         )}
@@ -64,11 +64,11 @@ export const ImpactHeader = ({
                     {/* Identity Masthead */}
                     <div className="space-y-4">
                         <div className="space-y-1">
-                            <h1 className="text-5xl md:text-7xl font-serif font-black text-slate-800 tracking-tight leading-[1.1]">
+                            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-800 tracking-tight leading-[1.1]">
                                 {name}
                             </h1>
                             {headline && (
-                                <p className="text-xl md:text-2xl font-serif italic text-slate-500 leading-tight">
+                                <p className="text-xl md:text-2xl font-medium text-slate-500 leading-tight">
                                     {headline}
                                 </p>
                             )}
@@ -94,7 +94,7 @@ export const ImpactHeader = ({
                     {/* Thesis Vision Paragraph */}
                     <div className="relative max-w-3xl">
                         <div className="absolute -left-6 top-1 w-1 h-full bg-indigo-50" />
-                        <p className="text-xl md:text-2xl font-serif italic text-slate-600 leading-relaxed text-balance">
+                        <p className="text-xl md:text-2xl text-slate-600 leading-relaxed text-balance">
                             "{thesis}"
                         </p>
                     </div>

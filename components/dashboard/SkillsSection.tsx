@@ -39,7 +39,7 @@ export default function SkillsSection({ projects }: SkillsSectionProps) {
                             key={skill}
                             className="group flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0"
                         >
-                            <span className="font-serif text-base text-slate-800 group-hover:text-indigo-600 transition-colors">
+                            <span className="font-medium text-base text-slate-800 group-hover:text-indigo-600 transition-colors">
                                 {skill}
                             </span>
                             <span className="font-mono text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] transition-colors group-hover:text-indigo-600">

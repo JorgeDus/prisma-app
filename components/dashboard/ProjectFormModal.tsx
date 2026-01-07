@@ -331,9 +331,12 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
 
                 {/* 2. Imagen de Portada */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2.5 flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
                         <ImageIcon size={16} className="text-purple-500" /> Imagen de Portada
                     </label>
+                    <p className="text-[10px] text-slate-500 mb-2.5 italic">
+                        Si no asignas una foto, usaremos una imagen predeterminada según el tipo de proyecto.
+                    </p>
                     {imagePreview ? (
                         <div className="space-y-4">
                             <div

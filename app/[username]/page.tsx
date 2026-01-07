@@ -22,6 +22,7 @@ import {
     HeartPulse,
     Star
 } from 'lucide-react'
+import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 
 // Nuevos Componentes Shared
 import { NavRail } from '@/components/shared/NavRail'
@@ -229,8 +230,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
     hitosUnificados.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
     const sections = [
-        { id: "highlights", label: "Highlights" },
-        { id: "logros", label: "Logros" },
+        { id: "highlights", label: "Mi Vitrina" },
+        { id: "logros", label: "Logros / Hitos" },
         { id: "experiencia", label: "Experiencias" },
         { id: "proyectos", label: "Proyectos" },
         ...(testimonials && testimonials.length > 0 ? [{ id: "testimonios", label: "Testimonios" }] : []),
@@ -282,10 +283,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     <div className="space-y-8">
                         <div className="flex flex-col space-y-2">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">01 / Experiencias Destacadas</h2>
+                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">01 / Mi Vitrina</h2>
                                 <EvidenceBadge label="Verificado por Prisma" />
                             </div>
-                            <p className="text-xs font-mono text-slate-500 uppercase tracking-tight">Acceso directo a mis experiencias de mayor impacto</p>
+                            <p className="text-xs font-mono text-slate-500 uppercase tracking-tight">Acceso directo a mis experiencias y proyectos de mayor impacto</p>
                         </div>
                         <BentoHighlights items={[...(projects || []), ...(experiences || [])]} username={profile.username} isEditable={false} />
                     </div>
@@ -297,7 +298,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">02 / Logros</h2>
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">02 / Logros / Hitos</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {achievements?.map((ach) => (
                                     <BaseCard
@@ -325,7 +326,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                                 {ach.professor_name && (
                                                     <p className="text-[10px] leading-relaxed">
                                                         <span className="font-mono font-bold text-slate-400 uppercase mr-1">Prof:</span>
-                                                        <span className="font-serif italic text-slate-600">{ach.professor_name}</span>
+                                                        <span className="text-slate-600">{ach.professor_name}</span>
                                                     </p>
                                                 )}
                                                 {ach.distinction && (
@@ -344,13 +345,13 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         {/* 3. Experiencia */}
                         <section id="experiencia" className="section-anchor space-y-8">
                             <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">03 / Experiencias</h2>
-                            <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {experiences?.length ? (
                                     experiences.map((exp) => (
                                         <BaseCard
                                             key={exp.id}
                                             title={exp.title}
-                                            subtitle={exp.organization}
+                                            subtitle={exp.role || exp.organization || ''}
                                             overline={
                                                 (() => {
                                                     const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
@@ -364,7 +365,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                                 })()
                                             }
                                             description={exp.description || ""}
-                                            imageUrl={exp.cover_image || undefined}
+                                            imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
                                             dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
                                             tags={exp.skills || []}
                                             href={`/${username}/experiencias/${exp.id}`}
@@ -372,14 +373,14 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                         />
                                     ))
                                 ) : (
-                                    <p className="text-slate-400 font-serif italic">No hay experiencias registradas bajo este protocolo.</p>
+                                    <p className="text-slate-400">No hay experiencias registradas bajo este protocolo.</p>
                                 )}
                             </div>
                         </section>
 
                         {/* 4. Proyectos */}
                         <section id="proyectos" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">04 / Portafolio de Proyectos</h2>
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">04 / Proyectos</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {projects?.length ? (
                                     projects.map((proj) => (
@@ -388,7 +389,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                             title={proj.title}
                                             subtitle={proj.role || proj.type}
                                             description={proj.description || ""}
-                                            imageUrl={proj.cover_image || undefined}
+                                            imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
                                             tags={proj.skills || []}
                                             href={`/${username}/proyectos/${proj.id}`}
                                             isEditable={false}
@@ -398,7 +399,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                     ))
                                 ) : (
                                     <div className="col-span-2">
-                                        <p className="text-slate-400 font-serif italic text-center">Sin artefactos de proyecto disponibles.</p>
+                                        <p className="text-slate-400 text-center">Sin artefactos de proyecto disponibles.</p>
                                     </div>
                                 )}
                             </div>
@@ -407,7 +408,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         {/* 5. Testimonios */}
                         {testimonials && testimonials.length > 0 && (
                             <section id="testimonios" className="section-anchor space-y-8">
-                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">05 / Red de Testimonios</h2>
+                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">05 / Testimonios</h2>
                                 <TestimonialSection testimonials={testimonials || []} userId={profile.id} isReadOnly={true} />
                             </section>
                         )}
@@ -415,21 +416,16 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                     {/* Sidebar / Trayectoria */}
                     <aside className="lg:col-span-4 space-y-12 h-fit sticky top-24">
-                        <section className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 space-y-8 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl -mr-16 -mt-16 rounded-full" />
+                        <section className="space-y-8">
+                            <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
+                            <DashboardTrajectory hitos={hitosUnificados} initialCount={10} />
 
-                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-600/60 pb-4 border-b border-slate-200">
-                                Cronología de Impacto
-                            </h2>
-                            <div className="relative z-10">
-                                <DashboardTrajectory hitos={hitosUnificados} initialCount={10} />
+                            <div className="pt-8 border-t border-slate-100">
+                                <SkillsSection projects={projects || []} />
                             </div>
 
-                            <div className="pt-8 border-t border-slate-200 space-y-8">
-                                <SkillsSection projects={projects || []} />
-                                <div className="border-t border-slate-100 pt-8">
-                                    <InterestsSection interests={profile.interests} isReadOnly={true} />
-                                </div>
+                            <div className="pt-8 border-t border-slate-100">
+                                <InterestsSection interests={profile.interests} isReadOnly={true} />
                             </div>
                         </section>
                     </aside>
@@ -444,8 +440,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     {/* 6. Contacto */}
                     <section id="contacto" className="section-anchor pt-32 pb-48">
                         <div className="max-w-2xl mx-auto space-y-12 text-center">
-                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400">06 / Establecer Conexión</h2>
-                            <p className="text-4xl font-serif italic text-white leading-tight">
+                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400">06 / Contacto</h2>
+                            <p className="text-4xl font-bold text-white leading-tight">
                                 ¿Buscas establecer una conexión profesional?
                             </p>
                             <ContactSection

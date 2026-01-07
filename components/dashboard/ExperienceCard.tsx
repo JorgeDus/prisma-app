@@ -162,10 +162,19 @@ export default function ExperienceCard({
                     <Link href={isReadOnly ? `/${username || experience.user_id}/experiencias/${experience.id}` : `/dashboard/experiencias/${experience.id}`} className="block group-hover:text-purple-600 transition-colors">
                         <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight">{experience.title}</h3>
                     </Link>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 font-medium mb-3">
-                        <Building2 size={14} />
-                        {experience.organization}
-                    </div>
+
+                    {experience.role && (
+                        <div className="text-sm text-indigo-600 font-medium mb-1">
+                            {experience.role}
+                        </div>
+                    )}
+
+                    {experience.organization && (
+                        <div className="flex items-center gap-2 text-xs text-gray-400 font-medium mb-3">
+                            <Building2 size={12} />
+                            {experience.organization}
+                        </div>
+                    )}
 
                     <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1 leading-relaxed">
                         {experience.description || "Sin descripción"}

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const instrumentSerif = Instrument_Serif({
-  weight: "400",
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-serif",
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const geistMono = Geist_Mono({
@@ -34,7 +34,7 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#4f46e5" />
       </head>
-      <body className={`${instrumentSerif.variable} ${geistMono.variable} antialiased bg-[#F9FAFB] text-slate-900`}>
+      <body className={`${plusJakarta.variable} ${geistMono.variable} antialiased bg-[#F9FAFB] text-slate-900`}>
         {children}
       </body>
     </html>

@@ -113,7 +113,7 @@ export default function AchievementFormModal({
                             required
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-serif italic"
+                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                             placeholder="Ej: Beca a la Excelencia Académica"
                         />
                     </div>
@@ -181,7 +181,7 @@ export default function AchievementFormModal({
                                 type="text"
                                 value={formData.professor_name}
                                 onChange={(e) => setFormData({ ...formData, professor_name: e.target.value })}
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-serif italic"
+                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                 placeholder="Ej: Dr. Alberto Pérez"
                             />
                         </div>

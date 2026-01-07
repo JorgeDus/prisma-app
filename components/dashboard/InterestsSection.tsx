@@ -46,7 +46,7 @@ export default function InterestsSection({ interests: rawInterests, isReadOnly =
                                 className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-slate-700 hover:border-slate-300 transition-all cursor-default"
                             >
                                 {emoji && <span className="text-base">{emoji}</span>}
-                                <span className="font-serif text-sm italic">
+                                <span className="text-sm">
                                     {text}
                                 </span>
                             </div>
@@ -58,7 +58,7 @@ export default function InterestsSection({ interests: rawInterests, isReadOnly =
                     onClick={() => !isReadOnly && setIsModalOpen(true)}
                     className={`text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-200 ${!isReadOnly ? 'cursor-pointer hover:bg-slate-100/50 transition-colors' : ''}`}
                 >
-                    <p className="text-slate-400 text-[11px] font-serif italic">
+                    <p className="text-slate-400 text-[11px]">
                         {isReadOnly ? 'Sin intereses registrados.' : 'Añade tus áreas de exploración personal.'}
                     </p>
                 </div>

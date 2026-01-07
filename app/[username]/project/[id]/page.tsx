@@ -3,6 +3,8 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { Calendar, Github, ExternalLink, ArrowLeft, Globe, MapPin, Code, FolderGit2 } from 'lucide-react'
+import { DEFAULT_PROJECT_IMAGES } from '@/constants/images'
+import ProjectGallery from '@/components/projects/ProjectGallery'
 
 interface ProjectPageProps {
     params: Promise<{ username: string; id: string }>
@@ -57,21 +59,11 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
             <main className="container mx-auto px-4 py-8 max-w-5xl animate-fade-in">
 
                 {/* Hero / Cover */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-                    <div className="h-[300px] md:h-[500px] bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
-                        {project.cover_image ? (
-                            <img
-                                src={project.cover_image}
-                                alt={project.title}
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center text-purple-200">
-                                <Code size={64} strokeWidth={1} className="opacity-30" />
-                                <span className="mt-4 font-medium opacity-50 uppercase tracking-widest text-sm italic">Proyecto de {profile.full_name || profile.username}</span>
-                            </div>
-                        )}
-                    </div>
+                <div className="rounded-3xl overflow-hidden border border-slate-100 bg-white p-2 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    <ProjectGallery
+                        coverImage={project.cover_image || DEFAULT_PROJECT_IMAGES[project.type] || DEFAULT_PROJECT_IMAGES.personal}
+                        galleryImages={project.gallery_images || []}
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -81,8 +73,8 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                             <div className="flex flex-wrap items-center gap-3 mb-4">
                                 <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase tracking-widest ${project.type === 'startup' ? 'bg-blue-100 text-blue-700' :
-                                        project.type === 'academic' ? 'bg-purple-100 text-purple-700' :
-                                            'bg-green-100 text-green-700'
+                                    project.type === 'academic' ? 'bg-purple-100 text-purple-700' :
+                                        'bg-green-100 text-green-700'
                                     }`}>
                                     {project.type === 'academic' ? 'Portafolio Académico' : project.type === 'startup' ? 'Startup Project' : 'Innovación Personal'}
                                 </span>

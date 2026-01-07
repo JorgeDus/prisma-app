@@ -1,17 +1,25 @@
 "use client";
 
 import React from "react";
+import { Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Star, Code, Rocket, User } from 'lucide-react';
+import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from "@/constants/images";
 
-const EXP_CATEGORY_MAP: Record<string, string> = {
-    liderazgo: 'Liderazgo',
-    social: 'Social',
-    emprendimiento: 'Emprendimiento',
-    empleo_sustento: 'Trayectoria',
-    academico: 'Académico',
-    deportivo: 'Deportivo',
-    creativo: 'Creativo',
-    cuidado_vida: 'Cuidado y Vida',
-    otro: 'Otro'
+const EXP_CATEGORY_MAP: Record<string, { label: string, icon: any, color: string, bg: string, border: string }> = {
+    liderazgo: { label: 'Liderazgo', icon: Award, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+    social: { label: 'Social', icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
+    emprendimiento: { label: 'Emprendimiento', icon: Zap, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
+    empleo_sustento: { label: 'Trayectoria', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+    academico: { label: 'Académico', icon: GraduationCap, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
+    deportivo: { label: 'Deportivo', icon: Dumbbell, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+    creativo: { label: 'Creativo', icon: Palette, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100' },
+    cuidado_vida: { label: 'Cuidado y Vida', icon: HeartPulse, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+    otro: { label: 'General', icon: Star, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100' }
+}
+
+const PROJECT_CATEGORY_MAP: Record<string, { label: string, icon: any, color: string, bg: string, border?: string }> = {
+    academic: { label: 'Portafolio Académico', icon: GraduationCap, color: 'text-purple-700', bg: 'bg-purple-100' },
+    startup: { label: 'Startup Project', icon: Rocket, color: 'text-blue-700', bg: 'bg-blue-100' },
+    personal: { label: 'Innovación Personal', icon: User, color: 'text-green-700', bg: 'bg-green-100' }
 }
 
 interface BentoHighlightsProps {
@@ -49,6 +57,18 @@ export const BentoHighlights = ({
                     ? (isProject ? `/dashboard/project/${item.id}` : `/dashboard/experiencias/${item.id}`)
                     : (isProject ? `/${username}/proyectos/${item.id}` : `/${username}/experiencias/${item.id}`);
 
+                // Get category info with icon and colors
+                let categoryInfo;
+                let CategoryIcon;
+
+                if (isProject) {
+                    categoryInfo = PROJECT_CATEGORY_MAP[item.type] || PROJECT_CATEGORY_MAP.personal;
+                    CategoryIcon = categoryInfo.icon;
+                } else {
+                    categoryInfo = EXP_CATEGORY_MAP[item.type] || EXP_CATEGORY_MAP.otro;
+                    CategoryIcon = categoryInfo.icon;
+                }
+
                 return (
                     <div
                         key={item.id}
@@ -57,31 +77,46 @@ export const BentoHighlights = ({
                     >
                         {/* Background Image with Dark Overlay */}
                         <div className="absolute inset-0 z-0">
-                            {item.cover_image ? (
-                                <>
-                                    <img
-                                        src={item.cover_image}
-                                        alt={item.title}
-                                        className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
-                                    />
-                                    {/* Subtly darker overlay */}
-                                    <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/20 transition-colors duration-700" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
-                                </>
+                            {(() => {
+                                const displayImage = item.cover_image ||
+                                    (isProject
+                                        ? (DEFAULT_PROJECT_IMAGES[item.type] || DEFAULT_PROJECT_IMAGES.personal)
+                                        : (DEFAULT_EXP_IMAGES[item.type] || DEFAULT_EXP_IMAGES.otro)
+                                    );
+                                return (
+                                    <>
+                                        <img
+                                            src={displayImage}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
+                                        />
+                                        {/* Subtly darker overlay */}
+                                        <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/20 transition-colors duration-700" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+                                    </>
+                                );
+                            })()}
+                        </div>
+
+                        {/* Category Badge - Top Left */}
+                        <div className="absolute top-4 left-4 z-20">
+                            {isProject ? (
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-mono font-black tracking-[0.15em] uppercase shadow-lg ${categoryInfo.bg} ${categoryInfo.color}`}>
+                                    <CategoryIcon size={11} strokeWidth={2.5} />
+                                    {categoryInfo.label}
+                                </span>
                             ) : (
-                                <div className="w-full h-full bg-slate-800 flex items-center justify-center">
-                                    <span className="font-serif text-slate-600 text-6xl italic">P</span>
-                                </div>
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[9px] font-mono font-black tracking-[0.15em] uppercase shadow-lg ${categoryInfo.bg} ${categoryInfo.color} ${categoryInfo.border}`}>
+                                    <CategoryIcon size={11} strokeWidth={2.5} />
+                                    {categoryInfo.label}
+                                </span>
                             )}
                         </div>
 
-                        {/* Content Overlay - Purely Visual */}
+                        {/* Content Overlay - Title at Bottom */}
                         <div className="relative z-10 h-full p-8 flex flex-col justify-end">
                             <div className="space-y-3 transform transition-transform duration-700 group-hover:-translate-y-2">
-                                <span className="inline-block text-[9px] font-mono font-black tracking-[0.3em] uppercase text-indigo-300 opacity-80 group-hover:opacity-100 group-hover:text-white transition-all">
-                                    {isProject ? 'PROYECTO' : (EXP_CATEGORY_MAP[item.type] || item.type).toUpperCase()}
-                                </span>
-                                <h3 className="text-3xl md:text-4xl font-serif font-black text-white leading-[1.1] tracking-tight group-hover:text-indigo-50 transition-colors">
+                                <h3 className="text-3xl md:text-4xl font-extrabold text-white leading-[1.1] tracking-tight group-hover:text-indigo-50 transition-colors">
                                     {item.title}
                                 </h3>
                             </div>

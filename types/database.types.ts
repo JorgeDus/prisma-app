@@ -233,7 +233,8 @@ export interface Database {
                     id: string
                     user_id: string
                     title: string
-                    organization: string
+                    organization: string | null
+                    role: string | null
                     type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
                     description: string | null
                     achievements: string | null
@@ -253,7 +254,8 @@ export interface Database {
                     id?: string
                     user_id: string
                     title: string
-                    organization: string
+                    organization?: string | null
+                    role?: string | null
                     type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
                     description?: string | null
                     achievements?: string | null
@@ -271,7 +273,8 @@ export interface Database {
                 }
                 Update: {
                     title?: string
-                    organization?: string
+                    organization?: string | null
+                    role?: string | null
                     type?: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
                     description?: string | null
                     achievements?: string | null

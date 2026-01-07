@@ -349,8 +349,8 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                                 value={formData.username}
                                 onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
                                 className={`w-full pl-[95px] pr-4 py-2 bg-slate-50 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all text-slate-900 font-mono text-sm ${usernameStatus === 'taken' ? 'border-red-300 focus:ring-red-500' :
-                                        usernameStatus === 'available' ? 'border-green-300 focus:ring-green-500' :
-                                            'border-slate-200 focus:ring-indigo-500'
+                                    usernameStatus === 'available' ? 'border-green-300 focus:ring-green-500' :
+                                        'border-slate-200 focus:ring-indigo-500'
                                     }`}
                                 placeholder="tu_nombre"
                             />
@@ -376,7 +376,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                                 required
                                 value={formData.full_name}
                                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-serif italic"
+                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                 placeholder="Tu nombre"
                             />
                         </div>
@@ -393,7 +393,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                                 type="text"
                                 value={formData.headline}
                                 onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-serif italic"
+                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                 placeholder="Ej: Estudiante de Ingeniería | Innovador Social"
                             />
                         </div>
@@ -406,7 +406,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                             <textarea
                                 value={formData.about}
                                 onChange={(e) => setFormData({ ...formData, about: e.target.value })}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-serif italic min-h-[100px] resize-none leading-relaxed"
+                                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all min-h-[100px] resize-none leading-relaxed"
                                 placeholder="Describe el propósito de tu trayectoria..."
                             />
                         </div>

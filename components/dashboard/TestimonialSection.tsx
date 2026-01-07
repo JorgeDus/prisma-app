@@ -33,7 +33,7 @@ export default function TestimonialSection({ testimonials, userId, isReadOnly = 
         <section className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="space-y-1">
-                    <h3 className="text-xs font-mono font-bold tracking-[0.2em] uppercase text-slate-400">Mi Vitrina / Validaciones</h3>
+                    <h3 className="text-xs font-mono font-bold tracking-[0.2em] uppercase text-slate-400">Validaciones</h3>
                 </div>
                 {!isReadOnly && (
                     <button
@@ -57,7 +57,7 @@ export default function TestimonialSection({ testimonials, userId, isReadOnly = 
                                 <Quote size={16} fill="currentColor" />
                             </div>
 
-                            <p className="text-lg font-serif italic text-slate-700 leading-relaxed mb-8">
+                            <p className="text-lg text-slate-700 leading-relaxed mb-8">
                                 "{t.content}"
                             </p>
 
@@ -80,7 +80,7 @@ export default function TestimonialSection({ testimonials, userId, isReadOnly = 
                     <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center mb-4 text-slate-400 group-hover:text-indigo-600 group-hover:border-indigo-100 transition-colors">
                         <Quote size={20} strokeWidth={1.5} />
                     </div>
-                    <h4 className="text-lg font-serif text-slate-800 mb-1">Sin testimonios aún</h4>
+                    <h4 className="text-lg font-semibold text-slate-800 mb-1">Sin testimonios aún</h4>
                     <p className="text-slate-500 text-xs font-mono uppercase tracking-tight text-center max-w-[280px]">
                         Tu vitrina está esperando testimonios.
                     </p>

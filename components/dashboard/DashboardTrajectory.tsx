@@ -82,7 +82,7 @@ export default function DashboardTrajectory({
                 <h3 className="font-mono text-xs font-bold tracking-widest uppercase text-slate-400 mb-2">
                     Trayectoria
                 </h3>
-                <p className="text-sm text-slate-500 font-serif italic">Sin hitos registrados en el protocolo.</p>
+                <p className="text-sm text-slate-500">Sin hitos registrados en el protocolo.</p>
             </div>
         )
     }
@@ -118,24 +118,24 @@ export default function DashboardTrajectory({
                                             <div className="h-px w-4 bg-slate-100" />
                                             {hito.link ? (
                                                 <a href={hito.link} className="block group/link">
-                                                    <h4 className="font-serif text-lg text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
+                                                    <h4 className="font-semibold text-lg text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
                                                         {hito.title}
                                                     </h4>
                                                 </a>
                                             ) : (
-                                                <h4 className="font-serif text-lg text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
+                                                <h4 className="font-semibold text-lg text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
                                                     {hito.title}
                                                 </h4>
                                             )}
                                         </div>
-                                        <p className="text-[10px] text-slate-500 font-mono font-black uppercase tracking-[0.1em] mt-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                                        <p className="text-xs text-slate-500 font-mono font-bold uppercase tracking-wide mt-1 opacity-70 group-hover:opacity-100 transition-opacity">
                                             {hito.subtitle}
                                         </p>
                                     </div>
                                 </div>
 
                                 {hito.description && (
-                                    <p className={`text-xs text-slate-500 mt-3 leading-relaxed font-serif italic ${expanded ? '' : 'line-clamp-2'}`}>
+                                    <p className={`text-xs text-slate-500 mt-3 leading-relaxed ${expanded ? '' : 'line-clamp-2'}`}>
                                         {hito.description}
                                     </p>
                                 )}

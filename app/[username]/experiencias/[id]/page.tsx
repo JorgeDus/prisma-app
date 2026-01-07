@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { Calendar, Building2, ArrowLeft, Globe, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Star } from 'lucide-react'
 import ProjectGallery from '@/components/projects/ProjectGallery'
+import { DEFAULT_EXP_IMAGES } from '@/constants/images'
 
 interface ExperiencePageProps {
     params: Promise<{ username: string; id: string }>
@@ -40,16 +41,16 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
         return `${start} — ${end}`
     }
 
-    const categories: Record<string, { label: string, icon: any }> = {
-        'liderazgo': { label: 'Liderazgo', icon: Award },
-        'social': { label: 'Social', icon: Heart },
-        'emprendimiento': { label: 'Emprendimiento', icon: Zap },
-        'empleo_sustento': { label: 'Trayectoria', icon: Briefcase },
-        'academico': { label: 'Académico', icon: GraduationCap },
-        'deportivo': { label: 'Deportivo', icon: Dumbbell },
-        'creativo': { label: 'Creativo', icon: Palette },
-        'cuidado_vida': { label: 'Cuidado y Vida', icon: HeartPulse },
-        'otro': { label: 'General', icon: Star },
+    const categories: Record<string, { label: string, icon: any, color: string, bg: string, border: string }> = {
+        'liderazgo': { label: 'Liderazgo', icon: Award, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+        'social': { label: 'Social', icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
+        'emprendimiento': { label: 'Emprendimiento', icon: Zap, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
+        'empleo_sustento': { label: 'Trayectoria', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+        'academico': { label: 'Académico', icon: GraduationCap, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
+        'deportivo': { label: 'Deportivo', icon: Dumbbell, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+        'creativo': { label: 'Creativo', icon: Palette, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100' },
+        'cuidado_vida': { label: 'Cuidado y Vida', icon: HeartPulse, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+        'otro': { label: 'General', icon: Star, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100' },
     }
 
     const category = categories[experience.type] || categories['otro']
@@ -66,7 +67,7 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                     </Link>
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-serif text-lg">P</span>
+                            <span className="text-white font-bold text-lg">P</span>
                         </div>
                         <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-900 truncate max-w-[120px]">
                             / {params.username}
@@ -76,61 +77,65 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
             </nav>
 
             <main className="max-w-7xl mx-auto px-6 pt-32 pb-32">
+                {/* 1. Experience Gallery & Hero */}
+                <section className="max-w-5xl mx-auto rounded-3xl overflow-hidden border border-slate-100 bg-white p-2 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    <ProjectGallery
+                        coverImage={experience.cover_image || DEFAULT_EXP_IMAGES[experience.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
+                        galleryImages={experience.gallery_images || []}
+                    />
+                </section>
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-
                     {/* Left Column: Content */}
-                    <div className="lg:col-span-8 space-y-20">
-
-                        {/* Header */}
-                        <header className="space-y-8">
+                    <div className="lg:col-span-8 space-y-12">
+                        {/* 2. Header Information */}
+                        <header className="space-y-8 h-fit">
                             <div className="flex items-center gap-4">
-                                <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 flex items-center gap-2">
+                                <span className={`text-[10px] px-3 py-1 rounded-full font-mono font-bold uppercase tracking-[0.2em] border flex items-center gap-2 ${category.bg} ${category.color} ${category.border}`}>
                                     <CategoryIcon size={12} />
                                     {category.label}
                                 </span>
-                                <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">
-                                    {getDateRange()}
-                                </span>
+                                <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 bg-white">
+                                    <Calendar size={12} className="text-indigo-400" />
+                                    <span>{getDateRange()}</span>
+                                </div>
                             </div>
 
                             <div className="space-y-4">
-                                <h1 className="text-5xl md:text-7xl font-serif italic text-slate-900 leading-[1.1] tracking-tight">
+                                <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight text-left">
                                     {experience.title}
                                 </h1>
-                                <p className="text-2xl font-serif text-slate-500 italic">
-                                    en {experience.organization}
-                                </p>
+                                {experience.role && (
+                                    <p className="text-2xl font-semibold text-indigo-600 text-left">
+                                        {experience.role}
+                                    </p>
+                                )}
+                                {experience.organization && (
+                                    <div className="flex items-center gap-2 text-xl text-slate-500 font-medium border-l-2 border-slate-200 pl-6 text-left">
+                                        <Building2 size={24} className="text-slate-400" />
+                                        {experience.organization}
+                                    </div>
+                                )}
                             </div>
                         </header>
 
-                        {/* Gallery / Cover */}
-                        {(experience.cover_image || (experience.gallery_images && experience.gallery_images.length > 0)) && (
-                            <div className="rounded-3xl overflow-hidden border border-slate-100 bg-white p-2">
-                                <ProjectGallery
-                                    coverImage={experience.cover_image}
-                                    galleryImages={experience.gallery_images || []}
-                                />
-                            </div>
-                        )}
-
-                        {/* Content Body */}
-                        <div className="space-y-24">
+                        {/* 3. Text Content in Premium Card */}
+                        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
                             {/* Description */}
                             <section className="space-y-6">
-                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">01 / Resumen de Función</h2>
-                                <p className="text-2xl font-serif text-slate-800 leading-relaxed italic border-l-2 border-indigo-100 pl-8 py-2">
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Resumen de Función</h2>
+                                <p className="text-xl text-slate-600 leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
                                     {experience.description || "Esta experiencia detalla una fase clave en el desarrollo profesional y de impacto."}
                                 </p>
                             </section>
 
                             {/* Logros */}
                             {experience.achievements && (
-                                <section className="space-y-8 bg-white border border-slate-100 p-10 rounded-[2.5rem]">
-                                    <div className="space-y-2">
-                                        <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-indigo-600">02 / Logros Consolidados</h2>
-                                        <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Evidencia de impacto ejecutable</p>
-                                    </div>
-                                    <div className="text-lg font-serif text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/50 p-8 rounded-2xl border border-slate-100">
+                                <section className="space-y-6">
+                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
+                                        Logros Clave
+                                    </h2>
+                                    <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                         {experience.achievements}
                                     </div>
                                 </section>
@@ -139,8 +144,8 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                             {/* Reflexión */}
                             {experience.value_reflection && (
                                 <section className="space-y-6">
-                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">03 / Aprendizaje y Valor</h2>
-                                    <div className="text-lg font-serif italic text-slate-600 leading-relaxed whitespace-pre-line">
+                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Impacto y Aprendizaje</h2>
+                                    <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                         {experience.value_reflection}
                                     </div>
                                 </section>
@@ -151,14 +156,16 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                     {/* Right Column: Sidebar */}
                     <aside className="lg:col-span-4 space-y-12">
                         <section className="sticky top-24 space-y-12">
-
                             {/* Skills */}
-                            <div className="space-y-6">
-                                <h3 className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Skills en Ejecución</h3>
+                            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                                <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-6 flex items-center gap-2">
+                                    <Zap size={14} className="text-indigo-500" />
+                                    Skills Aplicadas
+                                </h3>
                                 {experience.skills && experience.skills.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {experience.skills.map((skill, i) => (
-                                            <span key={i} className="px-3 py-1 bg-white border border-slate-100 text-slate-900 rounded-lg text-[10px] font-mono font-bold uppercase">
+                                            <span key={i} className="px-2.5 py-1 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-100 font-mono uppercase tracking-tighter shadow-sm">
                                                 {skill}
                                             </span>
                                         ))}
@@ -171,25 +178,24 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                             {/* Author Card */}
                             <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center text-center space-y-6">
                                 <div className="space-y-2">
-                                    <div className="w-20 h-20 rounded-full bg-slate-50 border border-slate-100 overflow-hidden mx-auto">
+                                    <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 overflow-hidden mx-auto">
                                         {profile.avatar_url ? (
                                             <img src={profile.avatar_url} alt={profile.full_name || ''} className="w-full h-full object-cover grayscale" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-2xl font-serif text-slate-400">
+                                            <div className="w-full h-full flex items-center justify-center text-xl font-bold text-slate-400">
                                                 {(profile.full_name || profile.username).charAt(0).toUpperCase()}
                                             </div>
                                         )}
                                     </div>
                                     <div>
-                                        <p className="font-serif text-lg text-slate-900 italic leading-tight">{profile.full_name || profile.username}</p>
-                                        <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mt-1">Protagonista de la Fase</p>
+                                        <p className="font-semibold text-lg text-slate-900 leading-tight">{profile.full_name || profile.username}</p>
+                                        <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mt-1">Protagonista de la Experiencia</p>
                                     </div>
                                 </div>
                                 <Link href={`/${profile.username}`} className="w-full py-3 border border-slate-900 text-slate-900 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all">
                                     Ver Perfil Completo
                                 </Link>
                             </div>
-
                         </section>
                     </aside>
                 </div>

@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { Calendar, Github, ExternalLink, Users, Code } from 'lucide-react'
 import ProjectDetailActions from '@/components/dashboard/ProjectDetailActions'
 import ProjectGallery from '@/components/projects/ProjectGallery'
+import { DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 
 // Tipos para props y params de Next.js
 interface PageProps {
@@ -46,21 +47,21 @@ export default async function ProjectDetailPage(props: PageProps) {
 
             <div className="max-w-7xl mx-auto px-6 py-12 space-y-16 animate-fade-in">
                 {/* 1. Project Gallery & Hero */}
-                <section className="max-w-5xl mx-auto">
+                <section className="max-w-5xl mx-auto rounded-3xl overflow-hidden border border-slate-100 bg-white p-2">
                     <ProjectGallery
-                        coverImage={project.cover_image}
+                        coverImage={project.cover_image || DEFAULT_PROJECT_IMAGES[project.type] || DEFAULT_PROJECT_IMAGES.personal}
                         galleryImages={project.gallery_images || []}
                     />
                 </section>
 
                 {/* 2. Header Information */}
-                <header className="max-w-4xl mx-auto text-center space-y-6">
-                    <div className="flex flex-wrap items-center justify-center gap-3">
-                        <span className={`text-[10px] px-3 py-1 rounded-full font-mono font-bold uppercase tracking-[0.2em] border ${project.type === 'startup' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                <header className="max-w-4xl space-y-8">
+                    <div className="flex items-center gap-4">
+                        <span className={`text-[10px] px-3 py-1 rounded-full font-mono font-bold uppercase tracking-widest border ${project.type === 'startup' ? 'bg-blue-50 text-blue-700 border-blue-100' :
                             project.type === 'academic' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' :
                                 'bg-emerald-50 text-emerald-700 border-emerald-100'
                             }`}>
-                            {project.type === 'academic' ? 'Proyecto Académico' : project.type === 'startup' ? 'Startup / Producto' : 'Innovación'}
+                            {project.type === 'academic' ? 'Portafolio Académico' : project.type === 'startup' ? 'Startup Project' : 'Innovación Personal'}
                         </span>
                         <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 bg-white">
                             <Calendar size={12} className="text-indigo-400" />
@@ -69,13 +70,13 @@ export default async function ProjectDetailPage(props: PageProps) {
                     </div>
 
                     <div className="space-y-4">
-                        <h1 className="text-4xl md:text-6xl font-serif italic text-slate-900 leading-tight">
+                        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight text-left">
                             {project.title}
                         </h1>
                         {project.role && (
-                            <div className="text-indigo-600 font-mono text-[10px] font-black uppercase tracking-[0.2em] bg-indigo-50/50 w-fit mx-auto px-4 py-1.5 rounded-full border border-indigo-100/50 shadow-sm">
-                                Rol: {project.role}
-                            </div>
+                            <p className="text-xl font-medium text-slate-500 border-l-2 border-slate-200 pl-6 text-left">
+                                {project.role}
+                            </p>
                         )}
                     </div>
                 </header>
@@ -85,9 +86,10 @@ export default async function ProjectDetailPage(props: PageProps) {
                     <div className="lg:col-span-8 space-y-12">
                         {/* Content Section */}
                         <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
-                            {/* Description */}
-                            <section className="prose prose-lg prose-slate max-w-none">
-                                <p className="text-xl text-slate-600 italic leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
+                            {/* Description / Objetivo */}
+                            <section className="space-y-6">
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Objetivo del Proyecto</h2>
+                                <p className="text-xl text-slate-600 leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
                                     {project.description || "Este proyecto describe una solución innovadora dentro de su categoría."}
                                 </p>
                             </section>
@@ -95,23 +97,21 @@ export default async function ProjectDetailPage(props: PageProps) {
                             {/* Detalle del Proyecto */}
                             <div className="space-y-16">
                                 {project.challenges && (
-                                    <section className="space-y-4">
-                                        <h3 className="text-sm font-mono font-black tracking-widest uppercase text-slate-400 flex items-center gap-3">
-                                            <span className="w-8 h-px bg-slate-200" />
+                                    <section className="space-y-6">
+                                        <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
                                             Contexto y Desafío
-                                        </h3>
-                                        <div className="text-slate-700 leading-relaxed whitespace-pre-line text-lg pl-11">
+                                        </h2>
+                                        <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                             {project.challenges}
                                         </div>
                                     </section>
                                 )}
 
-                                <section className="space-y-4">
-                                    <h3 className="text-sm font-mono font-black tracking-widest uppercase text-slate-400 flex items-center gap-3">
-                                        <span className="w-8 h-px bg-slate-200" />
+                                <section className="space-y-6">
+                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
                                         La Solución
-                                    </h3>
-                                    <div className="text-slate-700 leading-relaxed whitespace-pre-line text-lg pl-11">
+                                    </h2>
+                                    <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                         {project.content || "Desarrollo de una solución técnica enfocada en eficiencia y escalabilidad."}
                                     </div>
                                 </section>
@@ -120,20 +120,20 @@ export default async function ProjectDetailPage(props: PageProps) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-slate-50">
                                     {project.results && (
                                         <section className="space-y-4">
-                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-                                                <span className="text-amber-500">🏆</span> Resultados
+                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
+                                                Resultados
                                             </h3>
-                                            <div className="text-slate-600 text-sm leading-relaxed whitespace-pre-line pl-6">
+                                            <div className="text-sm text-slate-600 leading-relaxed">
                                                 {project.results}
                                             </div>
                                         </section>
                                     )}
                                     {project.learnings && (
                                         <section className="space-y-4">
-                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-                                                <span className="text-emerald-500">💡</span> Aprendizajes
+                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
+                                                Aprendizajes
                                             </h3>
-                                            <div className="text-slate-600 text-sm leading-relaxed whitespace-pre-line pl-6">
+                                            <div className="text-sm text-slate-600 leading-relaxed">
                                                 {project.learnings}
                                             </div>
                                         </section>

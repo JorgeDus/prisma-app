@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { Calendar, Building2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Star } from 'lucide-react'
 import ExperienceDetailActions from '@/components/dashboard/ExperienceDetailActions'
 import ProjectGallery from '@/components/projects/ProjectGallery'
+import { DEFAULT_EXP_IMAGES } from '@/constants/images'
 
 // Tipos para props y params de Next.js
 interface PageProps {
@@ -67,18 +68,16 @@ export default async function ExperienceDetailPage(props: PageProps) {
 
             <div className="max-w-7xl mx-auto px-6 py-12 space-y-16 animate-fade-in">
                 {/* 1. Project Gallery & Hero */}
-                {(experience.cover_image || (experience.gallery_images && experience.gallery_images.length > 0)) && (
-                    <section className="max-w-5xl mx-auto">
-                        <ProjectGallery
-                            coverImage={experience.cover_image}
-                            galleryImages={experience.gallery_images || []}
-                        />
-                    </section>
-                )}
+                <section className="max-w-5xl mx-auto rounded-3xl overflow-hidden border border-slate-100 bg-white p-2">
+                    <ProjectGallery
+                        coverImage={experience.cover_image || DEFAULT_EXP_IMAGES[experience.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
+                        galleryImages={experience.gallery_images || []}
+                    />
+                </section>
 
                 {/* 2. Header Information */}
-                <header className="max-w-4xl mx-auto text-center space-y-6">
-                    <div className="flex flex-wrap items-center justify-center gap-3">
+                <header className="max-w-4xl space-y-8">
+                    <div className="flex items-center gap-4">
                         <span className={`text-[10px] px-3 py-1 rounded-full font-mono font-bold uppercase tracking-[0.2em] border flex items-center gap-2 ${category.bg} ${category.color} ${category.border}`}>
                             <CategoryIcon size={12} />
                             {category.label}
@@ -90,13 +89,20 @@ export default async function ExperienceDetailPage(props: PageProps) {
                     </div>
 
                     <div className="space-y-4">
-                        <h1 className="text-4xl md:text-6xl font-serif italic text-slate-900 leading-tight">
+                        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight text-left">
                             {experience.title}
                         </h1>
-                        <div className="flex items-center justify-center gap-2 text-xl text-slate-500 font-medium">
-                            <Building2 size={24} className="text-slate-400" />
-                            {experience.organization}
-                        </div>
+                        {experience.role && (
+                            <p className="text-2xl font-semibold text-indigo-600 text-left">
+                                {experience.role}
+                            </p>
+                        )}
+                        {experience.organization && (
+                            <div className="flex items-center gap-2 text-xl text-slate-500 font-medium border-l-2 border-slate-200 pl-6 text-left">
+                                <Building2 size={24} className="text-slate-400" />
+                                {experience.organization}
+                            </div>
+                        )}
                     </div>
                 </header>
 
@@ -104,10 +110,11 @@ export default async function ExperienceDetailPage(props: PageProps) {
                     {/* Left Column: Main Content */}
                     <div className="lg:col-span-8 space-y-12">
                         {/* Description Section */}
-                        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-12">
+                        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
                             {/* Description */}
-                            <section className="prose prose-lg prose-slate max-w-none">
-                                <p className="text-xl text-slate-600 italic leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
+                            <section className="space-y-6">
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Resumen de Función</h2>
+                                <p className="text-xl text-slate-600 leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
                                     {experience.description || "Sin descripción disponible."}
                                 </p>
                             </section>
@@ -115,12 +122,11 @@ export default async function ExperienceDetailPage(props: PageProps) {
                             <div className="grid grid-cols-1 gap-12 pt-12 border-t border-slate-50">
                                 {/* Logros */}
                                 {experience.achievements && (
-                                    <section className="space-y-4">
-                                        <h3 className="text-sm font-mono font-black tracking-widest uppercase text-slate-400 flex items-center gap-3">
-                                            <span className="w-8 h-px bg-slate-200" />
+                                    <section className="space-y-6">
+                                        <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
                                             Logros Clave
-                                        </h3>
-                                        <div className="text-slate-700 leading-relaxed whitespace-pre-line text-lg pl-11">
+                                        </h2>
+                                        <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                             {experience.achievements}
                                         </div>
                                     </section>
@@ -128,12 +134,11 @@ export default async function ExperienceDetailPage(props: PageProps) {
 
                                 {/* Reflexión */}
                                 {experience.value_reflection && (
-                                    <section className="space-y-4">
-                                        <h3 className="text-sm font-mono font-black tracking-widest uppercase text-slate-400 flex items-center gap-3">
-                                            <span className="w-8 h-px bg-slate-200" />
-                                            Impacto y Valor
-                                        </h3>
-                                        <div className="text-slate-700 leading-relaxed whitespace-pre-line text-lg pl-11">
+                                    <section className="space-y-6">
+                                        <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
+                                            Impacto y Aprendizaje
+                                        </h2>
+                                        <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                             {experience.value_reflection}
                                         </div>
                                     </section>

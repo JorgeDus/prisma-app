@@ -25,7 +25,7 @@ export const EmptyState = ({
             <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center mb-4 text-slate-400 group-hover:text-indigo-600 group-hover:border-indigo-100 transition-colors">
                 <Plus size={20} strokeWidth={1.5} />
             </div>
-            <h4 className="text-lg font-serif text-slate-800 mb-1">{title}</h4>
+            <h4 className="text-lg font-semibold text-slate-800 mb-1">{title}</h4>
             <p className="text-slate-500 text-sm font-mono uppercase tracking-tight text-center max-w-[280px]">
                 {description}
             </p>

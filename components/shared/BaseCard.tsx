@@ -97,7 +97,7 @@ export const BaseCard = ({
                                 {overline}
                             </div>
                         )}
-                        <h3 className="text-2xl font-serif text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
+                        <h3 className="text-2xl font-semibold text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
                             {title}
                         </h3>
                         {subtitle && (

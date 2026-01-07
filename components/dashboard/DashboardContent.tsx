@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 
 // Components
 import { NavRail } from '@/components/shared/NavRail'
@@ -123,11 +124,11 @@ export default function DashboardContent({
     })
 
     const sections = [
-        { id: "highlights", label: "Highlights" },
-        { id: "logros", label: "Logros" },
+        { id: "highlights", label: "Mi Vitrina" },
+        { id: "logros", label: "Logros / Hitos" },
         { id: "experiencia", label: "Experiencias" },
         { id: "proyectos", label: "Proyectos" },
-        { id: "testimonios", label: "Validaciones" },
+        { id: "testimonios", label: "Testimonios" },
         { id: "contacto", label: "Contacto" },
     ]
 
@@ -251,7 +252,7 @@ export default function DashboardContent({
                 <section id="highlights" className="section-anchor">
                     <div className="space-y-8">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">01 / Gestión de Highlights</h2>
+                            <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">01 / Mi Vitrina</h2>
                             <EvidenceBadge label="Modo Edición Activo" count={projects?.filter(p => p.is_featured).length || 0} />
                         </div>
                         <BentoHighlights
@@ -282,7 +283,7 @@ export default function DashboardContent({
                         {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">02 / Logros</h2>
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">02 / Logros / Hitos</h2>
                                 <button
                                     onClick={() => { setEditingAch(null); setIsAchModalOpen(true); }}
                                     className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
@@ -320,7 +321,7 @@ export default function DashboardContent({
                                                     {ach.professor_name && (
                                                         <p className="text-[10px] leading-relaxed">
                                                             <span className="font-mono font-bold text-slate-400 uppercase mr-1">Prof:</span>
-                                                            <span className="font-serif italic text-slate-600">{ach.professor_name}</span>
+                                                            <span className="text-slate-600">{ach.professor_name}</span>
                                                         </p>
                                                     )}
                                                     {ach.distinction && (
@@ -358,7 +359,7 @@ export default function DashboardContent({
                                     + Nueva Experiencia
                                 </button>
                             </div>
-                            <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {experiences?.length ? (
                                     experiences.map((exp) => (
                                         <BaseCard
@@ -378,7 +379,7 @@ export default function DashboardContent({
                                                 })()
                                             }
                                             description={exp.description || ""}
-                                            imageUrl={exp.cover_image || undefined}
+                                            imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
                                             dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
                                             tags={exp.skills || []}
                                             href={`/dashboard/experiencias/${exp.id}`}
@@ -402,7 +403,7 @@ export default function DashboardContent({
                         {/* 4. Proyectos */}
                         <section id="proyectos" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">04 / Portafolio de Proyectos</h2>
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">04 / Proyectos</h2>
                                 <button
                                     onClick={() => { setEditingProj(null); setIsProjModalOpen(true); }}
                                     className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
@@ -418,7 +419,7 @@ export default function DashboardContent({
                                             title={proj.title}
                                             subtitle={proj.role || proj.type}
                                             description={proj.description || ""}
-                                            imageUrl={proj.cover_image || undefined}
+                                            imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
                                             tags={proj.skills || []}
                                             href={`/dashboard/project/${proj.id}`}
                                             isEditable={true}
@@ -445,7 +446,7 @@ export default function DashboardContent({
                         {/* 5. Testimonios */}
                         <section id="testimonios" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">05 / Red de Testimonios</h2>
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">05 / Testimonios</h2>
                                 <button className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">+ Solicitar Testimonio</button>
                             </div>
                             <TestimonialSection testimonials={testimonials || []} userId={profile.id} />
@@ -479,7 +480,7 @@ export default function DashboardContent({
                     <section id="contacto" className="section-anchor pt-32 space-y-24">
                         {/* Configuración */}
                         <div className="max-w-4xl mx-auto">
-                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400 mb-12 text-center">06 / Configuración de Conexión</h2>
+                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400 mb-12 text-center">06 / Contacto</h2>
                             <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-[2rem] space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
@@ -538,7 +539,7 @@ export default function DashboardContent({
                         {/* Vista Previa del Formulario */}
                         <div className="max-w-2xl mx-auto space-y-12 text-center pt-24 border-t border-white/5">
                             <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500">Vista Previa de Protocolo Público</h3>
-                            <p className="text-4xl font-serif italic text-white leading-tight">
+                            <p className="text-4xl font-bold text-white leading-tight">
                                 ¿Buscas establecer una conexión profesional?
                             </p>
                             <ContactSection

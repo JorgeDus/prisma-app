@@ -71,7 +71,7 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl 
                             <div className="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6">
                                 <CheckCircle2 size={40} className="text-indigo-400" />
                             </div>
-                            <h3 className="text-2xl font-serif italic text-white mb-2">¡Mensaje Enviado!</h3>
+                            <h3 className="text-2xl font-bold text-white mb-2">¡Mensaje Enviado!</h3>
                             <p className="text-slate-400 mb-8 max-w-xs">Gracias por contactarme. Te responderé lo antes posible.</p>
                             <button
                                 onClick={() => setStatus('idle')}
@@ -83,7 +83,7 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl 
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-8">
                             <div className="text-center mb-10">
-                                <h2 className="text-3xl font-serif italic text-white mb-3 tracking-tight">Conectémonos</h2>
+                                <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">Conectémonos</h2>
                                 <p className="text-slate-400 text-sm font-mono uppercase tracking-wide">Mensajería Directa</p>
                             </div>
                             <div>
