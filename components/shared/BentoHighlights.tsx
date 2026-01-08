@@ -28,6 +28,7 @@ interface BentoHighlightsProps {
     isEditable?: boolean;
     onEditItem?: (item: any) => void;
     onDeleteItem?: (id: string) => void;
+    curatedItems?: any[]; // Pre-fetched curated items in order
 }
 
 export const BentoHighlights = ({
@@ -36,9 +37,10 @@ export const BentoHighlights = ({
     isEditable,
     onEditItem,
     onDeleteItem,
+    curatedItems
 }: BentoHighlightsProps) => {
-    // Sort by is_featured and then by date
-    const featured = [...items]
+    // Use curated items if provided, otherwise fall back to sorting by is_featured and date
+    const featured = curatedItems || [...items]
         .sort((a, b) => {
             if (a.is_featured && !b.is_featured) return -1;
             if (!a.is_featured && b.is_featured) return 1;
@@ -52,7 +54,10 @@ export const BentoHighlights = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 min-h-[500px]">
             {featured.map((item, index) => {
                 const isLarge = index === 0;
-                const isProject = item.hasOwnProperty('is_startup') || item.hasOwnProperty('github_url');
+                // Check itemType first (for curated items), then fall back to property detection
+                const isProject = item.itemType
+                    ? item.itemType === 'project'
+                    : (item.hasOwnProperty('is_startup') || item.hasOwnProperty('github_url'));
                 const href = isEditable
                     ? (isProject ? `/dashboard/project/${item.id}` : `/dashboard/experiencias/${item.id}`)
                     : (isProject ? `/${username}/proyectos/${item.id}` : `/${username}/experiencias/${item.id}`);

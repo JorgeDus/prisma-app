@@ -32,7 +32,7 @@ import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 // Components
 import { NavRail } from '@/components/shared/NavRail'
 import { ImpactHeader } from '@/components/shared/ImpactHeader'
-import { BentoHighlights } from '@/components/shared/BentoHighlights'
+import VitrinaCurationSlots from '@/components/dashboard/VitrinaCurationSlots'
 import { BaseCard } from '@/components/shared/BaseCard'
 import { EvidenceBadge } from '@/components/shared/EvidenceBadge'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -253,25 +253,13 @@ export default function DashboardContent({
                     <div className="space-y-8">
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">01 / Mi Vitrina</h2>
-                            <EvidenceBadge label="Modo Edición Activo" count={projects?.filter(p => p.is_featured).length || 0} />
+                            <EvidenceBadge label="Modo Edición Activo" count={(profile.featured_items || []).length} />
                         </div>
-                        <BentoHighlights
-                            items={[...(projects || []), ...(experiences || [])]}
-                            username={profile.username}
-                            isEditable={true}
-                            onEditItem={(item) => {
-                                if (item.hasOwnProperty('is_startup') || item.hasOwnProperty('github_url')) {
-                                    setEditingProj(item)
-                                    setIsProjModalOpen(true)
-                                } else {
-                                    setEditingExp(item)
-                                    setIsExpModalOpen(true)
-                                }
-                            }}
-                            onDeleteItem={(id) => {
-                                const isProj = projects.some(p => p.id === id);
-                                handleDelete(isProj ? 'projects' : 'experiences', id)
-                            }}
+                        <VitrinaCurationSlots
+                            profileId={profile.id}
+                            featuredItems={profile.featured_items || []}
+                            projects={projects}
+                            experiences={experiences}
                         />
                     </div>
                 </section>
@@ -454,7 +442,7 @@ export default function DashboardContent({
                     </div>
 
                     {/* Sidebar */}
-                    <aside className="lg:col-span-4 space-y-12">
+                    <aside className="lg:col-span-4 space-y-12 lg:border-l lg:border-slate-100 lg:pl-8">
                         <section className="sticky top-24 space-y-8">
                             <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
@@ -550,6 +538,28 @@ export default function DashboardContent({
                         </div>
                     </section>
                 </main>
+
+                <footer className="border-t border-slate-800 py-12 px-6">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                        <div className="flex items-center gap-2 grayscale invert opacity-80">
+                            <Image
+                                src="/logo-prisma.png"
+                                alt="Prisma Logo"
+                                width={120}
+                                height={32}
+                                className="h-8 w-auto object-contain"
+                            />
+                        </div>
+                        <p className="text-[9px] font-mono text-slate-500 uppercase tracking-[0.3em]">
+                            © 2025 Somos Prisma
+                        </p>
+                        <div className="flex gap-8 font-mono text-[10px] uppercase font-bold text-slate-400">
+                            <Link href="/about" className="hover:text-white transition-colors">Rigor</Link>
+                            <Link href="/privacy" className="hover:text-white transition-colors">Privacidad</Link>
+                            <Link href="/terms" className="hover:text-white transition-colors">Términos</Link>
+                        </div>
+                    </div>
+                </footer>
             </div>
 
             {/* Modals */}

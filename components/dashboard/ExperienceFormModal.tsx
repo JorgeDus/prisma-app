@@ -578,7 +578,7 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                     </div>
                 </div>
 
-                {/* 8. Visibility & Featured Toggles */}
+                {/* 8. Visibility Toggle */}
                 <div className="flex flex-col md:flex-row gap-4">
                     {/* Mostrar en Timeline */}
                     <div className="flex items-center gap-3 p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex-1">
@@ -594,23 +594,6 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                                 Mostrar en Mi Trayectoria
                             </label>
                             <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">Aparecerá en el Timeline del perfil</p>
-                        </div>
-                    </div>
-
-                    {/* Destacar */}
-                    <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-2xl border border-yellow-200 flex-1">
-                        <input
-                            type="checkbox"
-                            id="is_featured"
-                            checked={formData.is_featured}
-                            onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                            className="w-5 h-5 text-yellow-500 rounded focus:ring-yellow-500 border-yellow-300 cursor-pointer"
-                        />
-                        <div className="flex-1">
-                            <label htmlFor="is_featured" className="text-sm font-black text-yellow-800 uppercase tracking-tight cursor-pointer block">
-                                Destacar en Perfil Público
-                            </label>
-                            <p className="text-[10px] text-yellow-600 font-bold uppercase tracking-widest">Se mostrará en la sección "Destacados"</p>
                         </div>
                     </div>
                 </div>

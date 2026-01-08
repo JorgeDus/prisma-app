@@ -141,6 +141,42 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
 
+    // 3. Fetch curated vitrina items if featured_items exists
+    let curatedVitrinaItems: any[] = []
+    if (profile.featured_items && Array.isArray(profile.featured_items) && profile.featured_items.length > 0) {
+        const featuredItemsRef = profile.featured_items as { id: string; type: 'project' | 'experience' }[]
+
+        // Separate IDs by type
+        const projectIds = featuredItemsRef.filter(item => item.type === 'project').map(item => item.id)
+        const experienceIds = featuredItemsRef.filter(item => item.type === 'experience').map(item => item.id)
+
+        // Fetch in parallel
+        const [projectsResult, experiencesResult] = await Promise.all([
+            projectIds.length > 0
+                ? supabase.from('projects').select('*').in('id', projectIds)
+                : Promise.resolve({ data: [] }),
+            experienceIds.length > 0
+                ? supabase.from('experiences').select('*').in('id', experienceIds)
+                : Promise.resolve({ data: [] })
+        ])
+
+        const fetchedProjects = projectsResult.data || []
+        const fetchedExperiences = experiencesResult.data || []
+
+        // Map back to original order, adding itemType for rendering logic
+        curatedVitrinaItems = featuredItemsRef
+            .map(ref => {
+                if (ref.type === 'project') {
+                    const project = fetchedProjects.find(p => p.id === ref.id)
+                    return project ? { ...project, itemType: 'project' } : null
+                } else {
+                    const experience = fetchedExperiences.find(e => e.id === ref.id)
+                    return experience ? { ...experience, itemType: 'experience' } : null
+                }
+            })
+            .filter(Boolean)
+    }
+
     // Preparar UI
     const universityName = profile.universities?.name || 'Universidad'
     const careerName = profile.careers?.name || 'Carrera'
@@ -288,7 +324,12 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             </div>
                             <p className="text-xs font-mono text-slate-500 uppercase tracking-tight">Acceso directo a mis experiencias y proyectos de mayor impacto</p>
                         </div>
-                        <BentoHighlights items={[...(projects || []), ...(experiences || [])]} username={profile.username} isEditable={false} />
+                        <BentoHighlights
+                            items={[...(projects || []), ...(experiences || [])]}
+                            username={profile.username}
+                            isEditable={false}
+                            curatedItems={curatedVitrinaItems.length > 0 ? curatedVitrinaItems : undefined}
+                        />
                     </div>
                 </section>
 
@@ -415,7 +456,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     </div>
 
                     {/* Sidebar / Trayectoria */}
-                    <aside className="lg:col-span-4 space-y-12 h-fit sticky top-24">
+                    <aside className="lg:col-span-4 space-y-12 h-fit sticky top-24 lg:border-l lg:border-slate-100 lg:pl-8">
                         <section className="space-y-8">
                             <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={10} />

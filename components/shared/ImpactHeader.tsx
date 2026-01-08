@@ -94,7 +94,7 @@ export const ImpactHeader = ({
                     {/* Thesis Vision Paragraph */}
                     <div className="relative max-w-3xl">
                         <div className="absolute -left-6 top-1 w-1 h-full bg-indigo-50" />
-                        <p className="text-xl md:text-2xl text-slate-600 leading-relaxed text-balance">
+                        <p className="text-xl md:text-2xl text-slate-600 leading-relaxed text-balance italic">
                             "{thesis}"
                         </p>
                     </div>

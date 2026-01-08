@@ -40,7 +40,7 @@ export default function TestimonialSection({ testimonials, userId, isReadOnly = 
                         onClick={handleCreate}
                         className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
                     >
-                        + Gestionar Vitrina
+                        + Gestionar Testimonios
                     </button>
                 )}
             </div>

@@ -62,6 +62,7 @@ export interface Database {
                     custom_career: string | null
                     interests: string[] | null
                     social_links: Json
+                    featured_items: { id: string; type: 'project' | 'experience' }[] | null
                     created_at: string
                     updated_at: string
                 }
@@ -81,6 +82,7 @@ export interface Database {
                     custom_career?: string | null
                     interests?: string[] | null
                     social_links?: Json
+                    featured_items?: { id: string; type: 'project' | 'experience' }[] | null
                 }
                 Update: {
                     username?: string
@@ -97,6 +99,7 @@ export interface Database {
                     custom_career?: string | null
                     interests?: string[] | null
                     social_links?: Json
+                    featured_items?: { id: string; type: 'project' | 'experience' }[] | null
                 }
                 Relationships: [
                     {
