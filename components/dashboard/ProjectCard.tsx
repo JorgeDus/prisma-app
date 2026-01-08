@@ -157,18 +157,21 @@ export default function ProjectCard({
                     </p>
 
                     {/* Stack / Skills */}
-                    {project.skills && project.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-6">
-                            {project.skills.slice(0, 3).map(skill => (
-                                <span key={skill} className="text-xs bg-gray-50 text-gray-600 border border-gray-100 px-2 py-1 rounded-md">
-                                    {skill}
-                                </span>
-                            ))}
-                            {project.skills.length > 3 && (
-                                <span className="text-xs text-gray-400 px-1 py-1">+{project.skills.length - 3}</span>
-                            )}
-                        </div>
-                    )}
+                    {(() => {
+                        const allSkills = [...(project.hard_skills || []), ...(project.soft_skills || [])]
+                        return allSkills.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                {allSkills.slice(0, 3).map(skill => (
+                                    <span key={skill} className="text-xs bg-gray-50 text-gray-600 border border-gray-100 px-2 py-1 rounded-md">
+                                        {skill}
+                                    </span>
+                                ))}
+                                {allSkills.length > 3 && (
+                                    <span className="text-xs text-gray-400 px-1 py-1">+{allSkills.length - 3}</span>
+                                )}
+                            </div>
+                        )
+                    })()}
 
                     {/* Links Footer */}
                     <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">

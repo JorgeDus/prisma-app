@@ -98,7 +98,7 @@ export default function OverviewProjects({ projects, isReadOnly = false, usernam
                     <p className="text-sm text-gray-500 line-clamp-2 mt-1 mb-4 flex-1">{project.description}</p>
 
                     <div className="flex flex-wrap gap-2 mt-auto">
-                        {project.skills?.slice(0, 3).map(skill => (
+                        {[...(project.hard_skills || []), ...(project.soft_skills || [])].slice(0, 3).map(skill => (
                             <span key={skill} className="text-xs bg-gray-50 text-gray-600 border border-gray-100 px-2 py-1 rounded">
                                 {skill}
                             </span>

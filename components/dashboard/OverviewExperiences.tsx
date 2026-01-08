@@ -123,7 +123,7 @@ export default function OverviewExperiences({ experiences, isReadOnly = false, u
 
                         <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
                             <div className="flex flex-wrap gap-2">
-                                {experience.skills?.slice(0, 2).map(skill => (
+                                {[...(experience.hard_skills || []), ...(experience.soft_skills || [])].slice(0, 2).map(skill => (
                                     <span key={skill} className="text-xs bg-gray-50 text-gray-600 border border-gray-100 px-2 py-1 rounded">
                                         {skill}
                                     </span>

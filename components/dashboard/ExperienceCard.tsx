@@ -181,18 +181,21 @@ export default function ExperienceCard({
                     </p>
 
                     {/* Skills */}
-                    {experience.skills && experience.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-gray-100">
-                            {experience.skills.slice(0, 3).map(skill => (
-                                <span key={skill} className="text-[10px] font-medium bg-gray-50 text-gray-600 border border-gray-100 px-2 py-1 rounded-md">
-                                    {skill}
-                                </span>
-                            ))}
-                            {experience.skills.length > 3 && (
-                                <span className="text-[10px] text-gray-400 px-1 py-1">+{experience.skills.length - 3}</span>
-                            )}
-                        </div>
-                    )}
+                    {(() => {
+                        const allSkills = [...(experience.hard_skills || []), ...(experience.soft_skills || [])]
+                        return allSkills.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-gray-100">
+                                {allSkills.slice(0, 3).map(skill => (
+                                    <span key={skill} className="text-[10px] font-medium bg-gray-50 text-gray-600 border border-gray-100 px-2 py-1 rounded-md">
+                                        {skill}
+                                    </span>
+                                ))}
+                                {allSkills.length > 3 && (
+                                    <span className="text-[10px] text-gray-400 px-1 py-1">+{allSkills.length - 3}</span>
+                                )}
+                            </div>
+                        )
+                    })()}
                 </div>
             </div>
 
