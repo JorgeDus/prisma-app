@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/server'
 import { Calendar, Github, ExternalLink, ArrowLeft, Globe, MapPin, Code, FolderGit2 } from 'lucide-react'
 import { DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 import ProjectGallery from '@/components/projects/ProjectGallery'
+import { SkillsDetailTabs } from '@/components/shared/SkillsDetailTabs'
 
 interface ProjectPageProps {
     params: Promise<{ username: string; id: string }>
@@ -157,24 +158,11 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                             </Link>
                         </div>
 
-                        {/* Stack */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <Code size={18} className="text-purple-600" />
-                                Tecnologías
-                            </h3>
-                            {project.skills && project.skills.length > 0 ? (
-                                <div className="flex flex-wrap gap-2">
-                                    {project.skills.map((skill, i) => (
-                                        <span key={i} className="px-3 py-1.5 bg-gray-50 border border-gray-100 text-gray-600 rounded-lg text-sm font-medium">
-                                            {skill}
-                                        </span>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-sm text-gray-500 italic">No especificadas.</p>
-                            )}
-                        </div>
+                        {/* Competencias */}
+                        <SkillsDetailTabs
+                            hardSkills={project.hard_skills}
+                            softSkills={project.soft_skills}
+                        />
 
                         {/* Quick Stats or info */}
                         <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl shadow-purple-100">
