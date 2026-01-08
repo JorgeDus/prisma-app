@@ -147,6 +147,48 @@ export default function DashboardContent({
 
     const academicStatus = getAcademicStatus()
 
+    // --- AGREGACIÓN DE SKILLS (sin duplicados) + CONTEO ---
+    const hardSkillsSet = new Set<string>()
+    const softSkillsSet = new Set<string>()
+    const skillCounts: Record<string, number> = {}
+
+    projects?.forEach(proj => {
+        proj.hard_skills?.forEach((s: string) => {
+            const skill = s.trim()
+            if (skill) {
+                hardSkillsSet.add(skill)
+                skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            }
+        })
+        proj.soft_skills?.forEach((s: string) => {
+            const skill = s.trim()
+            if (skill) {
+                softSkillsSet.add(skill)
+                skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            }
+        })
+    })
+
+    experiences?.forEach(exp => {
+        exp.hard_skills?.forEach((s: string) => {
+            const skill = s.trim()
+            if (skill) {
+                hardSkillsSet.add(skill)
+                skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            }
+        })
+        exp.soft_skills?.forEach((s: string) => {
+            const skill = s.trim()
+            if (skill) {
+                softSkillsSet.add(skill)
+                skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            }
+        })
+    })
+
+    const aggregatedHardSkills = Array.from(hardSkillsSet)
+    const aggregatedSoftSkills = Array.from(softSkillsSet)
+
     const handleSaveContact = async () => {
         setIsSavingContact(true)
         try {
@@ -238,6 +280,10 @@ export default function DashboardContent({
                     socialLinks={socialLinks}
                     isEditable={true}
                     onEdit={() => setIsProfileModalOpen(true)}
+                    hardSkills={aggregatedHardSkills}
+                    softSkills={aggregatedSoftSkills}
+                    interests={profile.interests || []}
+                    skillCounts={skillCounts}
                 />
             </div>
 
@@ -369,7 +415,7 @@ export default function DashboardContent({
                                             description={exp.description || ""}
                                             imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
                                             dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
-                                            tags={exp.skills || []}
+                                            tags={[...(exp.hard_skills || []), ...(exp.soft_skills || [])]}
                                             href={`/dashboard/experiencias/${exp.id}`}
                                             isEditable={true}
                                             onEdit={() => { setEditingExp(exp); setIsExpModalOpen(true); }}
@@ -408,7 +454,7 @@ export default function DashboardContent({
                                             subtitle={proj.role || proj.type}
                                             description={proj.description || ""}
                                             imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
-                                            tags={proj.skills || []}
+                                            tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
                                             href={`/dashboard/project/${proj.id}`}
                                             isEditable={true}
                                             is_featured={proj.is_featured}
@@ -448,7 +494,7 @@ export default function DashboardContent({
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
 
                             <div className="pt-8 border-t border-slate-100">
-                                <SkillsSection projects={projects || []} />
+                                <SkillsSection projects={projects || []} experiences={experiences || []} />
                             </div>
 
                             <div className="pt-8 border-t border-slate-100">

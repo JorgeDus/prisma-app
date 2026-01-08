@@ -41,7 +41,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
         repo_url: '',
         demo_url: '',
         cover_image: '',
-        skills: [] as string[],
+        hard_skills: [] as string[],
+        soft_skills: [] as string[],
         role: '',
         team_members: '',
         challenges: '',
@@ -52,8 +53,9 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
         show_in_timeline: true
     })
 
-    // Estado local para el input de skills
-    const [currentSkill, setCurrentSkill] = useState('')
+    // Estado local para los inputs de skills
+    const [currentHardSkill, setCurrentHardSkill] = useState('')
+    const [currentSoftSkill, setCurrentSoftSkill] = useState('')
 
     // Cargar datos al abrir para editar
     useEffect(() => {
@@ -67,7 +69,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 repo_url: projectToEdit.repo_url || '',
                 demo_url: projectToEdit.demo_url || '',
                 cover_image: projectToEdit.cover_image || '',
-                skills: projectToEdit.skills || [],
+                hard_skills: projectToEdit.hard_skills || [],
+                soft_skills: projectToEdit.soft_skills || [],
                 role: projectToEdit.role || '',
                 team_members: projectToEdit.team_members || '',
                 challenges: projectToEdit.challenges || '',
@@ -93,7 +96,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 repo_url: '',
                 demo_url: '',
                 cover_image: '',
-                skills: [],
+                hard_skills: [],
+                soft_skills: [],
                 role: '',
                 team_members: '',
                 challenges: '',
@@ -200,18 +204,32 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
         })
     }
 
-    const handleAddSkill = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && currentSkill.trim()) {
+    const handleAddHardSkill = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && currentHardSkill.trim()) {
             e.preventDefault()
-            if (!formData.skills.includes(currentSkill.trim())) {
-                setFormData(prev => ({ ...prev, skills: [...(prev.skills || []), currentSkill.trim()] }))
+            if (!formData.hard_skills.includes(currentHardSkill.trim())) {
+                setFormData(prev => ({ ...prev, hard_skills: [...prev.hard_skills, currentHardSkill.trim()] }))
             }
-            setCurrentSkill('')
+            setCurrentHardSkill('')
         }
     }
 
-    const removeSkill = (skillToRemove: string) => {
-        setFormData(prev => ({ ...prev, skills: prev.skills.filter(s => s !== skillToRemove) }))
+    const handleAddSoftSkill = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && currentSoftSkill.trim()) {
+            e.preventDefault()
+            if (!formData.soft_skills.includes(currentSoftSkill.trim())) {
+                setFormData(prev => ({ ...prev, soft_skills: [...prev.soft_skills, currentSoftSkill.trim()] }))
+            }
+            setCurrentSoftSkill('')
+        }
+    }
+
+    const removeHardSkill = (skillToRemove: string) => {
+        setFormData(prev => ({ ...prev, hard_skills: prev.hard_skills.filter(s => s !== skillToRemove) }))
+    }
+
+    const removeSoftSkill = (skillToRemove: string) => {
+        setFormData(prev => ({ ...prev, soft_skills: prev.soft_skills.filter(s => s !== skillToRemove) }))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -267,7 +285,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 repo_url: formData.repo_url || null,
                 demo_url: formData.demo_url || null,
                 cover_image: finalImageUrl || null,
-                skills: formData.skills,
+                hard_skills: formData.hard_skills,
+                soft_skills: formData.soft_skills,
                 role: formData.role || null,
                 team_members: formData.team_members || null,
                 challenges: formData.challenges || null,
@@ -535,23 +554,48 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                         />
                     </div>
 
-                    {/* 9. Stack Tecnológico */}
+                    {/* 9. Competencias Técnicas (Hard Skills) */}
                     <div className="col-span-full">
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <Tag size={16} className="text-purple-500" /> Stack Tecnológico
+                            <Tag size={16} className="text-indigo-500" /> Competencias Técnicas
                         </label>
-                        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[56px] focus-within:ring-2 focus-within:ring-purple-200 transition-all">
-                            {formData.skills.map(skill => (
-                                <span key={skill} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
+                        <p className="text-[10px] text-slate-500 mb-2 italic">Stack tecnológico, herramientas, frameworks, lenguajes...</p>
+                        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[56px] focus-within:ring-2 focus-within:ring-indigo-200 transition-all">
+                            {formData.hard_skills.map((skill: string) => (
+                                <span key={skill} className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
                                     {skill}
-                                    <button type="button" onClick={() => removeSkill(skill)} className="hover:text-purple-900 transition-colors"><X size={12} /></button>
+                                    <button type="button" onClick={() => removeHardSkill(skill)} className="hover:text-indigo-900 transition-colors"><X size={12} /></button>
                                 </span>
                             ))}
                             <input
                                 type="text"
-                                value={currentSkill}
-                                onChange={(e) => setCurrentSkill(e.target.value)}
-                                onKeyDown={handleAddSkill}
+                                value={currentHardSkill}
+                                onChange={(e) => setCurrentHardSkill(e.target.value)}
+                                onKeyDown={handleAddHardSkill}
+                                className="bg-transparent outline-none flex-1 text-sm text-gray-900 font-medium min-w-[120px]"
+                                placeholder="Escribe y presiona Enter..."
+                            />
+                        </div>
+                    </div>
+
+                    {/* 10. Habilidades Transversales (Soft Skills) */}
+                    <div className="col-span-full">
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                            <Tag size={16} className="text-emerald-500" /> Habilidades Transversales
+                        </label>
+                        <p className="text-[10px] text-slate-500 mb-2 italic">Liderazgo, trabajo en equipo, comunicación, resolución de problemas...</p>
+                        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[56px] focus-within:ring-2 focus-within:ring-emerald-200 transition-all">
+                            {formData.soft_skills.map((skill: string) => (
+                                <span key={skill} className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
+                                    {skill}
+                                    <button type="button" onClick={() => removeSoftSkill(skill)} className="hover:text-emerald-900 transition-colors"><X size={12} /></button>
+                                </span>
+                            ))}
+                            <input
+                                type="text"
+                                value={currentSoftSkill}
+                                onChange={(e) => setCurrentSoftSkill(e.target.value)}
+                                onKeyDown={handleAddSoftSkill}
                                 className="bg-transparent outline-none flex-1 text-sm text-gray-900 font-medium min-w-[120px]"
                                 placeholder="Escribe y presiona Enter..."
                             />

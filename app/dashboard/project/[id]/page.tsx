@@ -4,6 +4,7 @@ import { Calendar, Github, ExternalLink, Users, Code } from 'lucide-react'
 import ProjectDetailActions from '@/components/dashboard/ProjectDetailActions'
 import ProjectGallery from '@/components/projects/ProjectGallery'
 import { DEFAULT_PROJECT_IMAGES } from '@/constants/images'
+import { SkillsDetailTabs } from '@/components/shared/SkillsDetailTabs'
 
 // Tipos para props y params de Next.js
 interface PageProps {
@@ -171,23 +172,12 @@ export default async function ProjectDetailPage(props: PageProps) {
 
                     {/* Right Column: Aside */}
                     <aside className="lg:col-span-4 space-y-8">
-                        {/* Stack Widget */}
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
-                            <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-6 flex items-center gap-2">
-                                <Code size={14} className="text-indigo-500" />
-                                Tech Stack
-                            </h3>
-                            {project.skills && project.skills.length > 0 ? (
-                                <div className="flex flex-wrap gap-2">
-                                    {project.skills.map((tag, idx) => (
-                                        <span key={idx} className="px-2.5 py-1 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-100 font-mono uppercase tracking-tighter shadow-sm">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-xs text-slate-400 italic font-mono">None specified.</p>
-                            )}
+                        {/* Competencias Widget */}
+                        <div className="sticky top-24 space-y-6">
+                            <SkillsDetailTabs
+                                hardSkills={project.hard_skills}
+                                softSkills={project.soft_skills}
+                            />
 
                             {/* Team Widget */}
                             {project.team_members && (

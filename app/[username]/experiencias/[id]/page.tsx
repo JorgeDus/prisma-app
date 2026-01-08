@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/server'
 import { Calendar, Building2, ArrowLeft, Globe, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Star } from 'lucide-react'
 import ProjectGallery from '@/components/projects/ProjectGallery'
 import { DEFAULT_EXP_IMAGES } from '@/constants/images'
+import { SkillsDetailTabs } from '@/components/shared/SkillsDetailTabs'
 
 interface ExperiencePageProps {
     params: Promise<{ username: string; id: string }>
@@ -156,24 +157,11 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                     {/* Right Column: Sidebar */}
                     <aside className="lg:col-span-4 space-y-12">
                         <section className="sticky top-24 space-y-12">
-                            {/* Skills */}
-                            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                                <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-6 flex items-center gap-2">
-                                    <Zap size={14} className="text-indigo-500" />
-                                    Skills Aplicadas
-                                </h3>
-                                {experience.skills && experience.skills.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">
-                                        {experience.skills.map((skill, i) => (
-                                            <span key={i} className="px-2.5 py-1 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-100 font-mono uppercase tracking-tighter shadow-sm">
-                                                {skill}
-                                            </span>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-[10px] font-mono text-slate-400 italic">No especificadas.</p>
-                                )}
-                            </div>
+                            {/* Competencias */}
+                            <SkillsDetailTabs
+                                hardSkills={experience.hard_skills}
+                                softSkills={experience.soft_skills}
+                            />
 
                             {/* Author Card */}
                             <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center text-center space-y-6">

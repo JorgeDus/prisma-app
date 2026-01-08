@@ -193,6 +193,50 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
     const academicStatus = getAcademicStatus()
 
+    // --- AGREGACIÓN DE SKILLS (sin duplicados) + CONTEO ---
+    const hardSkillsSet = new Set<string>()
+    const softSkillsSet = new Set<string>()
+    const skillCounts: Record<string, number> = {}
+
+    // De proyectos: hard_skills y soft_skills
+    projects?.forEach(proj => {
+        proj.hard_skills?.forEach((s: string) => {
+            const skill = s.trim()
+            if (skill) {
+                hardSkillsSet.add(skill)
+                skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            }
+        })
+        proj.soft_skills?.forEach((s: string) => {
+            const skill = s.trim()
+            if (skill) {
+                softSkillsSet.add(skill)
+                skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            }
+        })
+    })
+
+    // De experiencias: hard_skills y soft_skills
+    experiences?.forEach(exp => {
+        exp.hard_skills?.forEach((s: string) => {
+            const skill = s.trim()
+            if (skill) {
+                hardSkillsSet.add(skill)
+                skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            }
+        })
+        exp.soft_skills?.forEach((s: string) => {
+            const skill = s.trim()
+            if (skill) {
+                softSkillsSet.add(skill)
+                skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            }
+        })
+    })
+
+    const aggregatedHardSkills = Array.from(hardSkillsSet)
+    const aggregatedSoftSkills = Array.from(softSkillsSet)
+
     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
     const hitosUnificados: any[] = []
 
@@ -309,6 +353,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     academicStatus={academicStatus}
                     avatarUrl={profile.avatar_url || undefined}
                     socialLinks={socialLinks}
+                    hardSkills={aggregatedHardSkills}
+                    softSkills={aggregatedSoftSkills}
+                    interests={profile.interests || []}
+                    skillCounts={skillCounts}
                 />
             </div>
 
@@ -408,7 +456,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                             description={exp.description || ""}
                                             imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
                                             dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
-                                            tags={exp.skills || []}
+                                            tags={[...(exp.hard_skills || []), ...(exp.soft_skills || [])]}
                                             href={`/${username}/experiencias/${exp.id}`}
                                             isEditable={false}
                                         />
@@ -431,7 +479,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                             subtitle={proj.role || proj.type}
                                             description={proj.description || ""}
                                             imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
-                                            tags={proj.skills || []}
+                                            tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
                                             href={`/${username}/proyectos/${proj.id}`}
                                             isEditable={false}
                                             is_featured={proj.is_featured}
@@ -462,7 +510,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={10} />
 
                             <div className="pt-8 border-t border-slate-100">
-                                <SkillsSection projects={projects || []} />
+                                <SkillsSection projects={projects || []} experiences={experiences || []} />
                             </div>
 
                             <div className="pt-8 border-t border-slate-100">
@@ -515,7 +563,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         </div>
                     </div>
                 </footer>
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }

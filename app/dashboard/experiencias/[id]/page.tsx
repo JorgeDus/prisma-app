@@ -4,6 +4,7 @@ import { Calendar, Building2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbb
 import ExperienceDetailActions from '@/components/dashboard/ExperienceDetailActions'
 import ProjectGallery from '@/components/projects/ProjectGallery'
 import { DEFAULT_EXP_IMAGES } from '@/constants/images'
+import { SkillsDetailTabs } from '@/components/shared/SkillsDetailTabs'
 
 // Tipos para props y params de Next.js
 interface PageProps {
@@ -149,23 +150,12 @@ export default async function ExperienceDetailPage(props: PageProps) {
 
                     {/* Right Column: Aside */}
                     <aside className="lg:col-span-4 space-y-8">
-                        {/* Skills Widget */}
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
-                            <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-6 flex items-center gap-2">
-                                <Zap size={14} className="text-indigo-500" />
-                                Skills Aplicadas
-                            </h3>
-                            {experience.skills && experience.skills.length > 0 ? (
-                                <div className="flex flex-wrap gap-2">
-                                    {experience.skills.map((tag, idx) => (
-                                        <span key={idx} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold border border-slate-100 shadow-sm font-mono uppercase tracking-tighter">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-xs text-slate-400 italic">No especificado.</p>
-                            )}
+                        {/* Competencias Widget */}
+                        <div className="sticky top-24 space-y-6">
+                            <SkillsDetailTabs
+                                hardSkills={experience.hard_skills}
+                                softSkills={experience.soft_skills}
+                            />
 
                             {/* Divider and Owner Info */}
                             <div className="mt-8 pt-8 border-t border-slate-50 space-y-4">

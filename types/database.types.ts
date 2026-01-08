@@ -124,7 +124,8 @@ export interface Database {
                     description: string | null
                     content: string | null
                     cover_image: string | null
-                    skills: string[]
+                    hard_skills: string[]
+                    soft_skills: string[]
                     is_startup: boolean
                     is_featured: boolean
                     type: 'academic' | 'startup' | 'personal'
@@ -147,7 +148,8 @@ export interface Database {
                     description?: string | null
                     content?: string | null
                     cover_image?: string | null
-                    skills?: string[]
+                    hard_skills?: string[]
+                    soft_skills?: string[]
                     is_startup?: boolean
                     is_featured?: boolean
                     type?: 'academic' | 'startup' | 'personal'
@@ -167,7 +169,8 @@ export interface Database {
                     description?: string | null
                     content?: string | null
                     cover_image?: string | null
-                    skills?: string[]
+                    hard_skills?: string[]
+                    soft_skills?: string[]
                     is_startup?: boolean
                     is_featured?: boolean
                     type?: 'academic' | 'startup' | 'personal'
@@ -247,7 +250,8 @@ export interface Database {
                     is_current: boolean | null
                     cover_image: string | null
                     gallery_images: string[] | null
-                    skills: string[] | null
+                    hard_skills: string[] | null
+                    soft_skills: string[] | null
                     is_featured: boolean | null
                     show_in_timeline: boolean | null
                     created_at: string
@@ -268,7 +272,8 @@ export interface Database {
                     is_current?: boolean | null
                     cover_image?: string | null
                     gallery_images?: string[] | null
-                    skills?: string[] | null
+                    hard_skills?: string[] | null
+                    soft_skills?: string[] | null
                     is_featured?: boolean | null
                     show_in_timeline?: boolean | null
                     created_at?: string
@@ -287,7 +292,8 @@ export interface Database {
                     is_current?: boolean | null
                     cover_image?: string | null
                     gallery_images?: string[] | null
-                    skills?: string[] | null
+                    hard_skills?: string[] | null
+                    soft_skills?: string[] | null
                     is_featured?: boolean | null
                     show_in_timeline?: boolean | null
                     updated_at?: string
