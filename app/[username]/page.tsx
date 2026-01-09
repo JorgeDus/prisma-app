@@ -33,7 +33,6 @@ import { EvidenceBadge } from '@/components/shared/EvidenceBadge'
 import { EmptyState } from '@/components/shared/EmptyState'
 
 import DashboardTrajectory from '@/components/dashboard/DashboardTrajectory'
-import SkillsSection from '@/components/dashboard/SkillsSection'
 import TestimonialSection from '@/components/dashboard/TestimonialSection'
 import InterestsSection from '@/components/dashboard/InterestsSection'
 import ContactSection from '@/components/public/ContactSection'
@@ -462,7 +461,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                         />
                                     ))
                                 ) : (
-                                    <p className="text-slate-400">No hay experiencias registradas bajo este protocolo.</p>
+                                    <p className="text-slate-400">No hay experiencias registradas aún por el usuario.</p>
                                 )}
                             </div>
                         </section>
@@ -508,10 +507,6 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         <section className="space-y-8">
                             <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={10} />
-
-                            <div className="pt-8 border-t border-slate-100">
-                                <SkillsSection projects={projects || []} experiences={experiences || []} />
-                            </div>
 
                             <div className="pt-8 border-t border-slate-100">
                                 <InterestsSection interests={profile.interests} isReadOnly={true} />

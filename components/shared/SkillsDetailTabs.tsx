@@ -16,7 +16,12 @@ export function SkillsDetailTabs({ hardSkills, softSkills }: SkillsDetailTabsPro
 
     // Default to hard skills if available, otherwise soft skills
     const [activeTab, setActiveTab] = useState<'hard' | 'soft'>(hasHardSkills ? 'hard' : 'soft')
+    const [isExpanded, setIsExpanded] = useState(false)
+
     const displaySkills = activeTab === 'hard' ? (hardSkills || []) : (softSkills || [])
+    const SKILLS_LIMIT = 5
+    const visibleSkills = isExpanded ? displaySkills : displaySkills.slice(0, SKILLS_LIMIT)
+    const hasMoreSkills = displaySkills.length > SKILLS_LIMIT
 
     if (!hasAnySkills) {
         return (
@@ -89,21 +94,31 @@ export function SkillsDetailTabs({ hardSkills, softSkills }: SkillsDetailTabsPro
 
             {/* Skills List - Similar to Header design */}
             <div className="space-y-2">
-                {displaySkills.length > 0 ? (
-                    displaySkills.map((skill) => (
-                        <div
-                            key={skill}
-                            className="group flex items-center gap-2 py-1.5 border-b border-slate-100 last:border-0"
-                        >
-                            <span className={`w-1.5 h-1.5 rounded-full ${hasBothTypes
-                                ? (activeTab === 'hard' ? 'bg-indigo-400' : 'bg-emerald-400')
-                                : (hasHardSkills ? 'bg-indigo-400' : 'bg-emerald-400')
-                                }`} />
-                            <span className="text-sm font-medium text-slate-700 truncate group-hover:text-indigo-600 transition-colors">
-                                {skill}
-                            </span>
-                        </div>
-                    ))
+                {visibleSkills.length > 0 ? (
+                    <>
+                        {visibleSkills.map((skill) => (
+                            <div
+                                key={skill}
+                                className="group flex items-center gap-2 py-1.5 border-b border-slate-100 last:border-0"
+                            >
+                                <span className={`w-1.5 h-1.5 rounded-full ${hasBothTypes
+                                    ? (activeTab === 'hard' ? 'bg-indigo-400' : 'bg-emerald-400')
+                                    : (hasHardSkills ? 'bg-indigo-400' : 'bg-emerald-400')
+                                    }`} />
+                                <span className="text-sm font-medium text-slate-700 truncate group-hover:text-indigo-600 transition-colors">
+                                    {skill}
+                                </span>
+                            </div>
+                        ))}
+                        {hasMoreSkills && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className="w-full py-2 text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-600 hover:text-indigo-700 transition-colors"
+                            >
+                                {isExpanded ? 'Ver menos' : `Ver todas (${displaySkills.length})`}
+                            </button>
+                        )}
+                    </>
                 ) : (
                     <p className="text-xs text-slate-400 italic text-center py-4">
                         {activeTab === 'hard'

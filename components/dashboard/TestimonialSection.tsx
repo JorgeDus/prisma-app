@@ -76,18 +76,18 @@ export default function TestimonialSection({ testimonials, userId, isReadOnly = 
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 border-2 border-dashed border-slate-200 rounded-3xl group">
+                <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 group hover:border-indigo-200 hover:bg-slate-50 transition-all duration-300">
                     <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center mb-4 text-slate-400 group-hover:text-indigo-600 group-hover:border-indigo-100 transition-colors">
                         <Quote size={20} strokeWidth={1.5} />
                     </div>
-                    <h4 className="text-lg font-semibold text-slate-800 mb-1">Sin testimonios aún</h4>
-                    <p className="text-slate-500 text-xs font-mono uppercase tracking-tight text-center max-w-[280px]">
+                    <h4 className="text-lg font-semibold text-slate-800 mb-1 text-center">Sin testimonios aún</h4>
+                    <p className="text-slate-500 text-sm text-center max-w-[280px]">
                         Tu vitrina está esperando testimonios.
                     </p>
                     {!isReadOnly && (
                         <button
                             onClick={handleCreate}
-                            className="mt-6 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-mono tracking-widest uppercase hover:bg-slate-800 transition-colors"
+                            className="mt-6 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
                         >
                             Añadir Testimonio
                         </button>

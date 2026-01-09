@@ -340,7 +340,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                 {/* Identity Fields */}
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-1.5 px-1">Tu Link Personal / Username</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tu Link Personal / Username</label>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-[10px]">tuprisma.com/</span>
                             <input
@@ -368,7 +368,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-1.5 px-1">Nombre Completo</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre Completo</label>
                         <div className="relative">
                             <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                             <input
@@ -386,7 +386,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                 {/* Impact Fields */}
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-1.5 px-1">Titular Académico / Profesional</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Titular Académico / Profesional</label>
                         <div className="relative">
                             <Type className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                             <input
@@ -400,22 +400,32 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-1.5 px-1">Tesis de Impacto (Bio)</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Bio</label>
                         <div className="relative">
                             <FileText className="absolute left-3 top-3 text-slate-400" size={16} />
                             <textarea
                                 value={formData.about}
-                                onChange={(e) => setFormData({ ...formData, about: e.target.value })}
+                                onChange={(e) => {
+                                    if (e.target.value.length <= 200) {
+                                        setFormData({ ...formData, about: e.target.value })
+                                    }
+                                }}
+                                maxLength={150}
                                 className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all min-h-[100px] resize-none leading-relaxed"
-                                placeholder="Describe el propósito de tu trayectoria..."
+                                placeholder="Describe brevemente tu trayectoria..."
                             />
+                        </div>
+                        <div className="flex justify-end mt-1">
+                            <span className={`text-xs ${formData.about.length >= 100 ? 'text-amber-500' : 'text-slate-400'} ${formData.about.length >= 150 ? 'text-red-500 font-semibold' : ''}`}>
+                                {formData.about.length}/150
+                            </span>
                         </div>
                     </div>
 
                     <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
                         <div className="flex items-center gap-2 text-slate-600">
                             <School size={16} />
-                            <span className="text-[10px] font-mono font-bold uppercase tracking-widest">Validación Académica</span>
+                            <span className="text-sm font-semibold">Validación Académica</span>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4">
@@ -436,7 +446,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-[9px] font-mono font-bold text-slate-400 uppercase mb-1">Ingreso</label>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Ingreso</label>
                                 <input
                                     type="date"
                                     value={formData.career_start_date}
@@ -445,7 +455,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="block text-[9px] font-mono font-bold text-slate-400 uppercase mb-1">Estado</label>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Estado</label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
                                     <input
                                         type="checkbox"
@@ -472,14 +482,14 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
+                        className="px-4 py-2 text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         disabled={isLoading || uploadingAvatar || usernameStatus === 'taken'}
-                        className="flex items-center gap-2 px-6 py-2 bg-slate-900 text-white rounded-lg text-xs font-mono font-bold tracking-widest uppercase hover:bg-slate-800 transition-all disabled:opacity-50 shadow-lg"
+                        className="flex items-center gap-2 px-6 py-2 bg-slate-900 text-white rounded-lg text-sm font-bold hover:bg-slate-800 transition-all disabled:opacity-50 shadow-lg"
                     >
                         {isLoading ? <Loader2 className="animate-spin" size={16} /> : 'Actualizar Perfil'}
                     </button>

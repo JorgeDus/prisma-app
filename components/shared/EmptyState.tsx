@@ -25,14 +25,14 @@ export const EmptyState = ({
             <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center mb-4 text-slate-400 group-hover:text-indigo-600 group-hover:border-indigo-100 transition-colors">
                 <Plus size={20} strokeWidth={1.5} />
             </div>
-            <h4 className="text-lg font-semibold text-slate-800 mb-1">{title}</h4>
-            <p className="text-slate-500 text-sm font-mono uppercase tracking-tight text-center max-w-[280px]">
+            <h4 className="text-lg font-semibold text-slate-800 mb-1 text-center">{title}</h4>
+            <p className="text-slate-500 text-sm text-center max-w-[280px]">
                 {description}
             </p>
             {actionLabel && (
                 <button
                     onClick={onAction}
-                    className="mt-6 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-mono tracking-widest uppercase hover:bg-indigo-700 transition-colors"
+                    className="mt-6 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
                 >
                     {actionLabel}
                 </button>

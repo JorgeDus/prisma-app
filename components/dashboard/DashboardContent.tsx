@@ -37,7 +37,6 @@ import { BaseCard } from '@/components/shared/BaseCard'
 import { EvidenceBadge } from '@/components/shared/EvidenceBadge'
 import { EmptyState } from '@/components/shared/EmptyState'
 import DashboardTrajectory from '@/components/dashboard/DashboardTrajectory'
-import SkillsSection from '@/components/dashboard/SkillsSection'
 import InterestsSection from '@/components/dashboard/InterestsSection'
 import TestimonialSection from '@/components/dashboard/TestimonialSection'
 import ContactSection from '@/components/public/ContactSection'
@@ -272,7 +271,7 @@ export default function DashboardContent({
                 <ImpactHeader
                     name={profile.full_name || profile.username}
                     headline={profile.headline || undefined}
-                    thesis={profile.about || "Define tu tesis de impacto en la configuración del perfil."}
+                    thesis={profile.about || "Escribe tu sección de bio en la configuración del perfil."}
                     career={careerName}
                     university={universityName}
                     academicStatus={academicStatus}
@@ -424,7 +423,7 @@ export default function DashboardContent({
                                     ))
                                 ) : (
                                     <EmptyState
-                                        title="Registra tu Trayectoria"
+                                        title="Registra tus Experiencias Significativas"
                                         description="Añade experiencias que validen tus habilidades en el campo real."
                                         actionLabel="Añadir Experiencia"
                                         onAction={() => setIsExpModalOpen(true)}
@@ -492,10 +491,6 @@ export default function DashboardContent({
                         <section className="sticky top-24 space-y-8">
                             <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
-
-                            <div className="pt-8 border-t border-slate-100">
-                                <SkillsSection projects={projects || []} experiences={experiences || []} />
-                            </div>
 
                             <div className="pt-8 border-t border-slate-100">
                                 <InterestsSection interests={profile.interests} profileId={profile.id} />

@@ -150,7 +150,7 @@ export default function AchievementModal({ isOpen, onClose, userId, achievementT
                 <div className="space-y-4">
                     {/* Título */}
                     <div>
-                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Título del Logro</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Título del Logro</label>
                         <div className="relative">
                             <span className="absolute left-3 top-3 text-gray-400">
                                 {selectedCategory && <selectedCategory.icon size={18} />}
@@ -173,7 +173,7 @@ export default function AchievementModal({ isOpen, onClose, userId, achievementT
 
                     {/* Organización */}
                     <div>
-                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Institución / Entidad</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Institución / Entidad</label>
                         <div className="relative">
                             <span className="absolute left-3 top-3 text-gray-400"><Building2 size={18} /></span>
                             <input
@@ -190,7 +190,7 @@ export default function AchievementModal({ isOpen, onClose, userId, achievementT
                     <div className="grid grid-cols-2 gap-4">
                         {/* Fecha */}
                         <div>
-                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Fecha (Opcional)</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Fecha (Opcional)</label>
                             <div className="relative">
                                 <span className="absolute left-3 top-3 text-gray-400"><Calendar size={18} /></span>
                                 <input
@@ -204,7 +204,7 @@ export default function AchievementModal({ isOpen, onClose, userId, achievementT
 
                         {/* Distinción / Nota */}
                         <div>
-                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Distinción / Nota</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Distinción / Nota</label>
                             <div className="relative">
                                 <span className="absolute left-3 top-3 text-gray-400"><Award size={18} /></span>
                                 <input
@@ -221,7 +221,7 @@ export default function AchievementModal({ isOpen, onClose, userId, achievementT
                     {/* Solo para Cátedras o Roles Académicos */}
                     {['course_chair', 'academic_role'].includes(formData.category) && (
                         <div className="animate-in slide-in-from-top duration-300">
-                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Nombre del Profesor</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre del Profesor</label>
                             <div className="relative">
                                 <span className="absolute left-3 top-3 text-gray-400"><User size={18} /></span>
                                 <input
@@ -261,7 +261,7 @@ export default function AchievementModal({ isOpen, onClose, userId, achievementT
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-xs hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-100 transition-all disabled:opacity-50"
+                            className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold text-sm hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-100 transition-all disabled:opacity-50"
                         >
                             {isLoading ? <Loader2 size={18} className="animate-spin" /> : 'Guardar Logro'}
                         </button>

@@ -37,9 +37,13 @@ export const ImpactHeader = ({
     skillCounts = {},
 }: ImpactHeaderProps) => {
     const [activeTab, setActiveTab] = useState<'hard' | 'soft'>('hard');
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const displaySkills = activeTab === 'hard' ? hardSkills : softSkills;
     const hasAnySkills = hardSkills.length > 0 || softSkills.length > 0;
+    const SKILLS_LIMIT = 5;
+    const visibleSkills = isExpanded ? displaySkills : displaySkills.slice(0, SKILLS_LIMIT);
+    const hasMoreSkills = displaySkills.length > SKILLS_LIMIT;
 
     return (
         <header className="relative pt-20 pb-8 px-6 max-w-7xl mx-auto">
@@ -91,13 +95,13 @@ export const ImpactHeader = ({
                             {/* Credential Rail */}
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2">
                                 <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-full shadow-sm">
-                                    <span className="text-[10px] font-mono font-black text-indigo-600 uppercase tracking-widest">{career}</span>
+                                    <span className="text-xs font-mono font-black text-indigo-600 uppercase tracking-widest">{career}</span>
                                 </div>
                                 <div className="w-1 h-1 rounded-full bg-slate-300" />
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest leading-none pt-0.5">{university}</span>
+                                    <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-widest leading-none pt-0.5">{university}</span>
                                     {academicStatus && (
-                                        <span className="text-[9px] font-mono font-black text-slate-800 bg-slate-100/50 border border-slate-200/50 px-2 py-0.5 rounded uppercase tracking-tighter">
+                                        <span className="text-[11px] font-mono font-black text-slate-800 bg-slate-100/50 border border-slate-200/50 px-2 py-0.5 rounded uppercase tracking-tighter">
                                             {academicStatus}
                                         </span>
                                     )}
@@ -106,9 +110,9 @@ export const ImpactHeader = ({
                         </div>
 
                         {/* Thesis Vision Paragraph */}
-                        <div className="relative max-w-2xl">
+                        <div className="relative max-w-2xl overflow-hidden">
                             <div className="absolute -left-6 top-1 w-1 h-full bg-indigo-50" />
-                            <p className="text-lg md:text-xl text-slate-600 leading-relaxed text-balance italic">
+                            <p className="text-lg md:text-xl text-slate-600 leading-relaxed text-balance italic break-words whitespace-normal">
                                 "{thesis}"
                             </p>
                         </div>
@@ -172,27 +176,37 @@ export const ImpactHeader = ({
 
                                 {/* Skills List */}
                                 <div className="space-y-2">
-                                    {displaySkills.length > 0 ? (
-                                        displaySkills.slice(0, 8).map((skill) => {
-                                            // Count evidences for this skill
-                                            const count = skillCounts?.[skill] || 1
-                                            return (
-                                                <div
-                                                    key={skill}
-                                                    className="group flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0"
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${activeTab === 'hard' ? 'bg-indigo-400' : 'bg-blue-400'}`} />
-                                                        <span className="text-sm font-medium text-slate-700 truncate group-hover:text-indigo-600 transition-colors">
-                                                            {skill}
+                                    {visibleSkills.length > 0 ? (
+                                        <>
+                                            {visibleSkills.map((skill) => {
+                                                // Count evidences for this skill
+                                                const count = skillCounts?.[skill] || 1
+                                                return (
+                                                    <div
+                                                        key={skill}
+                                                        className="group flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0"
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`w-1.5 h-1.5 rounded-full ${activeTab === 'hard' ? 'bg-indigo-400' : 'bg-blue-400'}`} />
+                                                            <span className="text-sm font-medium text-slate-700 truncate group-hover:text-indigo-600 transition-colors">
+                                                                {skill}
+                                                            </span>
+                                                        </div>
+                                                        <span className="font-mono text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] group-hover:text-indigo-600 transition-colors">
+                                                            {count} {count === 1 ? 'EVIDENCIA' : 'EVIDENCIAS'}
                                                         </span>
                                                     </div>
-                                                    <span className="font-mono text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] group-hover:text-indigo-600 transition-colors">
-                                                        {count} {count === 1 ? 'EVIDENCIA' : 'EVIDENCIAS'}
-                                                    </span>
-                                                </div>
-                                            )
-                                        })
+                                                )
+                                            })}
+                                            {hasMoreSkills && (
+                                                <button
+                                                    onClick={() => setIsExpanded(!isExpanded)}
+                                                    className="w-full py-2 text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-600 hover:text-indigo-700 transition-colors"
+                                                >
+                                                    {isExpanded ? 'Ver menos' : `Ver todas (${displaySkills.length})`}
+                                                </button>
+                                            )}
+                                        </>
                                     ) : (
                                         <p className="text-xs text-slate-400 italic text-center py-4">
                                             {activeTab === 'hard'
@@ -213,28 +227,6 @@ export const ImpactHeader = ({
                     </div>
                 </aside>
             </div>
-
-            {/* Interests Footer */}
-            {interests.length > 0 && (
-                <div className="mt-10 pt-6 border-t border-slate-100">
-                    <p className="text-[10px] font-mono tracking-[0.25em] uppercase text-slate-400">
-                        <span className="font-bold text-slate-500">INTERESES</span>
-                        <span className="mx-3">—</span>
-                        {interests.map((interest, idx) => {
-                            const emojiMatch = interest.match(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
-                            const emoji = emojiMatch ? emojiMatch[0] : null;
-                            const text = emoji ? interest.replace(emoji, '').trim() : interest;
-                            return (
-                                <span key={idx}>
-                                    {emoji && <span className="mr-1">{emoji}</span>}
-                                    {text}
-                                    {idx < interests.length - 1 && <span className="mx-2">·</span>}
-                                </span>
-                            );
-                        })}
-                    </p>
-                </div>
-            )}
         </header>
     );
 };
