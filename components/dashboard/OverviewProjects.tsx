@@ -21,21 +21,20 @@ export default function OverviewProjects({ projects, isReadOnly = false, usernam
     // Si no ha cargado (SSR), no mostramos nada para evitar hidratación mismatch o mostramos skeleton
     if (!isLoaded) return null // O un loading skeleton
 
-    // Lógica para Vista Pública: Selección del "Proyecto Destacado" (Singular)
+    // Lógica simplificada: Mostrar los proyectos más recientes
+    // (La curación manual ahora se hace en "Mi Vitrina")
     let featuredProjects: Project[] = []
 
-    if (isReadOnly) {
-        const markedFeatured = projects.filter(p => p.is_featured)
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    const sortedProjects = [...projects].sort((a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
 
-        if (markedFeatured.length > 0) {
-            // Si hay marcados por el usuario, mostramos el más reciente de ellos
-            featuredProjects = [markedFeatured[0]]
-        }
-        // Eliminamos el fallback automático de projects[0] para respetar la decisión del usuario
+    if (isReadOnly) {
+        // Vista pública: mostrar el proyecto más reciente
+        featuredProjects = sortedProjects.slice(0, 1)
     } else {
-        // Lógica para Dashboard: Muestra todos los marcados en la base de datos
-        featuredProjects = projects.filter(p => p.is_featured)
+        // Dashboard: mostrar los 2 más recientes
+        featuredProjects = sortedProjects.slice(0, 2)
     }
 
     // Fallback: Si no hay proyectos, mensaje.
@@ -50,21 +49,20 @@ export default function OverviewProjects({ projects, isReadOnly = false, usernam
         )
     }
 
-    // Si no hay destacados, sugerir destacar (o mostrar mensaje público).
+    // Si no hay destacados (no debería pasar), mostrar mensaje
     if (featuredProjects.length === 0) {
         if (isReadOnly) {
             return (
                 <div className="text-center py-12 bg-gray-50/30 rounded-2xl border-2 border-dashed border-gray-100">
                     <Star className="w-8 h-8 text-gray-200 mx-auto mb-3" />
-                    <p className="text-gray-400 font-medium text-sm">Sin proyectos destacados seleccionados.</p>
+                    <p className="text-gray-400 font-medium text-sm">Sin proyectos disponibles.</p>
                 </div>
             )
         }
         return (
             <div className="text-center py-8 bg-gray-50 rounded-xl border border-gray-100">
                 <Star className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-gray-600 font-medium">Aún no has destacado ningún proyecto.</p>
-                <p className="text-sm text-gray-500 mb-3">Ve a la pestaña de proyectos y marca con una estrella ⭐ tus mejores trabajos para mostrarlos aquí.</p>
+                <p className="text-gray-600 font-medium">No hay proyectos para mostrar.</p>
                 <Link href="/dashboard?tab=proyectos" className="text-purple-600 font-medium hover:text-purple-700 text-sm">
                     Gestionar Proyectos →
                 </Link>

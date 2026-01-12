@@ -49,7 +49,7 @@ export default function DashboardCourseCard({ catedra, institutionName = 'Instit
             {/* Date */}
             {catedra.date && (
                 <div className="mt-3 pt-3 border-t border-gray-100">
-                    <span className="text-xs text-gray-400">Fecha: {new Date(catedra.date).toLocaleDateString()}</span>
+                    <span className="text-xs text-gray-400">Fecha: {new Date(catedra.date).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', timeZone: 'UTC' })}</span>
                 </div>
             )}
         </div>

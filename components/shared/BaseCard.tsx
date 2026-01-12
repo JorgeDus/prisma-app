@@ -13,7 +13,6 @@ interface BaseCardProps {
     location?: string;
     href?: string;
     onClick?: () => void;
-    is_featured?: boolean;
     is_learning_artifact?: boolean; // El concepto de FracasoLab
     isEditable?: boolean;
     onEdit?: () => void;
@@ -34,7 +33,6 @@ export const BaseCard = ({
     location,
     href,
     onClick,
-    is_featured,
     is_learning_artifact,
     isEditable,
     onEdit,
@@ -72,13 +70,6 @@ export const BaseCard = ({
                         alt={title}
                         className="w-full h-full object-cover transition-all duration-700 ease-out grayscale group-hover:grayscale-0"
                     />
-                    {is_featured && (
-                        <div className="absolute top-4 right-4 z-20">
-                            <span className="bg-slate-900/90 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-mono">
-                                High Impact
-                            </span>
-                        </div>
-                    )}
                 </div>
             )}
 

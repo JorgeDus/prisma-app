@@ -68,11 +68,22 @@ const CATEGORY_ICON: Record<string, any> = {
     academic_role: Users
 }
 
+
 const CATEGORY_COLOR: Record<string, string> = {
     certification: "text-blue-500",
     award: "text-amber-500",
     course_chair: "text-indigo-500",
     academic_role: "text-cyan-500"
+}
+
+// Helper para formatear fechas (solo mes y año)
+const formatDate = (dateString: string) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        timeZone: 'UTC'
+    })
 }
 
 export async function generateMetadata(props: PublicProfileProps): Promise<Metadata> {
@@ -335,9 +346,6 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         />
                         <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-800"> / {username}</span>
                     </Link>
-                    <Link href="/" className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">
-                        Protocolo de Validación →
-                    </Link>
                 </div>
             </nav>
 
@@ -405,7 +413,11 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                                 </span>
                                             </div>
                                         }
-                                        dateRange={ach.date || ""}
+                                        dateRange={
+                                            ach.category === 'academic_role' && ach.date
+                                                ? `${formatDate(ach.date)} - ${ach.is_current ? 'Presente' : (ach.end_date ? formatDate(ach.end_date) : '')}`
+                                                : (ach.date ? formatDate(ach.date) : "")
+                                        }
                                         isEditable={false}
                                         className="h-full"
                                     >
@@ -454,7 +466,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                             }
                                             description={exp.description || ""}
                                             imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
-                                            dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
+                                            dateRange={exp.start_date ? `${formatDate(exp.start_date)} - ${exp.is_current ? 'Presente' : (exp.end_date ? formatDate(exp.end_date) : '')}` : ""}
                                             tags={[...(exp.hard_skills || []), ...(exp.soft_skills || [])]}
                                             href={`/${username}/experiencias/${exp.id}`}
                                             isEditable={false}
@@ -481,8 +493,6 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                             tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
                                             href={`/${username}/proyectos/${proj.id}`}
                                             isEditable={false}
-                                            is_featured={proj.is_featured}
-                                        // is_learning_artifact={proj.is_learning_artifact} // Pendiente de migración o lógica
                                         />
                                     ))
                                 ) : (

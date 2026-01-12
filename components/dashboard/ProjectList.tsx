@@ -28,28 +28,6 @@ export default function ProjectList({ initialProjects, userId, isReadOnly = fals
         setProjects(initialProjects)
     }, [initialProjects])
 
-    // Update is_featured in Supabase when featured changes
-    const toggleFeatured = async (id: string, currentStatus: boolean) => {
-        try {
-            const { error } = await supabase
-                .from('projects')
-                .update({ is_featured: !currentStatus })
-                .eq('id', id)
-
-            if (error) throw error
-
-            // Update local state for immediate UI feedback
-            setProjects(prev => prev.map(p =>
-                p.id === id ? { ...p, is_featured: !currentStatus } : p
-            ))
-
-            router.refresh()
-        } catch (error) {
-            console.error('Error toggling featured status:', error)
-            alert('Error al actualizar el estado destacado')
-        }
-    }
-
     // Update show_in_timeline in Supabase
     const toggleTimeline = async (id: string, currentStatus: boolean) => {
         try {
@@ -107,7 +85,7 @@ export default function ProjectList({ initialProjects, userId, isReadOnly = fals
                     <p className="text-gray-500 text-sm mt-1">
                         {isReadOnly
                             ? 'Portafolio de proyectos académicos y personales.'
-                            : 'Gestiona tu portafolio académico y personal. Destaca (⭐) los que quieras mostrar en tu perfil principal.'}
+                            : 'Gestiona tu portafolio académico y personal.'}
                     </p>
                 </div>
                 {!isReadOnly && (
@@ -128,9 +106,7 @@ export default function ProjectList({ initialProjects, userId, isReadOnly = fals
                         <ProjectCard
                             key={project.id}
                             project={project}
-                            isFeatured={project.is_featured}
                             showInTimeline={project.show_in_timeline ?? true}
-                            onToggleFeatured={isReadOnly ? undefined : toggleFeatured}
                             onToggleTimeline={isReadOnly ? undefined : toggleTimeline}
                             onDelete={isReadOnly ? undefined : handleDelete}
                             onEdit={isReadOnly ? undefined : handleEdit}

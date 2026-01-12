@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Loader2, Type, AlignLeft, Calendar, Tag, Upload, X, ImageIcon, Move, Plus, Github, ExternalLink, Users, Target, Rocket, Award } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
+import MonthYearPicker from '@/components/ui/MonthYearPicker'
 import { Project } from '@/types/database.types'
 
 interface ProjectFormModalProps {
@@ -49,7 +50,6 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
         results: '',
         learnings: '',
         gallery_images: [] as string[],
-        is_featured: false,
         show_in_timeline: true
     })
 
@@ -77,7 +77,6 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 results: projectToEdit.results || '',
                 learnings: projectToEdit.learnings || '',
                 gallery_images: projectToEdit.gallery_images || [],
-                is_featured: projectToEdit.is_featured || false,
                 show_in_timeline: projectToEdit.show_in_timeline !== false
             })
             setImagePreview(projectToEdit.cover_image || null)
@@ -104,7 +103,6 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 results: '',
                 learnings: '',
                 gallery_images: [],
-                is_featured: false,
                 show_in_timeline: true
             })
             setImagePreview(null)
@@ -293,8 +291,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 results: formData.results || null,
                 learnings: formData.learnings || null,
                 gallery_images: finalGalleryUrls,
-                is_featured: formData.is_featured,
                 show_in_timeline: formData.show_in_timeline,
+                created_at: formData.date,
                 updated_at: new Date().toISOString()
             }
 
@@ -310,8 +308,7 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                     .from('projects')
                     .insert({
                         user_id: userId,
-                        ...projectData,
-                        created_at: new Date().toISOString()
+                        ...projectData
                     })
 
                 if (error) throw error
@@ -647,11 +644,9 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
                             <Calendar size={16} className="text-purple-500" /> Fecha del Proyecto
                         </label>
-                        <input
-                            type="date"
+                        <MonthYearPicker
                             value={formData.date}
-                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 text-sm font-bold cursor-pointer"
+                            onChange={(value) => setFormData({ ...formData, date: value })}
                         />
                     </div>
                 </div>

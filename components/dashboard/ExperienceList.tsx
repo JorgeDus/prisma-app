@@ -29,27 +29,6 @@ export default function ExperienceList({ initialExperiences, userId, isReadOnly 
         setExperiences(initialExperiences)
     }, [initialExperiences])
 
-    // Update is_featured in Supabase
-    const toggleFeatured = async (id: string, currentStatus: boolean) => {
-        try {
-            const { error } = await supabase
-                .from('experiences')
-                .update({ is_featured: !currentStatus })
-                .eq('id', id)
-
-            if (error) throw error
-
-            setExperiences(prev => prev.map(e =>
-                e.id === id ? { ...e, is_featured: !currentStatus } : e
-            ))
-
-            router.refresh()
-        } catch (error) {
-            console.error('Error toggling featured status:', error)
-            alert('Error al actualizar el estado destacado')
-        }
-    }
-
     // Update show_in_timeline in Supabase
     const toggleTimeline = async (id: string, currentStatus: boolean) => {
         try {
@@ -106,7 +85,7 @@ export default function ExperienceList({ initialExperiences, userId, isReadOnly 
                     <p className="text-gray-500 text-sm mt-1">
                         {isReadOnly
                             ? 'Trayectoria profesional, liderazgo y voluntariado.'
-                            : 'Gestiona tu historia personal. Agrega experiencias académicas, personales, profesionales, voluntariados, de liderazgo y más. Destaca (⭐) los que quieras mostrar en tu perfil principal'}
+                            : 'Gestiona tu historia personal. Agrega experiencias académicas, personales, profesionales, voluntariados, de liderazgo y más.'}
                     </p>
                 </div>
                 {!isReadOnly && (
@@ -127,9 +106,7 @@ export default function ExperienceList({ initialExperiences, userId, isReadOnly 
                         <ExperienceCard
                             key={experience.id}
                             experience={experience}
-                            isFeatured={experience.is_featured || false}
                             showInTimeline={experience.show_in_timeline ?? true}
-                            onToggleFeatured={isReadOnly ? undefined : toggleFeatured}
                             onToggleTimeline={isReadOnly ? undefined : toggleTimeline}
                             onDelete={isReadOnly ? undefined : handleDelete}
                             onEdit={isReadOnly ? undefined : handleEdit}

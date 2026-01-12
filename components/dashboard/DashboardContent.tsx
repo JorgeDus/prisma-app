@@ -89,6 +89,16 @@ const CATEGORY_COLOR: Record<string, string> = {
     academic_role: "text-cyan-500"
 }
 
+// Helper para formatear fechas (solo mes y año)
+const formatDate = (dateString: string) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        timeZone: 'UTC'
+    })
+}
+
 export default function DashboardContent({
     profile,
     projects,
@@ -343,7 +353,11 @@ export default function DashboardContent({
                                                     </span>
                                                 </div>
                                             }
-                                            dateRange={ach.date || ""}
+                                            dateRange={
+                                                ach.category === 'academic_role' && ach.date
+                                                    ? `${formatDate(ach.date)} - ${ach.is_current ? 'Presente' : (ach.end_date ? formatDate(ach.end_date) : '')}`
+                                                    : (ach.date ? formatDate(ach.date) : "")
+                                            }
                                             isEditable={true}
                                             className="h-full"
                                             onEdit={() => { setEditingAch(ach); setIsAchModalOpen(true); }}
@@ -413,7 +427,7 @@ export default function DashboardContent({
                                             }
                                             description={exp.description || ""}
                                             imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
-                                            dateRange={exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Presente'}` : ""}
+                                            dateRange={exp.start_date ? `${formatDate(exp.start_date)} - ${exp.is_current ? 'Presente' : (exp.end_date ? formatDate(exp.end_date) : '')}` : ""}
                                             tags={[...(exp.hard_skills || []), ...(exp.soft_skills || [])]}
                                             href={`/dashboard/experiencias/${exp.id}`}
                                             isEditable={true}
@@ -456,7 +470,6 @@ export default function DashboardContent({
                                             tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
                                             href={`/dashboard/project/${proj.id}`}
                                             isEditable={true}
-                                            is_featured={proj.is_featured}
                                             is_learning_artifact={proj.is_startup}
                                             onEdit={() => { setEditingProj(proj); setIsProjModalOpen(true); }}
                                             onDelete={() => handleDelete('projects', proj.id)}

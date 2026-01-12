@@ -39,11 +39,9 @@ export const BentoHighlights = ({
     onDeleteItem,
     curatedItems
 }: BentoHighlightsProps) => {
-    // Use curated items if provided, otherwise fall back to sorting by is_featured and date
+    // Use curated items if provided, otherwise fall back to sorting by date
     const featured = curatedItems || [...items]
         .sort((a, b) => {
-            if (a.is_featured && !b.is_featured) return -1;
-            if (!a.is_featured && b.is_featured) return 1;
             return new Date(b.created_at || b.date).getTime() - new Date(a.created_at || a.date).getTime();
         })
         .slice(0, 3);

@@ -36,6 +36,7 @@ export default async function ExperienceDetailPage(props: PageProps) {
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'long',
+            timeZone: 'UTC'
         })
     }
 

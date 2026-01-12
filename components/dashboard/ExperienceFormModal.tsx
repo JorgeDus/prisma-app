@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Loader2, Type, Building2, Calendar, Tag, Upload, X, ImageIcon, Move, Plus, Star, Award, Heart, HeartPulse, Palette, Dumbbell, GraduationCap, Briefcase, Zap } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
+import MonthYearPicker from '@/components/ui/MonthYearPicker'
 import { Experience } from '@/types/database.types'
 
 interface ExperienceFormModalProps {
@@ -47,7 +48,6 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         soft_skills: [] as string[],
         cover_image: '',
         gallery_images: [] as string[],
-        is_featured: false,
         show_in_timeline: true
     })
 
@@ -73,7 +73,6 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 soft_skills: experienceToEdit.soft_skills || [],
                 cover_image: experienceToEdit.cover_image || '',
                 gallery_images: experienceToEdit.gallery_images || [],
-                is_featured: experienceToEdit.is_featured || false,
                 show_in_timeline: experienceToEdit.show_in_timeline !== false
             })
             setImagePreview(experienceToEdit.cover_image || null)
@@ -98,7 +97,6 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 soft_skills: [],
                 cover_image: '',
                 gallery_images: [],
-                is_featured: false,
                 show_in_timeline: true
             })
             setImagePreview(null)
@@ -286,7 +284,7 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 soft_skills: formData.soft_skills,
                 cover_image: finalImageUrl || null,
                 gallery_images: finalGalleryUrls,
-                is_featured: formData.is_featured,
+                show_in_timeline: formData.show_in_timeline,
                 updated_at: new Date().toISOString()
             }
 
@@ -415,24 +413,20 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
                             <Calendar size={16} className="text-purple-500" /> Fecha de Inicio
                         </label>
-                        <input
-                            type="date"
+                        <MonthYearPicker
                             required
                             value={formData.start_date}
-                            onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 text-sm font-bold cursor-pointer"
+                            onChange={(value) => setFormData({ ...formData, start_date: value })}
                         />
                     </div>
                     <div className="space-y-3">
                         <label className="block text-sm font-semibold text-gray-700 mb-0 flex items-center gap-2">
                             <Calendar size={16} className="text-gray-400" /> Fecha de Fin
                         </label>
-                        <input
-                            type="date"
+                        <MonthYearPicker
                             disabled={formData.is_current}
                             value={formData.end_date}
-                            onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                            className={`w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 text-sm font-bold ${formData.is_current ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                            onChange={(value) => setFormData({ ...formData, end_date: value })}
                         />
                         <div className="flex items-center gap-2">
                             <input

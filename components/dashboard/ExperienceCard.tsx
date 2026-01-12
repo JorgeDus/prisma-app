@@ -3,15 +3,13 @@
 
 import { useState } from 'react'
 import { Experience } from '@/types/database.types'
-import { Calendar, Star, Pencil, Trash2, Loader2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Building2, Clock } from 'lucide-react'
+import { Calendar, Pencil, Trash2, Loader2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Building2, Clock, Star } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Link from 'next/link'
 
 interface ExperienceCardProps {
     experience: Experience
-    isFeatured?: boolean
     showInTimeline?: boolean
-    onToggleFeatured?: (id: string, currentStatus: boolean) => void
     onToggleTimeline?: (id: string, currentStatus: boolean) => void
     onDelete?: (id: string) => void
     onEdit?: (experience: Experience) => void
@@ -21,9 +19,7 @@ interface ExperienceCardProps {
 
 export default function ExperienceCard({
     experience,
-    isFeatured = false,
     showInTimeline = true,
-    onToggleFeatured,
     onToggleTimeline,
     onDelete,
     onEdit,
@@ -46,6 +42,7 @@ export default function ExperienceCard({
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'short',
+            timeZone: 'UTC'
         })
     }
 
@@ -82,41 +79,23 @@ export default function ExperienceCard({
                     </Link>
                 )}
 
-                {/* Featured & Timeline Buttons (Top Right) */}
-                {!isReadOnly && (onToggleFeatured || onToggleTimeline) && (
+                {/* Timeline Button (Top Right) */}
+                {!isReadOnly && onToggleTimeline && (
                     <div className="absolute top-3 right-3 flex gap-2 z-10">
-                        {onToggleTimeline && (
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    onToggleTimeline(experience.id, showInTimeline);
-                                }}
-                                className={`p-2 rounded-full backdrop-blur-md transition-all ${showInTimeline
-                                    ? 'bg-purple-500 text-white shadow-lg scale-110'
-                                    : 'bg-white/50 text-gray-400 hover:bg-white hover:text-purple-500'
-                                    }`}
-                                title={showInTimeline ? "Quitar de trayectoria" : "Mostrar en trayectoria"}
-                            >
-                                <Clock size={16} />
-                            </button>
-                        )}
-                        {onToggleFeatured && (
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    onToggleFeatured(experience.id, isFeatured);
-                                }}
-                                className={`p-2 rounded-full backdrop-blur-md transition-all ${isFeatured
-                                    ? 'bg-yellow-400 text-white shadow-lg scale-110'
-                                    : 'bg-white/50 text-gray-400 hover:bg-white hover:text-yellow-400'
-                                    }`}
-                                title={isFeatured ? "Quitar de destacados" : "Destacar experiencia"}
-                            >
-                                <Star size={16} fill={isFeatured ? "currentColor" : "none"} />
-                            </button>
-                        )}
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onToggleTimeline(experience.id, showInTimeline);
+                            }}
+                            className={`p-2 rounded-full backdrop-blur-md transition-all ${showInTimeline
+                                ? 'bg-purple-500 text-white shadow-lg scale-110'
+                                : 'bg-white/50 text-gray-400 hover:bg-white hover:text-purple-500'
+                                }`}
+                            title={showInTimeline ? "Quitar de trayectoria" : "Mostrar en trayectoria"}
+                        >
+                            <Clock size={16} />
+                        </button>
                     </div>
                 )}
 

@@ -31,12 +31,12 @@ export default async function ProjectDetailPage(props: PageProps) {
         return notFound()
     }
 
-    // Helper para fecha
+    // Helper para fecha (solo mes y año)
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            timeZone: 'UTC'
         })
     }
 

@@ -32,7 +32,7 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            timeZone: 'UTC'
         })
     }
 

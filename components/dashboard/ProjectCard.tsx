@@ -2,16 +2,14 @@
 
 import { useState } from 'react'
 import { Project } from '@/types/database.types'
-import { Calendar, Github, ExternalLink, Star, Pencil, Trash2, MoreVertical, Loader2, Clock } from 'lucide-react'
+import { Calendar, Github, ExternalLink, Pencil, Trash2, Loader2, Clock } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import Modal from '@/components/ui/Modal'
 import Link from 'next/link'
 
 interface ProjectCardProps {
     project: Project
-    isFeatured?: boolean
     showInTimeline?: boolean
-    onToggleFeatured?: (id: string, currentStatus: boolean) => void
     onToggleTimeline?: (id: string, currentStatus: boolean) => void
     onDelete?: (id: string) => void
     onEdit?: (project: Project) => void
@@ -21,9 +19,7 @@ interface ProjectCardProps {
 
 export default function ProjectCard({
     project,
-    isFeatured = false,
     showInTimeline = true,
-    onToggleFeatured,
     onToggleTimeline,
     onDelete,
     onEdit,
@@ -41,12 +37,12 @@ export default function ProjectCard({
         setShowDeleteModal(false)
     }
 
-    // Helper para formatear fecha
+    // Helper para formatear fecha (solo mes y año)
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
-            month: 'short',
-            day: 'numeric'
+            month: 'long',
+            timeZone: 'UTC'
         })
     }
 
@@ -66,41 +62,23 @@ export default function ProjectCard({
                     )}
                 </Link>
 
-                {/* Featured & Timeline Buttons (Top Right) */}
-                {!isReadOnly && (onToggleFeatured || onToggleTimeline) && (
+                {/* Timeline Button (Top Right) */}
+                {!isReadOnly && onToggleTimeline && (
                     <div className="absolute top-3 right-3 flex gap-2 z-10">
-                        {onToggleTimeline && (
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    onToggleTimeline(project.id, showInTimeline);
-                                }}
-                                className={`p-2 rounded-full backdrop-blur-md transition-all ${showInTimeline
-                                    ? 'bg-purple-500 text-white shadow-lg scale-110'
-                                    : 'bg-white/50 text-gray-400 hover:bg-white hover:text-purple-500'
-                                    }`}
-                                title={showInTimeline ? "Quitar de trayectoria" : "Mostrar en trayectoria"}
-                            >
-                                <Clock size={16} />
-                            </button>
-                        )}
-                        {onToggleFeatured && (
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    onToggleFeatured(project.id, isFeatured);
-                                }}
-                                className={`p-2 rounded-full backdrop-blur-md transition-all ${isFeatured
-                                    ? 'bg-yellow-400 text-white shadow-lg scale-110'
-                                    : 'bg-white/50 text-gray-400 hover:bg-white hover:text-yellow-400'
-                                    }`}
-                                title={isFeatured ? "Quitar de destacados" : "Destacar proyecto"}
-                            >
-                                <Star size={16} fill={isFeatured ? "currentColor" : "none"} />
-                            </button>
-                        )}
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onToggleTimeline(project.id, showInTimeline);
+                            }}
+                            className={`p-2 rounded-full backdrop-blur-md transition-all ${showInTimeline
+                                ? 'bg-purple-500 text-white shadow-lg scale-110'
+                                : 'bg-white/50 text-gray-400 hover:bg-white hover:text-purple-500'
+                                }`}
+                            title={showInTimeline ? "Quitar de trayectoria" : "Mostrar en trayectoria"}
+                        >
+                            <Clock size={16} />
+                        </button>
                     </div>
                 )}
 

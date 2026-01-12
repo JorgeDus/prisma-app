@@ -201,6 +201,8 @@ export interface Database {
                     title: string
                     organization: string | null
                     date: string | null
+                    end_date: string | null
+                    is_current: boolean | null
                     category: 'award' | 'certification' | 'course_chair' | 'academic_role'
                     professor_name: string | null
                     distinction: string | null
@@ -213,6 +215,8 @@ export interface Database {
                     title: string
                     organization?: string | null
                     date?: string | null
+                    end_date?: string | null
+                    is_current?: boolean | null
                     category?: 'award' | 'certification' | 'course_chair' | 'academic_role'
                     professor_name?: string | null
                     distinction?: string | null
@@ -221,6 +225,8 @@ export interface Database {
                     title?: string
                     organization?: string | null
                     date?: string | null
+                    end_date?: string | null
+                    is_current?: boolean | null
                     category?: 'award' | 'certification' | 'course_chair' | 'academic_role'
                     professor_name?: string | null
                     distinction?: string | null

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Github, Linkedin, Globe, Sparkles, Blocks } from "lucide-react";
+import SkillsModal from "@/components/shared/SkillsModal";
 
 interface ImpactHeaderProps {
     name: string;
@@ -37,12 +38,12 @@ export const ImpactHeader = ({
     skillCounts = {},
 }: ImpactHeaderProps) => {
     const [activeTab, setActiveTab] = useState<'hard' | 'soft'>('hard');
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
 
     const displaySkills = activeTab === 'hard' ? hardSkills : softSkills;
     const hasAnySkills = hardSkills.length > 0 || softSkills.length > 0;
     const SKILLS_LIMIT = 5;
-    const visibleSkills = isExpanded ? displaySkills : displaySkills.slice(0, SKILLS_LIMIT);
+    const visibleSkills = displaySkills.slice(0, SKILLS_LIMIT);
     const hasMoreSkills = displaySkills.length > SKILLS_LIMIT;
 
     return (
@@ -200,10 +201,10 @@ export const ImpactHeader = ({
                                             })}
                                             {hasMoreSkills && (
                                                 <button
-                                                    onClick={() => setIsExpanded(!isExpanded)}
+                                                    onClick={() => setIsSkillsModalOpen(true)}
                                                     className="w-full py-2 text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-600 hover:text-indigo-700 transition-colors"
                                                 >
-                                                    {isExpanded ? 'Ver menos' : `Ver todas (${displaySkills.length})`}
+                                                    Ver todas ({hardSkills.length + softSkills.length})
                                                 </button>
                                             )}
                                         </>
@@ -227,6 +228,15 @@ export const ImpactHeader = ({
                     </div>
                 </aside>
             </div>
+
+            {/* Skills Modal */}
+            <SkillsModal
+                isOpen={isSkillsModalOpen}
+                onClose={() => setIsSkillsModalOpen(false)}
+                hardSkills={hardSkills}
+                softSkills={softSkills}
+                skillCounts={skillCounts}
+            />
         </header>
     );
 };

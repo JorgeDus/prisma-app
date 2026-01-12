@@ -33,20 +33,20 @@ export default function OverviewExperiences({ experiences, isReadOnly = false, u
         'otro': { label: 'Otro', icon: Star, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-100' },
     }
 
-    // Lógica para Vista Pública: Selección de "Experiencia Destacada" (Singular)
+    // Lógica simplificada: Mostrar las experiencias más recientes
+    // (La curación manual ahora se hace en "Mi Vitrina")
     let featuredExperiences: Experience[] = []
 
-    if (isReadOnly) {
-        const markedFeatured = experiences.filter(e => e.is_featured)
-            .sort((a, b) => new Date(b.start_date || b.created_at).getTime() - new Date(a.start_date || a.created_at).getTime())
+    const sortedExperiences = [...experiences].sort((a, b) =>
+        new Date(b.start_date || b.created_at).getTime() - new Date(a.start_date || a.created_at).getTime()
+    )
 
-        if (markedFeatured.length > 0) {
-            // Si hay marcados por el usuario, mostramos el más reciente de ellos
-            featuredExperiences = [markedFeatured[0]]
-        }
+    if (isReadOnly) {
+        // Vista pública: mostrar la experiencia más reciente
+        featuredExperiences = sortedExperiences.slice(0, 1)
     } else {
-        // Lógica para Dashboard: Muestra todos los marcados en la base de datos
-        featuredExperiences = experiences.filter(e => e.is_featured)
+        // Dashboard: mostrar las 2 más recientes
+        featuredExperiences = sortedExperiences.slice(0, 2)
     }
 
     // Fallback: Si no hay experiencias, mensaje.
@@ -61,21 +61,20 @@ export default function OverviewExperiences({ experiences, isReadOnly = false, u
         )
     }
 
-    // Si no hay destacados, sugerir destacar (o mostrar mensaje público).
+    // Si no hay destacados (no debería pasar), mostrar mensaje
     if (featuredExperiences.length === 0) {
         if (isReadOnly) {
             return (
                 <div className="text-center py-12 bg-gray-50/30 rounded-2xl border-2 border-dashed border-gray-100">
                     <Star className="w-8 h-8 text-gray-200 mx-auto mb-3" />
-                    <p className="text-gray-400 font-medium text-sm">Sin experiencias destacadas seleccionadas.</p>
+                    <p className="text-gray-400 font-medium text-sm">Sin experiencias disponibles.</p>
                 </div>
             )
         }
         return (
             <div className="text-center py-8 bg-gray-50 rounded-xl border border-gray-100">
                 <Star className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-gray-600 font-medium">Aún no has destacado ninguna experiencia.</p>
-                <p className="text-sm text-gray-500 mb-3">Ve a la pestaña de experiencias y marca con una estrella ⭐ tus mejores experiencias para mostrarlas aquí.</p>
+                <p className="text-gray-600 font-medium">No hay experiencias para mostrar.</p>
                 <Link href="/dashboard?tab=experiencias" className="text-purple-600 font-medium hover:text-purple-700 text-sm">
                     Gestionar Experiencias →
                 </Link>
@@ -83,10 +82,12 @@ export default function OverviewExperiences({ experiences, isReadOnly = false, u
         )
     }
 
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'short',
+            timeZone: 'UTC'
         })
     }
 

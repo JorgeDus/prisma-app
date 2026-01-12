@@ -10,7 +10,8 @@ interface AwardCardProps {
 export default function AwardCard({ achievement, onEdit }: AwardCardProps) {
     const date = achievement.date ? new Date(achievement.date).toLocaleDateString('es-CL', {
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
+        timeZone: 'UTC'
     }) : 'Fecha no especificada'
 
     return (
