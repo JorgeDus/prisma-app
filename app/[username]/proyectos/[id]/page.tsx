@@ -224,7 +224,7 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                 {otherProjects && otherProjects.length > 0 && (
                     <footer className="mt-32 pt-24 border-t border-slate-100 space-y-12">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-slate-900 underline decoration-indigo-200 underline-offset-8">Otros Protocolos</h2>
+                            <h2 className="text-2xl font-bold text-slate-900 underline decoration-indigo-200 underline-offset-8">Otros Proyectos</h2>
                             <Link href={`/${profile.username}`} className="text-[10px] font-mono font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest">
                                 Ver Todo ↗
                             </Link>

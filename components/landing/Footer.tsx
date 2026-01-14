@@ -87,6 +87,11 @@ export default function Footer() {
                     <p className="mt-2">
                         Construido con ❤️ por alumni universitarios para la próxima generación
                     </p>
+                    <p className="mt-4">
+                        <Link href="/privacidad" className="text-gray-500 hover:text-white transition">
+                            Política de Privacidad
+                        </Link>
+                    </p>
                 </div>
             </div>
         </footer>

@@ -119,7 +119,7 @@ export const BentoHighlights = ({
                         {/* Content Overlay - Title at Bottom */}
                         <div className="relative z-10 h-full p-8 flex flex-col justify-end">
                             <div className="space-y-3 transform transition-transform duration-700 group-hover:-translate-y-2">
-                                <h3 className="text-3xl md:text-4xl font-extrabold text-white leading-[1.1] tracking-tight group-hover:text-indigo-50 transition-colors">
+                                <h3 className={`${isLarge ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl'} font-extrabold text-white leading-[1.1] tracking-tight group-hover:text-indigo-50 transition-colors`}>
                                     {item.title}
                                 </h3>
                             </div>

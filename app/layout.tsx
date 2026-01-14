@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prisma | Portafolio de Evidencia Dinámico",
+  title: "Prisma | Talento, Networking y Emprendimiento",
   description: "Plataforma de validación de talento y portafolio de evidencia dinámica con rigor científico y autoridad académica.",
   icons: {
     icon: "/Prisma Icono.png",

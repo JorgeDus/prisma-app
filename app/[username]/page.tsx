@@ -99,7 +99,7 @@ export async function generateMetadata(props: PublicProfileProps): Promise<Metad
     if (!profile) return { title: 'Perfil no encontrado | Prisma' }
 
     return {
-        title: `${profile.full_name || profile.username} | Portafolio de Evidencia`,
+        title: `${profile.full_name || profile.username} | Prisma`,
         description: `Protocolo de validación académica y trayectoria profesional de ${profile.full_name || profile.username}.`
     }
 }
@@ -516,7 +516,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     <aside className="lg:col-span-4 space-y-12 h-fit sticky top-24 lg:border-l lg:border-slate-100 lg:pl-8">
                         <section className="space-y-8">
                             <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
-                            <DashboardTrajectory hitos={hitosUnificados} initialCount={10} />
+                            <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
 
                             <div className="pt-8 border-t border-slate-100">
                                 <InterestsSection interests={profile.interests} isReadOnly={true} />

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         }
 
         const { data, error } = await resend.emails.send({
-            from: 'Prisma <onboarding@resend.dev>', // Usar dominio verificado en producción
+            from: 'Prisma <contacto@tuprisma.com>', // Usar dominio verificado en producción
             to: [toEmail],
             subject: `Nuevo mensaje de contacto de ${name} via Prisma`,
             replyTo: email,

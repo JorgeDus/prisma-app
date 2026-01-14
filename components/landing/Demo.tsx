@@ -29,14 +29,14 @@ export default function Demo() {
 
                 <div className="bg-gradient-to-br from-purple-50 to-cyan-50 rounded-2xl p-8 max-w-4xl mx-auto">
                     <a
-                        href="https://demo.tuprisma.com/"
+                        href="https://www.tuprisma.com/elenasolis"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] group cursor-pointer overflow-hidden"
                     >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                            src="/Prisma Profile Ex.png"
+                            src="/ejemplo perfil prisma.png"
                             alt="Demo Interactivo de Prisma"
                             className="w-full h-auto object-cover group-hover:opacity-90 transition-opacity duration-300"
                         />
