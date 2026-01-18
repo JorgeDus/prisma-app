@@ -335,20 +335,34 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         <Modal isOpen={isOpen} onClose={() => { onClose(); setIsAdjusting(false); }} title={experienceToEdit ? "Editar Experiencia" : "Nueva Experiencia"}>
             <form onSubmit={handleSubmit} className="space-y-6 pb-4">
 
-                {/* 1. Título e Institución */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <Type size={16} className="text-purple-500" /> Título de la Experiencia
-                        </label>
-                        <input
-                            type="text"
-                            required
-                            value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
-                            placeholder="Ej: Liderazgo Estudiantil"
-                        />
+                {/* 1. Base: Título, Rol e Institución */}
+                <div className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                                <Type size={16} className="text-purple-500" /> Título de la Experiencia
+                            </label>
+                            <input
+                                type="text"
+                                required
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
+                                placeholder="Ej: Liderazgo Estudiantil"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                                <Briefcase size={16} className="text-purple-500" /> Rol / Responsabilidad
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.role}
+                                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
+                                placeholder="Ej: Presidente del Centro de Estudiantes"
+                            />
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
@@ -364,86 +378,71 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                     </div>
                 </div>
 
-                {/* 1b. Rol / Responsabilidad */}
-                <div className="grid grid-cols-1 gap-5">
+                {/* 2. Categorización y Tiempos */}
+                <div className="space-y-6 pt-2">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <Briefcase size={16} className="text-purple-500" /> Rol / Responsabilidad
+                        <label className="block text-sm font-semibold text-gray-700 mb-2.5 flex items-center gap-2">
+                            <Tag size={16} className="text-purple-500" /> Categoría de Experiencia
                         </label>
-                        <input
-                            type="text"
-                            value={formData.role}
-                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
-                            placeholder="Ej: Presidente del Centro de Estudiantes"
-                        />
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {categories.map((cat) => {
+                                const Icon = cat.icon
+                                const isSelected = formData.type === cat.id
+                                return (
+                                    <button
+                                        key={cat.id}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, type: cat.id as any })}
+                                        className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${isSelected
+                                            ? 'bg-purple-50 border-purple-200 text-purple-700 shadow-sm'
+                                            : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <Icon size={20} className={`mb-1 ${isSelected ? 'text-purple-600' : 'text-gray-400'}`} />
+                                        <span className="text-xs font-bold text-center">{cat.label}</span>
+                                    </button>
+                                )
+                            })}
+                        </div>
                     </div>
-                </div>
 
-                {/* 2. Categoría */}
-                <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2.5 flex items-center gap-2">
-                        <Tag size={16} className="text-purple-500" /> Categoría de Experiencia
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {categories.map((cat) => {
-                            const Icon = cat.icon
-                            const isSelected = formData.type === cat.id
-                            return (
-                                <button
-                                    key={cat.id}
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, type: cat.id as any })}
-                                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${isSelected
-                                        ? 'bg-purple-50 border-purple-200 text-purple-700 shadow-sm'
-                                        : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    <Icon size={20} className={`mb-1 ${isSelected ? 'text-purple-600' : 'text-gray-400'}`} />
-                                    <span className="text-xs font-bold text-center">{cat.label}</span>
-                                </button>
-                            )
-                        })}
-                    </div>
-                </div>
-
-                {/* 3. Fechas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <Calendar size={16} className="text-purple-500" /> Fecha de Inicio
-                        </label>
-                        <MonthYearPicker
-                            required
-                            value={formData.start_date}
-                            onChange={(value) => setFormData({ ...formData, start_date: value })}
-                        />
-                    </div>
-                    <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-gray-700 mb-0 flex items-center gap-2">
-                            <Calendar size={16} className="text-gray-400" /> Fecha de Fin
-                        </label>
-                        <MonthYearPicker
-                            disabled={formData.is_current}
-                            value={formData.end_date}
-                            onChange={(value) => setFormData({ ...formData, end_date: value })}
-                        />
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                id="is_current"
-                                checked={formData.is_current}
-                                onChange={(e) => setFormData({ ...formData, is_current: e.target.checked, end_date: e.target.checked ? '' : formData.end_date })}
-                                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 border-gray-300"
-                            />
-                            <label htmlFor="is_current" className="text-sm text-purple-700 font-bold cursor-pointer select-none">
-                                Actualmente en este rol
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                                <Calendar size={16} className="text-purple-500" /> Fecha de Inicio
                             </label>
+                            <MonthYearPicker
+                                required
+                                value={formData.start_date}
+                                onChange={(value) => setFormData({ ...formData, start_date: value })}
+                            />
+                        </div>
+                        <div className="space-y-3">
+                            <label className="block text-sm font-semibold text-gray-700 mb-0 flex items-center gap-2">
+                                <Calendar size={16} className="text-gray-400" /> Fecha de Fin
+                            </label>
+                            <MonthYearPicker
+                                disabled={formData.is_current}
+                                value={formData.end_date}
+                                onChange={(value) => setFormData({ ...formData, end_date: value })}
+                            />
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="is_current"
+                                    checked={formData.is_current}
+                                    onChange={(e) => setFormData({ ...formData, is_current: e.target.checked, end_date: e.target.checked ? '' : formData.end_date })}
+                                    className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 border-gray-300"
+                                />
+                                <label htmlFor="is_current" className="text-sm text-purple-700 font-bold cursor-pointer select-none">
+                                    Actualmente en este rol
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* 4. Imagen de Portada */}
+                {/* 3. Identidad Visual */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
                         <ImageIcon size={16} className="text-purple-500" /> Imagen de Portada (Opcional)
@@ -517,12 +516,12 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 {/* 5. Galería (Opcional) */}
                 {/* Omitido para simplificar esta versión inicial, pero fácil de añadir si el usuario lo pide explícitamente */}
 
-                {/* 6. Descripción y Narrativa */}
+                {/* 4. Cuerpo y Reflexión (Narrativa) */}
                 <div className="space-y-4">
                     <div>
                         <div className="flex justify-between items-center mb-1.5">
                             <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                                <Tag size={16} className="text-purple-500" /> Resumen Corto (Card)
+                                <Star size={16} className="text-purple-500" /> Resumen Corto (Card)
                             </label>
                             <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full ${formData.description.length >= 170 ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-400'
                                 }`}>
@@ -568,67 +567,66 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                     </div>
                 </div>
 
-                {/* 7. Competencias Técnicas (Hard Skills) */}
-                <div className="col-span-full">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                        <Tag size={16} className="text-indigo-500" /> Competencias Técnicas
-                    </label>
-                    <p className="text-[10px] text-slate-500 mb-2 italic">Herramientas, técnicas, metodologías aprendidas...</p>
-                    <div className="flex flex-wrap gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[56px] focus-within:ring-2 focus-within:ring-indigo-200 transition-all">
-                        {formData.hard_skills.map((skill: string) => (
-                            <span key={skill} className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
-                                {skill}
-                                <button type="button" onClick={() => removeHardSkill(skill)} className="hover:text-indigo-900 transition-colors"><X size={12} /></button>
-                            </span>
-                        ))}
-                        <input
-                            type="text"
-                            value={currentHardSkill}
-                            onChange={(e) => setCurrentHardSkill(e.target.value)}
-                            onKeyDown={handleAddHardSkill}
-                            className="bg-transparent outline-none flex-1 text-sm text-gray-900 font-medium min-w-[120px]"
-                            placeholder="Escribe y presiona Enter..."
-                        />
-                    </div>
-                </div>
+                {/* 5. Validación: Habilidades y Visibilidad */}
+                <div className="space-y-6 pt-6 border-t border-gray-100">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="col-span-full">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                                <Tag size={16} className="text-indigo-500" /> Competencias Técnicas
+                            </label>
+                            <p className="text-[10px] text-slate-500 mb-2 italic">Herramientas, técnicas, metodologías aprendidas...</p>
+                            <div className="flex flex-wrap gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[56px] focus-within:ring-2 focus-within:ring-indigo-200 transition-all">
+                                {formData.hard_skills.map((skill: string) => (
+                                    <span key={skill} className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
+                                        {skill}
+                                        <button type="button" onClick={() => removeHardSkill(skill)} className="hover:text-indigo-900 transition-colors"><X size={12} /></button>
+                                    </span>
+                                ))}
+                                <input
+                                    type="text"
+                                    value={currentHardSkill}
+                                    onChange={(e) => setCurrentHardSkill(e.target.value)}
+                                    onKeyDown={handleAddHardSkill}
+                                    className="bg-transparent outline-none flex-1 text-sm text-gray-900 font-medium min-w-[120px]"
+                                    placeholder="Añadir Hard Skill..."
+                                />
+                            </div>
+                        </div>
 
-                {/* 8. Habilidades Transversales (Soft Skills) */}
-                <div className="col-span-full">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                        <Tag size={16} className="text-emerald-500" /> Habilidades Transversales
-                    </label>
-                    <p className="text-[10px] text-slate-500 mb-2 italic">Liderazgo, trabajo en equipo, comunicación, resolución de problemas...</p>
-                    <div className="flex flex-wrap gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[56px] focus-within:ring-2 focus-within:ring-emerald-200 transition-all">
-                        {formData.soft_skills.map((skill: string) => (
-                            <span key={skill} className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
-                                {skill}
-                                <button type="button" onClick={() => removeSoftSkill(skill)} className="hover:text-emerald-900 transition-colors"><X size={12} /></button>
-                            </span>
-                        ))}
-                        <input
-                            type="text"
-                            value={currentSoftSkill}
-                            onChange={(e) => setCurrentSoftSkill(e.target.value)}
-                            onKeyDown={handleAddSoftSkill}
-                            className="bg-transparent outline-none flex-1 text-sm text-gray-900 font-medium min-w-[120px]"
-                            placeholder="Escribe y presiona Enter..."
-                        />
+                        <div className="col-span-full">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                                <Tag size={16} className="text-emerald-500" /> Habilidades Transversales
+                            </label>
+                            <p className="text-[10px] text-slate-500 mb-2 italic">Liderazgo, trabajo en equipo, comunicación, resolución de problemas...</p>
+                            <div className="flex flex-wrap gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[56px] focus-within:ring-2 focus-within:ring-emerald-200 transition-all">
+                                {formData.soft_skills.map((skill: string) => (
+                                    <span key={skill} className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
+                                        {skill}
+                                        <button type="button" onClick={() => removeSoftSkill(skill)} className="hover:text-emerald-900 transition-colors"><X size={12} /></button>
+                                    </span>
+                                ))}
+                                <input
+                                    type="text"
+                                    value={currentSoftSkill}
+                                    onChange={(e) => setCurrentSoftSkill(e.target.value)}
+                                    onKeyDown={handleAddSoftSkill}
+                                    className="bg-transparent outline-none flex-1 text-sm text-gray-900 font-medium min-w-[120px]"
+                                    placeholder="Añadir Soft Skill..."
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                {/* 8. Visibility Toggle */}
-                <div className="flex flex-col md:flex-row gap-4">
-                    {/* Mostrar en Timeline */}
-                    <div className="flex items-center gap-3 p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex-1">
+                    <div className="flex items-center gap-3 p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
                         <input
                             type="checkbox"
-                            id="show_timeline"
+                            id="show_timeline_exp"
                             checked={formData.show_in_timeline}
                             onChange={(e) => setFormData({ ...formData, show_in_timeline: e.target.checked })}
                             className="w-5 h-5 text-indigo-600 rounded-lg border-gray-300 focus:ring-indigo-500"
                         />
                         <div className="flex-1">
-                            <label htmlFor="show_timeline" className="text-sm font-black text-indigo-900 uppercase tracking-tight cursor-pointer block">
+                            <label htmlFor="show_timeline_exp" className="text-sm font-black text-indigo-900 uppercase tracking-tight cursor-pointer block">
                                 Mostrar en Mi Trayectoria
                             </label>
                             <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">Aparecerá en el Timeline del perfil</p>

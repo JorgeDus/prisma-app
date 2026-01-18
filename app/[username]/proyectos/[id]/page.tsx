@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import { Calendar, Github, ExternalLink, ArrowLeft, Globe, MapPin, Code, FolderGit2, Users, Target, Rocket, Award } from 'lucide-react'
+import { Calendar, Github, ExternalLink, ArrowLeft, Globe, MapPin, Code, FolderGit2, Users, Target, Rocket, Award, Tag } from 'lucide-react'
 import ProjectGallery from '@/components/projects/ProjectGallery'
 import { DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 import { SkillsDetailTabs } from '@/components/shared/SkillsDetailTabs'
@@ -112,45 +112,58 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                             {/* Summary / Impact Thesis */}
                             <section className="space-y-6">
                                 <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Objetivo del Proyecto</h2>
-                                <p className="text-2xl font-medium text-slate-800 leading-relaxed border-l-4 border-indigo-50 pl-6">
+                                <p className="text-2xl font-medium text-slate-800 leading-relaxed">
                                     {project.description || "Este proyecto describe una solución innovadora dentro de su categoría."}
                                 </p>
                             </section>
 
-                            {/* Desafío */}
+                            {/* El Desafío (Situation/Task) */}
                             {project.challenges && (
                                 <section className="space-y-6">
-                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Contexto y Desafío</h2>
+                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                        <Target size={14} className="text-indigo-500" /> El Desafío
+                                    </h2>
                                     <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                         {project.challenges}
                                     </div>
                                 </section>
                             )}
 
-                            {/* Solución */}
+                            {/* La Solución (Action) */}
                             <section className="space-y-6">
-                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">La Solución</h2>
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                    <Rocket size={14} className="text-indigo-500" /> La Solución
+                                </h2>
                                 <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                     {project.content || "Desarrollo de una solución técnica enfocada en eficiencia y escalabilidad."}
                                 </div>
                             </section>
 
-                            {/* Results / Lessons */}
+                            {/* Impacto (Result) / Aprendizajes */}
                             {(project.results || project.learnings) && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-slate-100">
                                     {project.results && (
                                         <section className="space-y-4">
-                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Resultados</h3>
-                                            <div className="text-sm text-slate-600 leading-relaxed">
-                                                {project.results}
+                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                                <Award size={14} className="text-emerald-500" /> Resultados
+                                            </h3>
+                                            <div className="space-y-3">
+                                                {project.results.split('\n').filter(r => r.trim() !== '').map((item, idx) => (
+                                                    <div key={idx} className="flex items-start gap-3">
+                                                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                                                        <p className="text-sm text-slate-600 leading-tight font-medium">{item}</p>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </section>
                                     )}
                                     {project.learnings && (
                                         <section className="space-y-4">
-                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Aprendizajes</h3>
+                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                                <Tag size={14} className="text-purple-500" /> Aprendizajes
+                                            </h3>
                                             <div className="text-sm text-slate-600 leading-relaxed">
-                                                {project.learnings}
+                                                "{project.learnings}"
                                             </div>
                                         </section>
                                     )}
@@ -168,7 +181,7 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                                 {project.demo_url && (
                                     <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="px-8 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
                                         <Globe size={14} />
-                                        Artefacto Vivo ↗
+                                        Demo en Vivo ↗
                                     </a>
                                 )}
                             </div>

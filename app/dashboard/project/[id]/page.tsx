@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import { Calendar, Github, ExternalLink, Users, Code } from 'lucide-react'
+import { Calendar, Github, ExternalLink, Users, Code, Target, Rocket, Award, Tag } from 'lucide-react'
 import ProjectDetailActions from '@/components/dashboard/ProjectDetailActions'
 import ProjectGallery from '@/components/projects/ProjectGallery'
 import { DEFAULT_PROJECT_IMAGES } from '@/constants/images'
@@ -90,17 +90,18 @@ export default async function ProjectDetailPage(props: PageProps) {
                             {/* Description / Objetivo */}
                             <section className="space-y-6">
                                 <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Objetivo del Proyecto</h2>
-                                <p className="text-xl text-slate-600 leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
+                                <p className="text-xl text-slate-600 leading-relaxed font-medium">
                                     {project.description || "Este proyecto describe una solución innovadora dentro de su categoría."}
                                 </p>
                             </section>
 
                             {/* Detalle del Proyecto */}
                             <div className="space-y-16">
+                                {/* El Desafío (Situation/Task) */}
                                 {project.challenges && (
                                     <section className="space-y-6">
-                                        <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
-                                            Contexto y Desafío
+                                        <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                            <Target size={14} className="text-indigo-500" /> El Desafío
                                         </h2>
                                         <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                             {project.challenges}
@@ -108,38 +109,46 @@ export default async function ProjectDetailPage(props: PageProps) {
                                     </section>
                                 )}
 
+                                {/* La Solución (Action) */}
                                 <section className="space-y-6">
-                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
-                                        La Solución
+                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                        <Rocket size={14} className="text-indigo-500" /> La Solución
                                     </h2>
                                     <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
                                         {project.content || "Desarrollo de una solución técnica enfocada en eficiencia y escalabilidad."}
                                     </div>
                                 </section>
 
-                                {/* Resultados y Aprendizajes */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-slate-50">
-                                    {project.results && (
-                                        <section className="space-y-4">
-                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
-                                                Resultados
-                                            </h3>
-                                            <div className="text-sm text-slate-600 leading-relaxed">
-                                                {project.results}
-                                            </div>
-                                        </section>
-                                    )}
-                                    {project.learnings && (
-                                        <section className="space-y-4">
-                                            <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
-                                                Aprendizajes
-                                            </h3>
-                                            <div className="text-sm text-slate-600 leading-relaxed">
-                                                {project.learnings}
-                                            </div>
-                                        </section>
-                                    )}
-                                </div>
+                                {/* Impacto (Result) / Aprendizajes */}
+                                {(project.results || project.learnings) && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-slate-100">
+                                        {project.results && (
+                                            <section className="space-y-4">
+                                                <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                                    <Award size={14} className="text-emerald-500" /> Resultados
+                                                </h3>
+                                                <div className="space-y-3">
+                                                    {project.results.split('\n').filter((r: string) => r.trim() !== '').map((item: string, idx: number) => (
+                                                        <div key={idx} className="flex items-start gap-3">
+                                                            <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                                                            <p className="text-sm text-slate-600 leading-tight font-medium">{item}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </section>
+                                        )}
+                                        {project.learnings && (
+                                            <section className="space-y-4">
+                                                <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                                    <Tag size={14} className="text-purple-500" /> Aprendizajes
+                                                </h3>
+                                                <div className="text-sm text-slate-600 leading-relaxed">
+                                                    "{project.learnings}"
+                                                </div>
+                                            </section>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Links */}
@@ -163,7 +172,7 @@ export default async function ProjectDetailPage(props: PageProps) {
                                         className="flex items-center gap-2 px-8 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-mono text-[11px] font-bold uppercase tracking-widest shadow-lg shadow-slate-200"
                                     >
                                         <ExternalLink size={16} />
-                                        Live Launch
+                                        Demo en Vivo
                                     </a>
                                 )}
                             </div>
