@@ -44,6 +44,7 @@ export default function SkillsModal({
             isOpen={isOpen}
             onClose={onClose}
             title="Competencias Validadas"
+            maxWidth="max-w-2xl"
         >
             <div className="space-y-6">
                 {/* Stats Summary */}

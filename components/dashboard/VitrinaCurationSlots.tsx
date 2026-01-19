@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Plus, X, Pencil, GraduationCap, Rocket, User, Award, Heart, Zap, Briefcase, Dumbbell, Palette, HeartPulse, Star } from 'lucide-react'
+import { Plus, X, Pencil, GraduationCap, Rocket, User, Award, Heart, Zap, Briefcase, Dumbbell, Palette, HeartPulse, Star, FileBadge, Trophy, Users } from 'lucide-react'
 import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 import VitrinaCurationModal from './VitrinaCurationModal'
 
 interface FeaturedItem {
     id: string
-    type: 'project' | 'experience'
+    type: 'project' | 'experience' | 'achievement'
 }
 
 interface VitrinaCurationSlotsProps {
@@ -17,6 +17,7 @@ interface VitrinaCurationSlotsProps {
     featuredItems: FeaturedItem[]
     projects: any[]
     experiences: any[]
+    achievements: any[]
 }
 
 const PROJECT_CATEGORY_MAP: Record<string, { label: string, icon: any, color: string, bg: string }> = {
@@ -37,11 +38,19 @@ const EXP_CATEGORY_MAP: Record<string, { label: string, icon: any, color: string
     otro: { label: 'General', icon: Star, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100' }
 }
 
+const ACHIEVEMENT_CATEGORY_MAP: Record<string, { label: string, icon: any, gradient: string, color: string, bg: string }> = {
+    certification: { label: 'Certificación', icon: FileBadge, gradient: 'from-blue-500 to-cyan-500', color: 'text-blue-700', bg: 'bg-blue-100' },
+    award: { label: 'Premio', icon: Trophy, gradient: 'from-amber-500 to-orange-500', color: 'text-amber-700', bg: 'bg-amber-100' },
+    course_chair: { label: 'Cátedra', icon: GraduationCap, gradient: 'from-indigo-500 to-purple-500', color: 'text-indigo-700', bg: 'bg-indigo-100' },
+    academic_role: { label: 'Ayudantía', icon: Users, gradient: 'from-cyan-500 to-teal-500', color: 'text-cyan-700', bg: 'bg-cyan-100' }
+}
+
 export default function VitrinaCurationSlots({
     profileId,
     featuredItems,
     projects,
-    experiences
+    experiences,
+    achievements
 }: VitrinaCurationSlotsProps) {
     const router = useRouter()
     const supabase = createClient()
@@ -61,6 +70,8 @@ export default function VitrinaCurationSlots({
         if (!slot) return null
         if (slot.type === 'project') {
             return { ...projects.find(p => p.id === slot.id), itemType: 'project' }
+        } else if (slot.type === 'achievement') {
+            return { ...achievements.find(a => a.id === slot.id), itemType: 'achievement' }
         } else {
             return { ...experiences.find(e => e.id === slot.id), itemType: 'experience' }
         }
@@ -82,7 +93,7 @@ export default function VitrinaCurationSlots({
 
             const { error } = await supabase
                 .from('profiles')
-                .update({ featured_items: cleanedItems })
+                .update({ featured_items: cleanedItems as any })
                 .eq('id', profileId)
 
             if (error) throw error
@@ -137,11 +148,15 @@ export default function VitrinaCurationSlots({
 
                     // Filled slot
                     const isProject = item.itemType === 'project'
-                    let categoryInfo
-                    let CategoryIcon
+                    const isAchievement = item.itemType === 'achievement'
+                    let categoryInfo: any
+                    let CategoryIcon: any
 
                     if (isProject) {
                         categoryInfo = PROJECT_CATEGORY_MAP[item.type] || PROJECT_CATEGORY_MAP.personal
+                        CategoryIcon = categoryInfo.icon
+                    } else if (isAchievement) {
+                        categoryInfo = ACHIEVEMENT_CATEGORY_MAP[item.category] || ACHIEVEMENT_CATEGORY_MAP.certification
                         CategoryIcon = categoryInfo.icon
                     } else {
                         categoryInfo = EXP_CATEGORY_MAP[item.type] || EXP_CATEGORY_MAP.otro
@@ -162,13 +177,27 @@ export default function VitrinaCurationSlots({
                         >
                             {/* Background Image with Dark Overlay */}
                             <div className="absolute inset-0 z-0">
-                                <img
-                                    src={displayImage}
-                                    alt={item.title}
-                                    className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/20 transition-colors duration-700" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+                                {isAchievement ? (
+                                    /* Achievement: Gradient background with centered icon */
+                                    <>
+                                        <div className={`w-full h-full bg-gradient-to-br ${categoryInfo.gradient}`} />
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                                            <CategoryIcon size={isLarge ? 200 : 120} className="text-white" />
+                                        </div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                                    </>
+                                ) : (
+                                    /* Project/Experience: Image background */
+                                    <>
+                                        <img
+                                            src={displayImage}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
+                                        />
+                                        <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/20 transition-colors duration-700" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+                                    </>
+                                )}
                             </div>
 
                             {/* Category Badge - Top Left */}
@@ -225,6 +254,7 @@ export default function VitrinaCurationSlots({
                 slotIndex={editingSlot}
                 projects={projects}
                 experiences={experiences}
+                achievements={achievements}
                 currentFeaturedItems={slots.filter(Boolean) as FeaturedItem[]}
                 onSelectItem={handleSelectItem}
             />

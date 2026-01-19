@@ -46,6 +46,8 @@ import ExperienceFormModal from './ExperienceFormModal'
 import ProjectFormModal from './ProjectFormModal'
 import AchievementFormModal from './AchievementFormModal'
 import ProfileEditModal from './ProfileEditModal'
+import LanguagesModal from './LanguagesModal'
+import { Language } from '@/types/database.types'
 
 interface DashboardContentProps {
     profile: any
@@ -53,6 +55,7 @@ interface DashboardContentProps {
     experiences: any[]
     achievements: any[]
     testimonials: any[]
+    languages: Language[]
     hitosUnificados: any[]
 }
 
@@ -105,6 +108,7 @@ export default function DashboardContent({
     experiences,
     achievements,
     testimonials,
+    languages,
     hitosUnificados
 }: DashboardContentProps) {
     const router = useRouter()
@@ -115,6 +119,7 @@ export default function DashboardContent({
     const [isProjModalOpen, setIsProjModalOpen] = useState(false)
     const [isAchModalOpen, setIsAchModalOpen] = useState(false)
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
+    const [isLanguagesModalOpen, setIsLanguagesModalOpen] = useState(false)
     const [editingExp, setEditingExp] = useState<any>(null)
     const [editingProj, setEditingProj] = useState<any>(null)
     const [editingAch, setEditingAch] = useState<any>(null)
@@ -307,7 +312,10 @@ export default function DashboardContent({
                 <section id="highlights" className="section-anchor">
                     <div className="space-y-8">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">01 / Mi Vitrina</h2>
+                            <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                <LayoutGrid size={16} className="text-slate-500" />
+                                01 / Mi Vitrina
+                            </h2>
                             <EvidenceBadge label="Modo Edición Activo" count={(profile.featured_items || []).length} />
                         </div>
                         <VitrinaCurationSlots
@@ -315,6 +323,7 @@ export default function DashboardContent({
                             featuredItems={profile.featured_items || []}
                             projects={projects}
                             experiences={experiences}
+                            achievements={achievements}
                         />
                     </div>
                 </section>
@@ -326,7 +335,10 @@ export default function DashboardContent({
                         {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">02 / Logros / Hitos</h2>
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                    <Trophy size={16} className="text-slate-500" />
+                                    02 / Logros / Hitos
+                                </h2>
                                 <button
                                     onClick={() => { setEditingAch(null); setIsAchModalOpen(true); }}
                                     className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
@@ -398,7 +410,10 @@ export default function DashboardContent({
                         {/* 3. Experiencia */}
                         <section id="experiencia" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">03 / Experiencias</h2>
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                    <Sparkles size={16} className="text-slate-500" />
+                                    03 / Experiencias
+                                </h2>
                                 <button
                                     onClick={() => { setEditingExp(null); setIsExpModalOpen(true); }}
                                     className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
@@ -450,7 +465,10 @@ export default function DashboardContent({
                         {/* 4. Proyectos */}
                         <section id="proyectos" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">04 / Proyectos</h2>
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                    <Briefcase size={16} className="text-slate-500" />
+                                    04 / Proyectos
+                                </h2>
                                 <button
                                     onClick={() => { setEditingProj(null); setIsProjModalOpen(true); }}
                                     className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
@@ -492,7 +510,10 @@ export default function DashboardContent({
                         {/* 5. Testimonios */}
                         <section id="testimonios" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400">05 / Testimonios</h2>
+                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                    <MessageSquare size={16} className="text-slate-500" />
+                                    05 / Testimonios
+                                </h2>
                                 <button className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">+ Solicitar Testimonio</button>
                             </div>
                             <TestimonialSection testimonials={testimonials || []} userId={profile.id} />
@@ -504,6 +525,52 @@ export default function DashboardContent({
                         <section className="sticky top-24 space-y-8">
                             <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
+
+                            {/* Languages Section */}
+                            <div className="pt-8 border-t border-slate-100 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500 flex items-center gap-2">
+                                        <span className="text-indigo-500"></span> Idiomas
+                                    </h3>
+                                    <button
+                                        onClick={() => setIsLanguagesModalOpen(true)}
+                                        className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
+                                    >
+                                        + Editar
+                                    </button>
+                                </div>
+                                {languages.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {[...languages].sort((a, b) => {
+                                            const levelOrder = ['Nativo / Bilingüe', 'Avanzado (C1-C2)', 'Intermedio (B1-B2)', 'Básico (A1-A2)']
+                                            return levelOrder.indexOf(a.level) - levelOrder.indexOf(b.level)
+                                        }).map((lang) => (
+                                            <div key={lang.id} className="flex items-center justify-between py-2 px-3 bg-white border border-slate-100 rounded-xl">
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold text-sm text-slate-800">{lang.language}</span>
+                                                    {lang.institution && (
+                                                        <span className="text-[10px] text-slate-400">{lang.institution}</span>
+                                                    )}
+                                                </div>
+                                                <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${lang.level === 'Nativo / Bilingüe' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                    lang.level === 'Avanzado (C1-C2)' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                        lang.level === 'Intermedio (B1-B2)' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                            'bg-slate-50 text-slate-600 border-slate-200'
+                                                    }`}>
+                                                    {lang.level}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => setIsLanguagesModalOpen(true)}
+                                        className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 hover:border-indigo-300 hover:text-indigo-600 transition-colors text-sm font-medium"
+                                    >
+                                        + Agregar Idiomas
+                                    </button>
+                                )}
+                            </div>
 
                             <div className="pt-8 border-t border-slate-100">
                                 <InterestsSection interests={profile.interests} profileId={profile.id} />
@@ -522,7 +589,10 @@ export default function DashboardContent({
                     <section id="contacto" className="section-anchor pt-32 space-y-24">
                         {/* Configuración */}
                         <div className="max-w-4xl mx-auto">
-                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400 mb-12 text-center">06 / Contacto</h2>
+                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400 mb-12 text-center flex items-center justify-center gap-2">
+                                <Mail size={14} />
+                                06 / Contacto
+                            </h2>
                             <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-[2rem] space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
@@ -637,6 +707,12 @@ export default function DashboardContent({
                 userId={profile.id}
                 achievementToEdit={editingAch}
                 onSuccess={handleSuccess}
+            />
+            <LanguagesModal
+                isOpen={isLanguagesModalOpen}
+                onClose={() => setIsLanguagesModalOpen(false)}
+                initialLanguages={languages}
+                userId={profile.id}
             />
         </div>
     )

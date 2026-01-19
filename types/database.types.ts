@@ -375,6 +375,36 @@ export interface Database {
                     }
                 ]
             }
+            languages: {
+                Row: {
+                    id: string
+                    user_id: string
+                    language: string
+                    level: 'Nativo / Bilingüe' | 'Avanzado (C1-C2)' | 'Intermedio (B1-B2)' | 'Básico (A1-A2)'
+                    institution: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    language: string
+                    level?: 'Nativo / Bilingüe' | 'Avanzado (C1-C2)' | 'Intermedio (B1-B2)' | 'Básico (A1-A2)'
+                    institution?: string | null
+                }
+                Update: {
+                    language?: string
+                    level?: 'Nativo / Bilingüe' | 'Avanzado (C1-C2)' | 'Intermedio (B1-B2)' | 'Básico (A1-A2)'
+                    institution?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "languages_user_id_fkey"
+                        columns: ["user_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
         Views: {
             [_ in never]: never
@@ -413,5 +443,6 @@ export type Achievement = Tables<'achievements'>
 export type Experience = Tables<'experiences'>
 export type Pivot = Tables<'pivots'>
 export type Testimonial = Tables<'testimonials'>
+export type Language = Tables<'languages'>
 export type University = Tables<'universities'>
 export type Career = Tables<'careers'>

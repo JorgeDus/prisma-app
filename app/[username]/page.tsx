@@ -151,6 +151,12 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
 
+    const { data: languages } = await supabase
+        .from('languages')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+
     // 3. Fetch curated vitrina items if featured_items exists
     let curatedVitrinaItems: any[] = []
     if (profile.featured_items && Array.isArray(profile.featured_items) && profile.featured_items.length > 0) {
@@ -374,7 +380,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     <div className="space-y-8">
                         <div className="flex flex-col space-y-2">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">01 / Mi Vitrina</h2>
+                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                    <LayoutGrid size={16} className="text-slate-400" />
+                                    01 / Mi Vitrina
+                                </h2>
                                 <EvidenceBadge label="Verificado por Prisma" />
                             </div>
                             <p className="text-xs font-mono text-slate-500 uppercase tracking-tight">Acceso directo a mis experiencias y proyectos de mayor impacto</p>
@@ -394,7 +403,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">02 / Logros / Hitos</h2>
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                <Trophy size={16} className="text-slate-400" />
+                                02 / Logros / Hitos
+                            </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {achievements?.map((ach) => (
                                     <BaseCard
@@ -444,7 +456,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 3. Experiencia */}
                         <section id="experiencia" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">03 / Experiencias</h2>
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                <Sparkles size={16} className="text-slate-400" />
+                                03 / Experiencias
+                            </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {experiences?.length ? (
                                     experiences.map((exp) => (
@@ -480,7 +495,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 4. Proyectos */}
                         <section id="proyectos" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">04 / Proyectos</h2>
+                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                <Briefcase size={16} className="text-slate-400" />
+                                04 / Proyectos
+                            </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {projects?.length ? (
                                     projects.map((proj) => (
@@ -506,7 +524,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         {/* 5. Testimonios */}
                         {testimonials && testimonials.length > 0 && (
                             <section id="testimonios" className="section-anchor space-y-8">
-                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500">05 / Testimonios</h2>
+                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                    <MessageSquare size={16} className="text-slate-400" />
+                                    05 / Testimonios
+                                </h2>
                                 <TestimonialSection testimonials={testimonials || []} userId={profile.id} isReadOnly={true} />
                             </section>
                         )}
@@ -517,6 +538,37 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         <section className="space-y-8">
                             <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
+
+                            {/* Languages Section */}
+                            {languages && languages.length > 0 && (
+                                <div className="pt-8 border-t border-slate-100 space-y-4">
+                                    <h3 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500 flex items-center gap-2">
+                                        <span className="text-indigo-500"></span> Idiomas
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {[...languages].sort((a, b) => {
+                                            const levelOrder = ['Nativo / Bilingüe', 'Avanzado (C1-C2)', 'Intermedio (B1-B2)', 'Básico (A1-A2)']
+                                            return levelOrder.indexOf(a.level) - levelOrder.indexOf(b.level)
+                                        }).map((lang) => (
+                                            <div key={lang.id} className="flex items-center justify-between py-2 px-3 bg-white border border-slate-100 rounded-xl">
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold text-sm text-slate-800">{lang.language}</span>
+                                                    {lang.institution && (
+                                                        <span className="text-[10px] text-slate-400">{lang.institution}</span>
+                                                    )}
+                                                </div>
+                                                <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${lang.level === 'Nativo / Bilingüe' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                    lang.level === 'Avanzado (C1-C2)' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                        lang.level === 'Intermedio (B1-B2)' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                            'bg-slate-50 text-slate-600 border-slate-200'
+                                                    }`}>
+                                                    {lang.level}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="pt-8 border-t border-slate-100">
                                 <InterestsSection interests={profile.interests} isReadOnly={true} />
@@ -534,7 +586,10 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     {/* 6. Contacto */}
                     <section id="contacto" className="section-anchor pt-32 pb-48">
                         <div className="max-w-2xl mx-auto space-y-12 text-center">
-                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400">06 / Contacto</h2>
+                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400 flex items-center justify-center gap-2">
+                                <Mail size={14} />
+                                06 / Contacto
+                            </h2>
                             <p className="text-4xl font-bold text-white leading-tight">
                                 ¿Buscas establecer una conexión profesional?
                             </p>

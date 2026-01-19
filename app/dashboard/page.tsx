@@ -75,6 +75,12 @@ export default async function DashboardPage() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
+    const { data: languages } = await supabase
+        .from('languages')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
     const hitosUnificados: any[] = []
     const universityName = profile.universities?.name || 'Universidad'
@@ -156,6 +162,7 @@ export default async function DashboardPage() {
             experiences={experiences || []}
             achievements={achievements || []}
             testimonials={testimonials || []}
+            languages={languages || []}
             hitosUnificados={hitosUnificados}
         />
     )

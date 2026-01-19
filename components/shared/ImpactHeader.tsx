@@ -189,7 +189,10 @@ export const ImpactHeader = ({
                                                     >
                                                         <div className="flex items-center gap-2">
                                                             <span className={`w-1.5 h-1.5 rounded-full ${activeTab === 'hard' ? 'bg-indigo-400' : 'bg-blue-400'}`} />
-                                                            <span className="text-sm font-medium text-slate-700 truncate group-hover:text-indigo-600 transition-colors">
+                                                            <span
+                                                                title={skill}
+                                                                className="text-sm font-medium text-slate-700 truncate max-w-[120px] group-hover:text-indigo-600 transition-colors cursor-default"
+                                                            >
                                                                 {skill}
                                                             </span>
                                                         </div>

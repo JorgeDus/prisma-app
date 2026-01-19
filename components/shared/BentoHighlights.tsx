@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Star, Code, Rocket, User } from 'lucide-react';
+import { Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Star, Code, Rocket, User, FileBadge, Trophy, Users } from 'lucide-react';
 import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from "@/constants/images";
 
 const EXP_CATEGORY_MAP: Record<string, { label: string, icon: any, color: string, bg: string, border: string }> = {
@@ -20,6 +20,13 @@ const PROJECT_CATEGORY_MAP: Record<string, { label: string, icon: any, color: st
     academic: { label: 'Portafolio Académico', icon: GraduationCap, color: 'text-purple-700', bg: 'bg-purple-100' },
     startup: { label: 'Startup Project', icon: Rocket, color: 'text-blue-700', bg: 'bg-blue-100' },
     personal: { label: 'Innovación Personal', icon: User, color: 'text-green-700', bg: 'bg-green-100' }
+}
+
+const ACHIEVEMENT_CATEGORY_MAP: Record<string, { label: string, icon: any, gradient: string, color: string, bg: string }> = {
+    certification: { label: 'Certificación', icon: FileBadge, gradient: 'from-blue-500 to-cyan-500', color: 'text-blue-700', bg: 'bg-blue-100' },
+    award: { label: 'Premio', icon: Trophy, gradient: 'from-amber-500 to-orange-500', color: 'text-amber-700', bg: 'bg-amber-100' },
+    course_chair: { label: 'Cátedra', icon: GraduationCap, gradient: 'from-indigo-500 to-purple-500', color: 'text-indigo-700', bg: 'bg-indigo-100' },
+    academic_role: { label: 'Ayudantía', icon: Users, gradient: 'from-cyan-500 to-teal-500', color: 'text-cyan-700', bg: 'bg-cyan-100' }
 }
 
 interface BentoHighlightsProps {
@@ -53,19 +60,36 @@ export const BentoHighlights = ({
             {featured.map((item, index) => {
                 const isLarge = index === 0;
                 // Check itemType first (for curated items), then fall back to property detection
-                const isProject = item.itemType
-                    ? item.itemType === 'project'
-                    : (item.hasOwnProperty('is_startup') || item.hasOwnProperty('github_url'));
-                const href = isEditable
-                    ? (isProject ? `/dashboard/project/${item.id}` : `/dashboard/experiencias/${item.id}`)
-                    : (isProject ? `/${username}/proyectos/${item.id}` : `/${username}/experiencias/${item.id}`);
+                const itemType = item.itemType
+                    ? item.itemType
+                    : (item.hasOwnProperty('is_startup') || item.hasOwnProperty('github_url'))
+                        ? 'project'
+                        : item.hasOwnProperty('category') && item.hasOwnProperty('issuer')
+                            ? 'achievement'
+                            : 'experience';
+
+                const isProject = itemType === 'project';
+                const isAchievement = itemType === 'achievement';
+
+                // Build href based on item type
+                let href: string;
+                if (isProject) {
+                    href = isEditable ? `/dashboard/project/${item.id}` : `/${username}/proyectos/${item.id}`;
+                } else if (isAchievement) {
+                    href = isEditable ? `/dashboard/logros/${item.id}` : `/${username}/logros/${item.id}`;
+                } else {
+                    href = isEditable ? `/dashboard/experiencias/${item.id}` : `/${username}/experiencias/${item.id}`;
+                }
 
                 // Get category info with icon and colors
-                let categoryInfo;
-                let CategoryIcon;
+                let categoryInfo: any;
+                let CategoryIcon: any;
 
                 if (isProject) {
                     categoryInfo = PROJECT_CATEGORY_MAP[item.type] || PROJECT_CATEGORY_MAP.personal;
+                    CategoryIcon = categoryInfo.icon;
+                } else if (isAchievement) {
+                    categoryInfo = ACHIEVEMENT_CATEGORY_MAP[item.category] || ACHIEVEMENT_CATEGORY_MAP.certification;
                     CategoryIcon = categoryInfo.icon;
                 } else {
                     categoryInfo = EXP_CATEGORY_MAP[item.type] || EXP_CATEGORY_MAP.otro;
@@ -80,30 +104,47 @@ export const BentoHighlights = ({
                     >
                         {/* Background Image with Dark Overlay */}
                         <div className="absolute inset-0 z-0">
-                            {(() => {
-                                const displayImage = item.cover_image ||
-                                    (isProject
-                                        ? (DEFAULT_PROJECT_IMAGES[item.type] || DEFAULT_PROJECT_IMAGES.personal)
-                                        : (DEFAULT_EXP_IMAGES[item.type] || DEFAULT_EXP_IMAGES.otro)
+                            {isAchievement ? (
+                                /* Achievement: Gradient background with centered icon */
+                                <>
+                                    <div className={`w-full h-full bg-gradient-to-br ${categoryInfo.gradient}`} />
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                                        <CategoryIcon size={isLarge ? 200 : 120} className="text-white" />
+                                    </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                                </>
+                            ) : (
+                                /* Project/Experience: Image background */
+                                (() => {
+                                    const displayImage = item.cover_image ||
+                                        (isProject
+                                            ? (DEFAULT_PROJECT_IMAGES[item.type] || DEFAULT_PROJECT_IMAGES.personal)
+                                            : (DEFAULT_EXP_IMAGES[item.type] || DEFAULT_EXP_IMAGES.otro)
+                                        );
+                                    return (
+                                        <>
+                                            <img
+                                                src={displayImage}
+                                                alt={item.title}
+                                                className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
+                                            />
+                                            {/* Subtly darker overlay */}
+                                            <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/20 transition-colors duration-700" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+                                        </>
                                     );
-                                return (
-                                    <>
-                                        <img
-                                            src={displayImage}
-                                            alt={item.title}
-                                            className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
-                                        />
-                                        {/* Subtly darker overlay */}
-                                        <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/20 transition-colors duration-700" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
-                                    </>
-                                );
-                            })()}
+                                })()
+                            )}
                         </div>
 
                         {/* Category Badge - Top Left */}
                         <div className="absolute top-4 left-4 z-20">
                             {isProject ? (
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-mono font-black tracking-[0.15em] uppercase shadow-lg ${categoryInfo.bg} ${categoryInfo.color}`}>
+                                    <CategoryIcon size={11} strokeWidth={2.5} />
+                                    {categoryInfo.label}
+                                </span>
+                            ) : isAchievement ? (
                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-mono font-black tracking-[0.15em] uppercase shadow-lg ${categoryInfo.bg} ${categoryInfo.color}`}>
                                     <CategoryIcon size={11} strokeWidth={2.5} />
                                     {categoryInfo.label}
