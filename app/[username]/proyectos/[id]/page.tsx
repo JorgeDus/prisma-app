@@ -47,7 +47,7 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
 
     const PROJECT_LABELS: Record<string, string> = {
         academic: 'Portafolio Académico',
-        startup: 'Startup Project',
+        startup: 'Emprendimiento',
         personal: 'Innovación Personal'
     }
 
@@ -111,7 +111,7 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                         <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
                             {/* Summary / Impact Thesis */}
                             <section className="space-y-6">
-                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Objetivo del Proyecto</h2>
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Resumen del proyecto</h2>
                                 <p className="text-2xl font-medium text-slate-800 leading-relaxed">
                                     {project.description || "Este proyecto describe una solución innovadora dentro de su categoría."}
                                 </p>

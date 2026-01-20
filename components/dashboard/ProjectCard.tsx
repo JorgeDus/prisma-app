@@ -116,7 +116,7 @@ export default function ProjectCard({
                             project.type === 'personal' ? 'bg-green-100 text-green-700' :
                                 'bg-purple-100 text-purple-700'
                             }`}>
-                            {project.type === 'academic' ? 'Académico' : project.type === 'startup' ? 'Startup' : 'Personal'}
+                            {project.type === 'academic' ? 'Académico' : project.type === 'startup' ? 'Emprendimiento' : 'Personal'}
                         </span>
                         <div className="flex items-center gap-1 text-xs text-gray-400">
                             <Calendar size={14} />

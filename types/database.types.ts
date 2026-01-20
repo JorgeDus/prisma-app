@@ -45,6 +45,54 @@ export interface Database {
                 }
                 Relationships: []
             }
+            user_careers: {
+                Row: {
+                    id: string
+                    user_id: string
+                    career_id: number | null
+                    custom_career: string | null
+                    institution: string | null
+                    start_year: number | null
+                    end_year: number | null
+                    is_current: boolean
+                    is_primary: boolean
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    career_id?: number | null
+                    custom_career?: string | null
+                    institution?: string | null
+                    start_year?: number | null
+                    end_year?: number | null
+                    is_current?: boolean
+                    is_primary?: boolean
+                }
+                Update: {
+                    career_id?: number | null
+                    custom_career?: string | null
+                    institution?: string | null
+                    start_year?: number | null
+                    end_year?: number | null
+                    is_current?: boolean
+                    is_primary?: boolean
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "user_careers_user_id_fkey"
+                        columns: ["user_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "user_careers_career_id_fkey"
+                        columns: ["career_id"]
+                        referencedRelation: "careers"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
             profiles: {
                 Row: {
                     id: string
@@ -446,3 +494,4 @@ export type Testimonial = Tables<'testimonials'>
 export type Language = Tables<'languages'>
 export type University = Tables<'universities'>
 export type Career = Tables<'careers'>
+export type UserCareer = Tables<'user_careers'>

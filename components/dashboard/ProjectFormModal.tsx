@@ -356,7 +356,7 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                         >
                             <option value="academic">Académico</option>
                             <option value="personal">Personal</option>
-                            <option value="startup">Startup / Innovación</option>
+                            <option value="startup">Emprendimiento</option>
                         </select>
                     </div>
                     <div>

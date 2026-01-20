@@ -77,7 +77,7 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                                     project.type === 'academic' ? 'bg-purple-100 text-purple-700' :
                                         'bg-green-100 text-green-700'
                                     }`}>
-                                    {project.type === 'academic' ? 'Portafolio Académico' : project.type === 'startup' ? 'Startup Project' : 'Innovación Personal'}
+                                    {project.type === 'academic' ? 'Portafolio Académico' : project.type === 'startup' ? 'Emprendimiento' : 'Innovación Personal'}
                                 </span>
                                 <div className="flex items-center gap-2 text-gray-400 text-sm">
                                     <Calendar size={16} />

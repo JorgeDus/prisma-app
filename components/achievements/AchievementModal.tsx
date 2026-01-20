@@ -18,7 +18,7 @@ interface AchievementModalProps {
 const CATEGORIES = [
     { id: 'award', label: 'Premio / Reconocimiento', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50' },
     { id: 'certification', label: 'Certificación / Curso', icon: FileBadge, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { id: 'academic_role', label: 'Ayudantía / Investigación', icon: Users, color: 'text-cyan-500', bg: 'bg-cyan-50' },
+    { id: 'academic_role', label: 'Investigación', icon: Users, color: 'text-cyan-500', bg: 'bg-cyan-50' },
     { id: 'course_chair', label: 'Cátedra Destacada', icon: GraduationCap, color: 'text-indigo-500', bg: 'bg-indigo-50' }
 ] as const
 

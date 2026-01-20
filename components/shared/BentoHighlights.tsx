@@ -18,7 +18,7 @@ const EXP_CATEGORY_MAP: Record<string, { label: string, icon: any, color: string
 
 const PROJECT_CATEGORY_MAP: Record<string, { label: string, icon: any, color: string, bg: string, border?: string }> = {
     academic: { label: 'Portafolio Académico', icon: GraduationCap, color: 'text-purple-700', bg: 'bg-purple-100' },
-    startup: { label: 'Startup Project', icon: Rocket, color: 'text-blue-700', bg: 'bg-blue-100' },
+    startup: { label: 'Emprendimiento', icon: Rocket, color: 'text-blue-700', bg: 'bg-blue-100' },
     personal: { label: 'Innovación Personal', icon: User, color: 'text-green-700', bg: 'bg-green-100' }
 }
 
@@ -26,7 +26,7 @@ const ACHIEVEMENT_CATEGORY_MAP: Record<string, { label: string, icon: any, gradi
     certification: { label: 'Certificación', icon: FileBadge, gradient: 'from-blue-500 to-cyan-500', color: 'text-blue-700', bg: 'bg-blue-100' },
     award: { label: 'Premio', icon: Trophy, gradient: 'from-amber-500 to-orange-500', color: 'text-amber-700', bg: 'bg-amber-100' },
     course_chair: { label: 'Cátedra', icon: GraduationCap, gradient: 'from-indigo-500 to-purple-500', color: 'text-indigo-700', bg: 'bg-indigo-100' },
-    academic_role: { label: 'Ayudantía', icon: Users, gradient: 'from-cyan-500 to-teal-500', color: 'text-cyan-700', bg: 'bg-cyan-100' }
+    academic_role: { label: 'Investigación', icon: Users, gradient: 'from-cyan-500 to-teal-500', color: 'text-cyan-700', bg: 'bg-cyan-100' }
 }
 
 interface BentoHighlightsProps {

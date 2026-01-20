@@ -126,7 +126,7 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                             {/* Description */}
                             <section className="space-y-6">
                                 <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-                                    <Star size={14} className="text-indigo-500" /> El Rol y Resumen
+                                    <Star size={14} className="text-indigo-500" /> Resumen
                                 </h2>
                                 <p className="text-xl text-slate-600 leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
                                     {experience.description || "Esta experiencia detalla una fase clave en el desarrollo profesional y de impacto."}

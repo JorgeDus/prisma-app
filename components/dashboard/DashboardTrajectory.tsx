@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { ChevronDown, ChevronUp, Briefcase, GraduationCap, Trophy, Rocket, Heart, Award, Star, Palette, Dumbbell, HeartPulse } from 'lucide-react'
 
 export type MilestoneType = 'project' | 'achievement' | 'experience' | 'education'
@@ -21,29 +21,31 @@ interface DashboardTrajectoryProps {
     initialCount?: number
 }
 
-// Función auxiliar para obtener el icono según el tipo de hito
-const getMilestoneIcon = (hito: Milestone) => {
+// Función auxiliar para obtener el icono y color según el tipo de hito
+const getMilestoneIcon = (hito: Milestone): { icon: React.ReactElement, color: string } => {
     switch (hito.type) {
         case 'project':
-            return hito.category === 'startup' ? <Rocket size={14} /> : <Briefcase size={14} />
+            return hito.category === 'startup'
+                ? { icon: <Rocket size={14} />, color: 'text-violet-500' }
+                : { icon: <Briefcase size={14} />, color: 'text-blue-500' }
         case 'achievement':
-            return <Trophy size={14} />
+            return { icon: <Trophy size={14} />, color: 'text-amber-500' }
         case 'education':
-            return <GraduationCap size={14} />
+            return { icon: <GraduationCap size={14} />, color: 'text-indigo-500' }
         case 'experience':
             switch (hito.category) {
-                case 'liderazgo': return <Award size={14} />
-                case 'social': return <Heart size={14} />
-                case 'emprendimiento': return <Rocket size={14} />
-                case 'empleo_sustento': return <Briefcase size={14} />
-                case 'academico': return <GraduationCap size={14} />
-                case 'deportivo': return <Dumbbell size={14} />
-                case 'creativo': return <Palette size={14} />
-                case 'cuidado_vida': return <HeartPulse size={14} />
-                default: return <Briefcase size={14} />
+                case 'liderazgo': return { icon: <Award size={14} />, color: 'text-amber-500' }
+                case 'social': return { icon: <Heart size={14} />, color: 'text-rose-500' }
+                case 'emprendimiento': return { icon: <Rocket size={14} />, color: 'text-violet-500' }
+                case 'empleo_sustento': return { icon: <Briefcase size={14} />, color: 'text-blue-500' }
+                case 'academico': return { icon: <GraduationCap size={14} />, color: 'text-indigo-500' }
+                case 'deportivo': return { icon: <Dumbbell size={14} />, color: 'text-emerald-500' }
+                case 'creativo': return { icon: <Palette size={14} />, color: 'text-pink-500' }
+                case 'cuidado_vida': return { icon: <HeartPulse size={14} />, color: 'text-teal-500' }
+                default: return { icon: <Briefcase size={14} />, color: 'text-blue-500' }
             }
         default:
-            return <Star size={14} />
+            return { icon: <Star size={14} />, color: 'text-yellow-500' }
     }
 }
 
@@ -103,16 +105,21 @@ export default function DashboardTrajectory({
                     {visibleHitos.map((hito) => (
                         <div key={hito.id} className="relative flex gap-6 group">
                             {/* Dot with Icon */}
-                            <div className="relative z-10 w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 flex-shrink-0 group-hover:border-indigo-600 group-hover:text-indigo-600 transition-all duration-500 shadow-sm">
-                                {getMilestoneIcon(hito)}
-                            </div>
+                            {(() => {
+                                const { icon, color } = getMilestoneIcon(hito)
+                                return (
+                                    <div className={`relative z-10 w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center ${color} flex-shrink-0 group-hover:border-indigo-600 group-hover:text-indigo-600 transition-all duration-500 shadow-sm`}>
+                                        {icon}
+                                    </div>
+                                )
+                            })()}
 
                             {/* Content */}
                             <div className="flex-1 pb-1">
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3">
-                                            <span className="text-[10px] text-slate-400 font-mono font-black tracking-widest uppercase">
+                                            <span className="text-xs text-slate-500 font-mono font-black tracking-widest uppercase">
                                                 {formatDate(hito.date)}
                                             </span>
                                             <div className="h-px w-4 bg-slate-100" />

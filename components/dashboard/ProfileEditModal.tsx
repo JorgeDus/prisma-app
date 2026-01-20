@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Loader2, User, Type, FileText, School, Upload, X, Move } from 'lucide-react'
+import { Loader2, User, Type, FileText, School, Upload, X, Move, GraduationCap, Plus, Star, Settings } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
-import { Profile, University, Career } from '@/types/database.types'
+import { Profile, University, Career, UserCareer } from '@/types/database.types'
 import Combobox from '@/components/ui/Combobox'
+import CareersModal from './CareersModal'
 
 interface ProfileEditModalProps {
     profile: Profile
@@ -24,6 +25,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
     // Catálogos
     const [universities, setUniversities] = useState<University[]>([])
     const [careers, setCareers] = useState<Career[]>([])
+    const [userCareers, setUserCareers] = useState<(UserCareer & { career?: { id: number; name: string } | null })[]>([])
 
     // Avatar State
     const [avatarFile, setAvatarFile] = useState<File | null>(null)
@@ -38,6 +40,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
     })
     const [isAdjusting, setIsAdjusting] = useState(false)
     const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'same' | 'idle'>('idle')
+    const [isCareersModalOpen, setIsCareersModalOpen] = useState(false)
 
     const [formData, setFormData] = useState({
         username: profile.username || '',
@@ -72,8 +75,14 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
             const fetchCatalogs = async () => {
                 const { data: u } = await supabase.from('universities').select('*').order('name')
                 const { data: c } = await supabase.from('careers').select('*').order('name')
+                const { data: uc } = await supabase
+                    .from('user_careers')
+                    .select('*, career:careers(id, name)')
+                    .eq('user_id', profile.id)
+                    .order('is_primary', { ascending: false })
                 if (u) setUniversities(u)
                 if (c) setCareers(c)
+                if (uc) setUserCareers(uc)
             }
             fetchCatalogs()
             setIsStudying(!profile.career_end_date || new Date(profile.career_end_date) > new Date())
@@ -423,60 +432,73 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                     </div>
 
                     <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
-                        <div className="flex items-center gap-2 text-slate-600">
-                            <School size={16} />
-                            <span className="text-sm font-semibold">Validación Académica</span>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4">
-                            <Combobox
-                                options={universities}
-                                value={formData.university_id.toString()}
-                                onChange={(val) => setFormData({ ...formData, university_id: val })}
-                                placeholder="Busca tu universidad"
-                            />
-
-                            <Combobox
-                                options={careers}
-                                value={formData.career_id.toString()}
-                                onChange={(val) => setFormData({ ...formData, career_id: val })}
-                                placeholder="Busca tu carrera"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-1">Ingreso</label>
-                                <input
-                                    type="date"
-                                    value={formData.career_start_date}
-                                    onChange={(e) => setFormData({ ...formData, career_start_date: e.target.value })}
-                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono outline-none focus:ring-2 focus:ring-indigo-500"
-                                />
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-slate-600">
+                                <GraduationCap size={16} />
+                                <span className="text-sm font-semibold">Formación Académica</span>
                             </div>
+                        </div>
+
+                        {/* List of existing careers */}
+                        {userCareers.length > 0 ? (
                             <div className="space-y-2">
-                                <label className="block text-xs font-semibold text-gray-600 mb-1">Estado</label>
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
-                                        checked={isStudying}
-                                        onChange={(e) => setIsStudying(e.target.checked)}
-                                        className="rounded text-indigo-600 focus:ring-indigo-500"
-                                    />
-                                    <span className="text-[10px] font-mono text-slate-500 group-hover:text-slate-900 transition-colors uppercase">En Curso</span>
-                                </label>
-                                {!isStudying && (
-                                    <input
-                                        type="date"
-                                        value={formData.career_end_date}
-                                        onChange={(e) => setFormData({ ...formData, career_end_date: e.target.value })}
-                                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono outline-none focus:ring-2 focus:ring-indigo-500 animate-in fade-in"
-                                    />
-                                )}
+                                {userCareers.map((uc) => (
+                                    <div
+                                        key={uc.id}
+                                        className={`p-3 rounded-lg border ${uc.is_primary ? 'border-indigo-200 bg-indigo-50/50' : 'border-slate-100 bg-white'}`}
+                                    >
+                                        <div className="flex items-center justify-between gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium text-sm text-slate-900 truncate">
+                                                        {(uc as any).career?.name || uc.custom_career}
+                                                    </span>
+                                                    {uc.is_primary && (
+                                                        <Star size={12} className="text-indigo-600 flex-shrink-0" fill="currentColor" />
+                                                    )}
+                                                </div>
+                                                {uc.institution && (
+                                                    <p className="text-xs text-slate-500 truncate">{uc.institution}</p>
+                                                )}
+                                            </div>
+                                            <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
+                                                {uc.start_year} - {uc.is_current ? 'Actual' : uc.end_year}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        </div>
+                        ) : (
+                            <p className="text-xs text-slate-400 text-center py-2">
+                                No has agregado carreras aún
+                            </p>
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={() => setIsCareersModalOpen(true)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50/50 transition-all"
+                        >
+                            <Settings size={16} />
+                            Gestionar Carreras
+                        </button>
                     </div>
                 </div>
+
+                <CareersModal
+                    isOpen={isCareersModalOpen}
+                    onClose={async () => {
+                        setIsCareersModalOpen(false)
+                        // Refresh careers list
+                        const { data: uc } = await supabase
+                            .from('user_careers')
+                            .select('*, career:careers(id, name)')
+                            .eq('user_id', profile.id)
+                            .order('is_primary', { ascending: false })
+                        if (uc) setUserCareers(uc)
+                    }}
+                    userId={profile.id}
+                />
 
                 <div className="pt-4 flex justify-end gap-3">
                     <button

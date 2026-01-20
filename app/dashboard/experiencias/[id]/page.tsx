@@ -115,37 +115,37 @@ export default async function ExperienceDetailPage(props: PageProps) {
                         <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
                             {/* Description */}
                             <section className="space-y-6">
-                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Resumen de Función</h2>
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                    <Star size={14} className="text-indigo-500" /> Resumen
+                                </h2>
                                 <p className="text-xl text-slate-600 leading-relaxed font-medium border-l-4 border-indigo-100 pl-6">
                                     {experience.description || "Sin descripción disponible."}
                                 </p>
                             </section>
 
-                            <div className="grid grid-cols-1 gap-12 pt-12 border-t border-slate-50">
-                                {/* Logros */}
-                                {experience.achievements && (
-                                    <section className="space-y-6">
-                                        <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
-                                            Logros Clave
-                                        </h2>
-                                        <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
-                                            {experience.achievements}
-                                        </div>
-                                    </section>
-                                )}
+                            {/* Logros */}
+                            {experience.achievements && (
+                                <section className="space-y-6">
+                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                        <Award size={14} className="text-amber-500" /> Logros y Resultados
+                                    </h2>
+                                    <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
+                                        {experience.achievements}
+                                    </div>
+                                </section>
+                            )}
 
-                                {/* Reflexión */}
-                                {experience.value_reflection && (
-                                    <section className="space-y-6">
-                                        <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">
-                                            Impacto y Aprendizaje
-                                        </h2>
-                                        <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
-                                            {experience.value_reflection}
-                                        </div>
-                                    </section>
-                                )}
-                            </div>
+                            {/* Reflexión */}
+                            {experience.value_reflection && (
+                                <section className="space-y-6">
+                                    <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                                        <Heart size={14} className="text-rose-500" /> Impacto y Aprendizaje
+                                    </h2>
+                                    <div className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
+                                        {experience.value_reflection}
+                                    </div>
+                                </section>
+                            )}
                         </div>
                     </div>
 

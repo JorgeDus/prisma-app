@@ -62,7 +62,7 @@ export default async function ProjectDetailPage(props: PageProps) {
                             project.type === 'academic' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' :
                                 'bg-emerald-50 text-emerald-700 border-emerald-100'
                             }`}>
-                            {project.type === 'academic' ? 'Portafolio Académico' : project.type === 'startup' ? 'Startup Project' : 'Innovación Personal'}
+                            {project.type === 'academic' ? 'Portafolio Académico' : project.type === 'startup' ? 'Emprendimiento' : 'Innovación Personal'}
                         </span>
                         <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 bg-white">
                             <Calendar size={12} className="text-indigo-400" />
@@ -89,7 +89,7 @@ export default async function ProjectDetailPage(props: PageProps) {
                         <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
                             {/* Description / Objetivo */}
                             <section className="space-y-6">
-                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Objetivo del Proyecto</h2>
+                                <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-400">Resumen del proyecto</h2>
                                 <p className="text-xl text-slate-600 leading-relaxed font-medium">
                                     {project.description || "Este proyecto describe una solución innovadora dentro de su categoría."}
                                 </p>

@@ -174,7 +174,7 @@ export default function AchievementFormModal({
                             <option value="certification">Certificación</option>
                             <option value="award">Premio / Reconocimiento</option>
                             <option value="course_chair">Cátedra Destacada</option>
-                            <option value="academic_role">Ayudantía / Investigación</option>
+                            <option value="academic_role">Investigación</option>
                         </select>
                     </div>
                 </div>

@@ -323,7 +323,7 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         { id: 'liderazgo', label: 'Liderazgo', icon: Award },
         { id: 'social', label: 'Social / Voluntariado', icon: Heart },
         { id: 'emprendimiento', label: 'Emprendimiento', icon: Zap },
-        { id: 'empleo_sustento', label: 'Empleo / Sustento', icon: Briefcase },
+        { id: 'empleo_sustento', label: 'Empleo / Pasantía', icon: Briefcase },
         { id: 'academico', label: 'Académico (Ayudantías)', icon: GraduationCap },
         { id: 'deportivo', label: 'Deportivo', icon: Dumbbell },
         { id: 'creativo', label: 'Creativo / Artístico', icon: Palette },

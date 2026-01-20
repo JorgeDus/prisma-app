@@ -115,7 +115,7 @@ export default function NewProjectButton({ userId }: NewProjectButtonProps) {
                                 >
                                     <option value="academic">Académico</option>
                                     <option value="personal">Personal</option>
-                                    <option value="startup">Startup / Emprendimiento</option>
+                                    <option value="startup">Emprendimiento</option>
                                 </select>
                             </div>
                         </div>

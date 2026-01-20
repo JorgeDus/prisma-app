@@ -57,13 +57,22 @@ interface DashboardContentProps {
     testimonials: any[]
     languages: Language[]
     hitosUnificados: any[]
+    primaryCareer?: {
+        id: string
+        career_id: number | null
+        custom_career: string | null
+        institution: string | null
+        is_current: boolean
+        career?: { id: number; name: string } | null
+    } | null
+    userCareers?: any[]
 }
 
 const CATEGORY_MAP: Record<string, string> = {
     certification: "Certificación",
     award: "Premio / Reconocimiento",
     course_chair: "Cátedra Destacada",
-    academic_role: "Ayudantía / Investigación"
+    academic_role: "Investigación"
 }
 
 const EXP_CATEGORY_MAP: Record<string, { label: string, color: string, bg: string, border: string, icon: any }> = {
@@ -109,7 +118,9 @@ export default function DashboardContent({
     achievements,
     testimonials,
     languages,
-    hitosUnificados
+    hitosUnificados,
+    primaryCareer,
+    userCareers = []
 }: DashboardContentProps) {
     const router = useRouter()
     const supabase = createClient()
@@ -146,8 +157,11 @@ export default function DashboardContent({
         { id: "contacto", label: "Contacto" },
     ]
 
-    const careerName = profile.careers?.name || 'Carrera'
-    const universityName = profile.universities?.name || 'Universidad'
+    // Get career and university names - prefer primaryCareer if available
+    const careerName = primaryCareer
+        ? ((primaryCareer as any).career?.name || primaryCareer.custom_career || 'Carrera')
+        : (profile.careers?.name || 'Carrera')
+    const universityName = primaryCareer?.institution || profile.universities?.name || 'Universidad'
 
     const getAcademicStatus = () => {
         const today = new Date()
@@ -298,6 +312,7 @@ export default function DashboardContent({
                     softSkills={aggregatedSoftSkills}
                     interests={profile.interests || []}
                     skillCounts={skillCounts}
+                    allCareers={userCareers}
                 />
             </div>
 
@@ -312,8 +327,8 @@ export default function DashboardContent({
                 <section id="highlights" className="section-anchor">
                     <div className="space-y-8">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-                                <LayoutGrid size={16} className="text-slate-500" />
+                            <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                <LayoutGrid size={20} className="text-slate-600" />
                                 01 / Mi Vitrina
                             </h2>
                             <EvidenceBadge label="Modo Edición Activo" count={(profile.featured_items || []).length} />
@@ -335,8 +350,8 @@ export default function DashboardContent({
                         {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-                                    <Trophy size={16} className="text-slate-500" />
+                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                    <Trophy size={20} className="text-slate-600" />
                                     02 / Logros / Hitos
                                 </h2>
                                 <button
@@ -410,8 +425,8 @@ export default function DashboardContent({
                         {/* 3. Experiencia */}
                         <section id="experiencia" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-                                    <Sparkles size={16} className="text-slate-500" />
+                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                    <Sparkles size={20} className="text-slate-600" />
                                     03 / Experiencias
                                 </h2>
                                 <button
@@ -465,8 +480,8 @@ export default function DashboardContent({
                         {/* 4. Proyectos */}
                         <section id="proyectos" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-                                    <Briefcase size={16} className="text-slate-500" />
+                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                    <Briefcase size={20} className="text-slate-600" />
                                     04 / Proyectos
                                 </h2>
                                 <button
@@ -510,8 +525,8 @@ export default function DashboardContent({
                         {/* 5. Testimonios */}
                         <section id="testimonios" className="section-anchor space-y-8">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-                                    <MessageSquare size={16} className="text-slate-500" />
+                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
+                                    <MessageSquare size={20} className="text-slate-600" />
                                     05 / Testimonios
                                 </h2>
                                 <button className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">+ Solicitar Testimonio</button>

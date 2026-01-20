@@ -28,7 +28,7 @@ export default function AcademicRoleCard({ achievement, onEdit }: AcademicRoleCa
                             </h4>
                             <div className="flex items-center gap-1.5">
                                 <Users size={10} className="text-cyan-400" />
-                                <p className="text-[10px] text-cyan-500 font-black uppercase tracking-[0.2em]">Ayudantía / Investigación</p>
+                                <p className="text-[10px] text-cyan-500 font-black uppercase tracking-[0.2em]">Investigación</p>
                             </div>
                         </div>
                     </div>

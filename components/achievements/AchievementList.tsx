@@ -52,7 +52,7 @@ export default function AchievementList({ initialAchievements, userId, isReadOnl
     const sections = [
         { id: 'award', title: 'Premios y Reconocimientos', items: groupedAchievements.award },
         { id: 'certification', title: 'Certificaciones y Cursos', items: groupedAchievements.certification },
-        { id: 'academic_role', title: 'Ayudantías / Investigación', items: groupedAchievements.academic_role },
+        { id: 'academic_role', title: 'Investigación', items: groupedAchievements.academic_role },
         { id: 'course_chair', title: 'Cátedras Destacadas', items: groupedAchievements.course_chair },
     ]
 

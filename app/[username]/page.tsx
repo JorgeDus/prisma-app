@@ -46,7 +46,7 @@ const CATEGORY_MAP: Record<string, string> = {
     certification: "Certificación",
     award: "Premio / Reconocimiento",
     course_chair: "Cátedra Destacada",
-    academic_role: "Ayudantía / Investigación"
+    academic_role: "Investigación"
 }
 
 const EXP_CATEGORY_MAP: Record<string, { label: string, color: string, bg: string, border: string, icon: any }> = {
@@ -157,6 +157,16 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
 
+    // Fetch user's careers
+    const { data: userCareers } = await supabase
+        .from('user_careers')
+        .select('*, career:careers(id, name)')
+        .eq('user_id', profile.id)
+        .order('is_primary', { ascending: false })
+
+    // Get primary career for header display
+    const primaryCareer = userCareers?.find(uc => uc.is_primary) || userCareers?.[0] || null
+
     // 3. Fetch curated vitrina items if featured_items exists
     let curatedVitrinaItems: any[] = []
     if (profile.featured_items && Array.isArray(profile.featured_items) && profile.featured_items.length > 0) {
@@ -193,9 +203,11 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
             .filter(Boolean)
     }
 
-    // Preparar UI
-    const universityName = profile.universities?.name || 'Universidad'
-    const careerName = profile.careers?.name || 'Carrera'
+    // Preparar UI - prefer primaryCareer if available
+    const careerName = primaryCareer
+        ? ((primaryCareer as any).career?.name || primaryCareer.custom_career || 'Carrera')
+        : (profile.careers?.name || 'Carrera')
+    const universityName = primaryCareer?.institution || profile.universities?.name || 'Universidad'
 
     const getAcademicStatus = () => {
         const today = new Date()
@@ -370,6 +382,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     softSkills={aggregatedSoftSkills}
                     interests={profile.interests || []}
                     skillCounts={skillCounts}
+                    allCareers={userCareers || []}
                 />
             </div>
 
@@ -380,8 +393,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     <div className="space-y-8">
                         <div className="flex flex-col space-y-2">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                    <LayoutGrid size={16} className="text-slate-400" />
+                                <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
+                                    <LayoutGrid size={20} className="text-slate-500" />
                                     01 / Mi Vitrina
                                 </h2>
                                 <EvidenceBadge label="Verificado por Prisma" />
@@ -403,8 +416,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                <Trophy size={16} className="text-slate-400" />
+                            <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
+                                <Trophy size={20} className="text-slate-500" />
                                 02 / Logros / Hitos
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -456,8 +469,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 3. Experiencia */}
                         <section id="experiencia" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                <Sparkles size={16} className="text-slate-400" />
+                            <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
+                                <Sparkles size={20} className="text-slate-500" />
                                 03 / Experiencias
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -495,8 +508,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 4. Proyectos */}
                         <section id="proyectos" className="section-anchor space-y-8">
-                            <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                <Briefcase size={16} className="text-slate-400" />
+                            <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
+                                <Briefcase size={20} className="text-slate-500" />
                                 04 / Proyectos
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -524,8 +537,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         {/* 5. Testimonios */}
                         {testimonials && testimonials.length > 0 && (
                             <section id="testimonios" className="section-anchor space-y-8">
-                                <h2 className="text-sm font-mono font-black tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                    <MessageSquare size={16} className="text-slate-400" />
+                                <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
+                                    <MessageSquare size={20} className="text-slate-500" />
                                     05 / Testimonios
                                 </h2>
                                 <TestimonialSection testimonials={testimonials || []} userId={profile.id} isReadOnly={true} />
@@ -586,8 +599,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     {/* 6. Contacto */}
                     <section id="contacto" className="section-anchor pt-32 pb-48">
                         <div className="max-w-2xl mx-auto space-y-12 text-center">
-                            <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400 flex items-center justify-center gap-2">
-                                <Mail size={14} />
+                            <h2 className="text-sm font-mono font-black tracking-[0.2em] uppercase text-indigo-400 flex items-center justify-center gap-2">
+                                <Mail size={18} />
                                 06 / Contacto
                             </h2>
                             <p className="text-4xl font-bold text-white leading-tight">

@@ -81,6 +81,16 @@ export default async function DashboardPage() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
+    // Fetch user's careers
+    const { data: userCareers } = await supabase
+        .from('user_careers')
+        .select('*, career:careers(id, name)')
+        .eq('user_id', user.id)
+        .order('is_primary', { ascending: false })
+
+    // Get primary career for header display
+    const primaryCareer = userCareers?.find(uc => uc.is_primary) || userCareers?.[0] || null
+
     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
     const hitosUnificados: any[] = []
     const universityName = profile.universities?.name || 'Universidad'
@@ -164,6 +174,8 @@ export default async function DashboardPage() {
             testimonials={testimonials || []}
             languages={languages || []}
             hitosUnificados={hitosUnificados}
+            primaryCareer={primaryCareer}
+            userCareers={userCareers || []}
         />
     )
 }

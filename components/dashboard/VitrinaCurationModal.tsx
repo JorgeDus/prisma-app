@@ -24,7 +24,7 @@ const ACHIEVEMENT_CATEGORY_MAP: Record<string, { label: string, icon: any, gradi
     certification: { label: 'Certificación', icon: FileBadge, gradient: 'from-blue-500 to-cyan-500' },
     award: { label: 'Premio', icon: Trophy, gradient: 'from-amber-500 to-orange-500' },
     course_chair: { label: 'Cátedra', icon: GraduationCap, gradient: 'from-indigo-500 to-purple-500' },
-    academic_role: { label: 'Ayudantía', icon: Users, gradient: 'from-cyan-500 to-teal-500' }
+    academic_role: { label: 'Investigación', icon: Users, gradient: 'from-cyan-500 to-teal-500' }
 }
 
 export default function VitrinaCurationModal({
@@ -136,7 +136,7 @@ export default function VitrinaCurationModal({
                                                 </h3>
                                                 <p className="text-xs text-slate-500 mt-0.5">
                                                     {project.type === 'academic' ? 'Académico' :
-                                                        project.type === 'startup' ? 'Startup' : 'Personal'}
+                                                        project.type === 'startup' ? 'Emprendimiento' : 'Personal'}
                                                 </p>
                                             </div>
                                             {isCurrentSlot && (

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Github, Linkedin, Globe, Sparkles, Blocks } from "lucide-react";
+import { Github, Linkedin, Globe, Sparkles, Blocks, GraduationCap, ChevronDown } from "lucide-react";
 import SkillsModal from "@/components/shared/SkillsModal";
 
 interface ImpactHeaderProps {
@@ -19,6 +19,17 @@ interface ImpactHeaderProps {
     softSkills?: string[];
     interests?: string[];
     skillCounts?: Record<string, number>;
+    allCareers?: {
+        id: string;
+        career_id: number | null;
+        custom_career: string | null;
+        institution: string | null;
+        is_current: boolean;
+        is_primary: boolean;
+        start_year: number | null;
+        end_year: number | null;
+        career?: { id: number; name: string } | null;
+    }[];
 }
 
 export const ImpactHeader = ({
@@ -36,9 +47,15 @@ export const ImpactHeader = ({
     softSkills = [],
     interests = [],
     skillCounts = {},
+    allCareers = [],
 }: ImpactHeaderProps) => {
     const [activeTab, setActiveTab] = useState<'hard' | 'soft'>('hard');
     const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
+    const [showCareersTooltip, setShowCareersTooltip] = useState(false);
+
+    // Check if there are secondary careers to show
+    const secondaryCareers = allCareers.filter(c => !c.is_primary);
+    const hasMultipleCareers = secondaryCareers.length > 0;
 
     const displaySkills = activeTab === 'hard' ? hardSkills : softSkills;
     const hasAnySkills = hardSkills.length > 0 || softSkills.length > 0;
@@ -95,8 +112,48 @@ export const ImpactHeader = ({
 
                             {/* Credential Rail */}
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2">
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-full shadow-sm">
-                                    <span className="text-xs font-mono font-black text-indigo-600 uppercase tracking-widest">{career}</span>
+                                {/* Career Badge with Tooltip */}
+                                <div
+                                    className="relative"
+                                    onMouseEnter={() => hasMultipleCareers && setShowCareersTooltip(true)}
+                                    onMouseLeave={() => setShowCareersTooltip(false)}
+                                >
+                                    <div className={`flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-full shadow-sm transition-all ${hasMultipleCareers ? 'cursor-pointer hover:border-indigo-200 hover:bg-indigo-50/50' : ''}`}>
+                                        <span className="text-xs font-mono font-black text-indigo-600 uppercase tracking-widest">{career}</span>
+                                        {hasMultipleCareers && (
+                                            <ChevronDown size={12} className={`text-indigo-400 transition-transform ${showCareersTooltip ? 'rotate-180' : ''}`} />
+                                        )}
+                                    </div>
+
+                                    {/* Tooltip showing all careers */}
+                                    {showCareersTooltip && hasMultipleCareers && (
+                                        <div className="absolute top-full left-0 mt-2 z-50 min-w-[280px] bg-white rounded-xl border border-slate-200 shadow-xl p-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                                <GraduationCap size={12} />
+                                                Formación Académica
+                                            </p>
+                                            <div className="space-y-2">
+                                                {allCareers.map((c) => (
+                                                    <div key={c.id} className={`p-2 rounded-lg ${c.is_primary ? 'bg-indigo-50 border border-indigo-100' : 'bg-slate-50'}`}>
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <span className={`text-sm font-semibold ${c.is_primary ? 'text-indigo-700' : 'text-slate-700'}`}>
+                                                                {c.career?.name || c.custom_career}
+                                                            </span>
+                                                            {c.is_primary && (
+                                                                <span className="text-[9px] font-bold text-indigo-500 uppercase">Principal</span>
+                                                            )}
+                                                        </div>
+                                                        {c.institution && (
+                                                            <p className="text-xs text-slate-500">{c.institution}</p>
+                                                        )}
+                                                        <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                                            {c.start_year} - {c.is_current ? 'Presente' : c.end_year}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="w-1 h-1 rounded-full bg-slate-300" />
                                 <div className="flex items-center gap-2">
