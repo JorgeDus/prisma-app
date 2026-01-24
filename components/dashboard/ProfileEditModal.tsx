@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Loader2, User, Type, FileText, School, Upload, X, Move, GraduationCap, Plus, Star, Settings } from 'lucide-react'
+import { Loader2, User, Type, FileText, School, Upload, X, Move, GraduationCap, Plus, Star, Settings, Pause, Play, Trash2, AlertTriangle, Mail, Calendar } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import { Profile, University, Career, UserCareer } from '@/types/database.types'
 import Combobox from '@/components/ui/Combobox'
@@ -41,6 +41,13 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
     const [isAdjusting, setIsAdjusting] = useState(false)
     const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'same' | 'idle'>('idle')
     const [isCareersModalOpen, setIsCareersModalOpen] = useState(false)
+
+    // Account Management State
+    const [isPaused, setIsPaused] = useState(profile.is_paused || false)
+    const [isPausingAccount, setIsPausingAccount] = useState(false)
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+    const [isRequestingDeletion, setIsRequestingDeletion] = useState(false)
+    const [deletionRequested, setDeletionRequested] = useState(!!profile.deletion_requested_at)
 
     const [formData, setFormData] = useState({
         username: profile.username || '',
@@ -246,6 +253,81 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
         } finally {
             setIsLoading(false)
             setUploadingAvatar(false)
+        }
+    }
+
+    const handlePauseAccount = async () => {
+        setIsPausingAccount(true)
+        try {
+            const newPausedState = !isPaused
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    is_paused: newPausedState,
+                    paused_at: newPausedState ? new Date().toISOString() : null
+                })
+                .eq('id', profile.id)
+
+            if (error) throw error
+
+            setIsPaused(newPausedState)
+            router.refresh()
+        } catch (error) {
+            console.error('Error toggling pause:', error)
+            alert('Error al cambiar el estado de la cuenta')
+        } finally {
+            setIsPausingAccount(false)
+        }
+    }
+
+    const handleRequestDeletion = async () => {
+        setIsRequestingDeletion(true)
+        try {
+            // Generate a deletion token
+            const token = crypto.randomUUID()
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    deletion_requested_at: new Date().toISOString(),
+                    deletion_token: token
+                })
+                .eq('id', profile.id)
+
+            if (error) throw error
+
+            // TODO: Send confirmation email to user and notification to admin
+            // For now, we'll just mark it as requested
+            // The admin email should contain the user's email and the deletion date
+
+            setDeletionRequested(true)
+            setShowDeleteConfirm(false)
+            alert(`Tu solicitud de eliminación ha sido registrada.\n\nTu cuenta será eliminada definitivamente el ${new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })}.\n\nPuedes cancelar esta solicitud iniciando sesión antes de esa fecha.`)
+            router.refresh()
+        } catch (error) {
+            console.error('Error requesting deletion:', error)
+            alert('Error al solicitar la eliminación')
+        } finally {
+            setIsRequestingDeletion(false)
+        }
+    }
+
+    const handleCancelDeletion = async () => {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    deletion_requested_at: null,
+                    deletion_token: null
+                })
+                .eq('id', profile.id)
+
+            if (error) throw error
+
+            setDeletionRequested(false)
+            router.refresh()
+        } catch (error) {
+            console.error('Error canceling deletion:', error)
+            alert('Error al cancelar la solicitud')
         }
     }
 
@@ -499,6 +581,142 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                     }}
                     userId={profile.id}
                 />
+
+                {/* Account Management Section */}
+                <div className="mt-8 pt-6 border-t border-slate-200">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Settings size={16} className="text-slate-500" />
+                        <h3 className="text-sm font-bold text-slate-700">Gestión de Cuenta</h3>
+                    </div>
+
+                    {/* Pause Account */}
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                    {isPaused ? <Play size={16} className="text-green-600" /> : <Pause size={16} className="text-amber-600" />}
+                                    <span className="text-sm font-semibold text-slate-700">
+                                        {isPaused ? 'Reactivar Perfil' : 'Pausar Perfil'}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-1">
+                                    {isPaused
+                                        ? 'Tu perfil está oculto. Reactívalo para volver a aparecer en búsquedas.'
+                                        : 'Tu perfil no aparecerá en búsquedas ni será visible públicamente. Tus conexiones se mantendrán.'}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handlePauseAccount}
+                                disabled={isPausingAccount}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${isPaused
+                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                    : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                    } disabled:opacity-50`}
+                            >
+                                {isPausingAccount ? (
+                                    <Loader2 size={14} className="animate-spin" />
+                                ) : isPaused ? (
+                                    <><Play size={14} /> Reactivar</>
+                                ) : (
+                                    <><Pause size={14} /> Pausar</>
+                                )}
+                            </button>
+                        </div>
+                        {isPaused && profile.paused_at && (
+                            <p className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                                <Calendar size={10} />
+                                Pausado desde {new Date(profile.paused_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Delete Account */}
+                    <div className="mt-4 p-4 bg-red-50/50 rounded-xl border border-red-100 space-y-3">
+                        {!showDeleteConfirm && !deletionRequested ? (
+                            <>
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <Trash2 size={16} className="text-red-600" />
+                                            <span className="text-sm font-semibold text-red-700">Eliminar Cuenta</span>
+                                        </div>
+                                        <p className="text-xs text-red-600/70 mt-1">
+                                            Esta acción es irreversible. Tu perfil y todos tus datos serán eliminados permanentemente.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowDeleteConfirm(true)}
+                                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all"
+                                    >
+                                        <Trash2 size={14} />
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </>
+                        ) : deletionRequested ? (
+                            <>
+                                <div className="flex items-center gap-2 text-amber-600">
+                                    <AlertTriangle size={16} />
+                                    <span className="text-sm font-bold">Eliminación Programada</span>
+                                </div>
+                                <p className="text-xs text-slate-600">
+                                    Tu cuenta será eliminada el{' '}
+                                    <strong>
+                                        {profile.deletion_requested_at && new Date(new Date(profile.deletion_requested_at).getTime() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                    </strong>.
+                                    Puedes cancelar esta solicitud en cualquier momento.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={handleCancelDeletion}
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-600 hover:border-green-400 hover:text-green-600 hover:bg-green-50 transition-all"
+                                >
+                                    Cancelar Eliminación
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-2 text-red-600">
+                                    <AlertTriangle size={16} />
+                                    <span className="text-sm font-bold">¿Estás seguro?</span>
+                                </div>
+                                <div className="p-3 bg-white rounded-lg border border-red-200 space-y-2">
+                                    <p className="text-xs text-slate-600">
+                                        Al confirmar, iniciarás un periodo de gracia de <strong>14 días</strong>. Durante este tiempo:
+                                    </p>
+                                    <ul className="text-xs text-slate-500 space-y-1 list-disc list-inside">
+                                        <li>Tu perfil será ocultado</li>
+                                        <li>Puedes cancelar la eliminación iniciando sesión</li>
+                                        <li>Después de 14 días, todos tus datos serán borrados permanentemente</li>
+                                    </ul>
+                                </div>
+                                <div className="flex gap-2 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowDeleteConfirm(false)}
+                                        className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleRequestDeletion}
+                                        disabled={isRequestingDeletion}
+                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-all disabled:opacity-50"
+                                    >
+                                        {isRequestingDeletion ? (
+                                            <Loader2 size={14} className="animate-spin" />
+                                        ) : (
+                                            <><Mail size={14} /> Confirmar Eliminación</>
+                                        )}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
 
                 <div className="pt-4 flex justify-end gap-3">
                     <button

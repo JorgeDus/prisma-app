@@ -111,6 +111,10 @@ export interface Database {
                     interests: string[] | null
                     social_links: Json
                     featured_items: { id: string; type: 'project' | 'experience' }[] | null
+                    is_paused: boolean
+                    paused_at: string | null
+                    deletion_requested_at: string | null
+                    deletion_token: string | null
                     created_at: string
                     updated_at: string
                 }
@@ -131,6 +135,10 @@ export interface Database {
                     interests?: string[] | null
                     social_links?: Json
                     featured_items?: { id: string; type: 'project' | 'experience' }[] | null
+                    is_paused?: boolean
+                    paused_at?: string | null
+                    deletion_requested_at?: string | null
+                    deletion_token?: string | null
                 }
                 Update: {
                     username?: string
@@ -148,6 +156,10 @@ export interface Database {
                     interests?: string[] | null
                     social_links?: Json
                     featured_items?: { id: string; type: 'project' | 'experience' }[] | null
+                    is_paused?: boolean
+                    paused_at?: string | null
+                    deletion_requested_at?: string | null
+                    deletion_token?: string | null
                 }
                 Relationships: [
                     {
@@ -453,6 +465,43 @@ export interface Database {
                     }
                 ]
             }
+            connections: {
+                Row: {
+                    id: string
+                    sender_id: string
+                    receiver_id: string
+                    status: 'pending' | 'accepted' | 'rejected'
+                    message: string | null
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    sender_id: string
+                    receiver_id: string
+                    status?: 'pending' | 'accepted' | 'rejected'
+                    message?: string | null
+                }
+                Update: {
+                    status?: 'pending' | 'accepted' | 'rejected'
+                    message?: string | null
+                    updated_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "connections_sender_id_fkey"
+                        columns: ["sender_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "connections_receiver_id_fkey"
+                        columns: ["receiver_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
         Views: {
             [_ in never]: never
@@ -495,3 +544,4 @@ export type Language = Tables<'languages'>
 export type University = Tables<'universities'>
 export type Career = Tables<'careers'>
 export type UserCareer = Tables<'user_careers'>
+export type Connection = Tables<'connections'>

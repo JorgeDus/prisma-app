@@ -285,6 +285,13 @@ export default function DashboardContent({
                     </div>
 
                     <div className="flex items-center gap-6">
+                        <Link
+                            href="/explorar"
+                            className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 hover:text-indigo-600 transition-colors"
+                        >
+                            <Users size={14} />
+                            Explorar
+                        </Link>
                         <form action="/auth/signout" method="post">
                             <button className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 hover:text-red-600 transition-colors">
                                 <LogOut size={14} />
