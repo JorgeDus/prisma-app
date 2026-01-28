@@ -6,7 +6,13 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
     try {
-        const { name, email, message, toEmail, toName } = await request.json();
+        const { name, email, message, toEmail, toName, website } = await request.json();
+
+        // Honeypot validation - if filled, it's a bot
+        if (website) {
+            // Return success to not reveal the trap, but don't send email
+            return NextResponse.json({ success: true, data: { id: 'honeypot-blocked' } });
+        }
 
         if (!name || !email || !message || !toEmail) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });

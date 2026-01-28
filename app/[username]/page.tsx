@@ -665,9 +665,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             © 2025 Somos Prisma
                         </p>
                         <div className="flex gap-8 font-mono text-[10px] uppercase font-bold text-slate-400">
-                            <Link href="/about" className="hover:text-white transition-colors">Rigor</Link>
-                            <Link href="/privacy" className="hover:text-white transition-colors">Privacidad</Link>
-                            <Link href="/terms" className="hover:text-white transition-colors">Términos</Link>
+                            <Link href="/privacidad" className="hover:text-white transition-colors">Privacidad</Link>
                         </div>
                     </div>
                 </footer>

@@ -18,7 +18,8 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl 
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        message: ''
+        message: '',
+        website: '' // Honeypot field
     })
 
     const handleCopyEmail = () => {
@@ -41,7 +42,10 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    ...formData,
+                    name: formData.name,
+                    email: formData.email,
+                    message: formData.message,
+                    website: formData.website, // Honeypot
                     toEmail: profileEmail,
                     toName: profileName
                 })
@@ -50,7 +54,7 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl 
             const data = await res.json()
             if (data.success) {
                 setStatus('success')
-                setFormData({ name: '', email: '', message: '' })
+                setFormData({ name: '', email: '', message: '', website: '' })
             } else {
                 throw new Error(data.error || 'Error al enviar el mensaje')
             }
@@ -117,6 +121,20 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl 
                                     value={formData.message}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all text-white font-medium placeholder-slate-600 resize-none h-32"
+                                />
+                            </div>
+
+                            {/* Honeypot field - invisible to humans, bots will fill it */}
+                            <div className="absolute -left-[9999px]" aria-hidden="true">
+                                <label htmlFor="website">Website</label>
+                                <input
+                                    type="text"
+                                    id="website"
+                                    name="website"
+                                    tabIndex={-1}
+                                    autoComplete="off"
+                                    value={formData.website}
+                                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                                 />
                             </div>
 

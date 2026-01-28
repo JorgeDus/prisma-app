@@ -250,15 +250,15 @@ export default function ExploreContent({
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-mono font-bold uppercase tracking-wider transition-all ${isActive
+                            className={`flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-3 px-2 md:px-4 rounded-lg text-sm font-mono font-bold uppercase tracking-wider transition-all ${isActive
                                 ? 'bg-white text-slate-900 shadow-sm'
                                 : 'text-slate-500 hover:text-slate-700'
                                 }`}
                         >
                             <Icon size={16} />
-                            {tab.label}
+                            <span className="hidden md:inline">{tab.label}</span>
                             {tab.count > 0 && (
-                                <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] ${isActive
+                                <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] ${isActive
                                     ? 'bg-indigo-100 text-indigo-700'
                                     : 'bg-slate-200 text-slate-600'
                                     }`}>

@@ -107,28 +107,29 @@ export default async function ExplorePage() {
     });
 
     return (
-        <div className="bg-[#F9FAFB] min-h-screen pb-24 selection:bg-indigo-100 selection:text-indigo-900">
+        <div className="bg-[#F9FAFB] min-h-screen pb-24 md:pb-24 selection:bg-indigo-100 selection:text-indigo-900">
             {/* Top Navigation Bar */}
             <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
-                <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                <div className="max-w-5xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-3 md:gap-4">
                         <Link href="/" className="flex items-center gap-2">
                             <Image
                                 src="/logo-prisma.png"
                                 alt="Prisma Logo"
                                 width={120}
                                 height={32}
-                                className="h-8 w-auto object-contain"
+                                className="h-7 md:h-8 w-auto object-contain"
                             />
                         </Link>
                         <div className="h-4 w-px bg-slate-200" />
                         <div className="flex items-center gap-1 text-indigo-600">
                             <Users size={16} />
-                            <span className="font-mono text-xs font-bold tracking-tighter uppercase">Explorar Talento</span>
+                            <span className="font-mono text-xs font-bold tracking-tighter uppercase">Explorar</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    {/* Desktop navigation */}
+                    <div className="hidden md:flex items-center gap-6">
                         <Link
                             href="/dashboard"
                             className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 hover:text-indigo-600 transition-colors"
@@ -147,13 +148,13 @@ export default async function ExplorePage() {
             </nav>
 
             {/* Main Content */}
-            <main className="max-w-5xl mx-auto px-6 pt-28">
+            <main className="max-w-5xl mx-auto px-4 md:px-6 pt-24 md:pt-28">
                 {/* Page Header */}
-                <div className="text-center space-y-4 mb-12">
-                    <h1 className="text-4xl font-bold text-slate-800">
+                <div className="text-center space-y-3 md:space-y-4 mb-8 md:mb-12">
+                    <h1 className="text-2xl md:text-4xl font-bold text-slate-800">
                         Explora el Talento
                     </h1>
-                    <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+                    <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
                         Descubre profesionales, amplía tu red y conecta con perfiles que comparten tus intereses.
                     </p>
                 </div>
@@ -167,6 +168,29 @@ export default async function ExplorePage() {
                     />
                 </Suspense>
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 safe-area-pb">
+                <div className="flex items-center justify-around h-16">
+                    <Link
+                        href="/dashboard"
+                        className="flex flex-col items-center gap-1 px-4 py-2 text-slate-500"
+                    >
+                        <LayoutDashboard size={20} />
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Dashboard</span>
+                    </Link>
+                    <div className="flex flex-col items-center gap-1 px-4 py-2 text-indigo-600">
+                        <Users size={20} />
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Explorar</span>
+                    </div>
+                    <form action="/auth/signout" method="post">
+                        <button className="flex flex-col items-center gap-1 px-4 py-2 text-slate-500">
+                            <LogOut size={20} />
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Salir</span>
+                        </button>
+                    </form>
+                </div>
+            </nav>
         </div>
     );
 }

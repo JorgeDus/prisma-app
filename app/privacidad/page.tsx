@@ -44,7 +44,7 @@ export default function PrivacidadPage() {
                             Política de Privacidad
                         </h1>
                         <p className="text-slate-500 mt-4">
-                            Última actualización: Enero 2025
+                            Última actualización: Enero 2026
                         </p>
                     </header>
 
