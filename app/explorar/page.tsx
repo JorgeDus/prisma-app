@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Suspense } from 'react';
 import { createClient } from '@/utils/supabase/server';
 import { LogOut, Users, LayoutDashboard } from 'lucide-react';
 import ExploreContent from '@/components/explore/ExploreContent';
@@ -17,7 +18,7 @@ export default async function ExplorePage() {
     // 2. Obtener perfil del usuario actual
     const { data: currentProfile } = await supabase
         .from('profiles')
-        .select('id, username')
+        .select('id, username, full_name')
         .eq('id', user.id)
         .single();
 
@@ -157,11 +158,14 @@ export default async function ExplorePage() {
                     </p>
                 </div>
 
-                <ExploreContent
-                    currentUserId={user.id}
-                    profiles={profilesWithCounts}
-                    connections={connections || []}
-                />
+                <Suspense fallback={<div className="text-center py-12 text-slate-400">Cargando...</div>}>
+                    <ExploreContent
+                        currentUserId={user.id}
+                        currentUserName={currentProfile.full_name || currentProfile.username}
+                        profiles={profilesWithCounts}
+                        connections={connections || []}
+                    />
+                </Suspense>
             </main>
         </div>
     );

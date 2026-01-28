@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Search, Users, UserCheck, Bell, Compass } from 'lucide-react';
 import TalentCard from './TalentCard';
@@ -23,6 +23,7 @@ interface ProfileWithCounts {
 
 interface ExploreContentProps {
     currentUserId: string;
+    currentUserName: string;
     profiles: ProfileWithCounts[];
     connections: Connection[];
 }
@@ -31,15 +32,27 @@ type TabType = 'discover' | 'network' | 'requests';
 
 export default function ExploreContent({
     currentUserId,
+    currentUserName,
     profiles,
     connections: initialConnections,
 }: ExploreContentProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const supabase = createClient();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<TabType>('discover');
     const [connections, setConnections] = useState(initialConnections);
+
+    // Read tab from URL query params
+    useEffect(() => {
+        const tabParam = searchParams.get('tab');
+        if (tabParam === 'solicitudes') {
+            setActiveTab('requests');
+        } else if (tabParam === 'red') {
+            setActiveTab('network');
+        }
+    }, [searchParams]);
 
     // Helper to get connection status for a profile
     const getConnectionStatus = useCallback((profileId: string): 'none' | 'pending_sent' | 'pending_received' | 'connected' => {
@@ -121,6 +134,18 @@ export default function ExploreContent({
         }
 
         setConnections(prev => [...prev, data]);
+
+        // Send email notification (fire and forget, don't block UI)
+        fetch('/api/connections/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId,
+                senderId: currentUserId,
+                senderName: currentUserName,
+                message: message || undefined,
+            }),
+        }).catch(err => console.error('Error sending notification:', err));
     };
 
     const handleAccept = async (senderId: string) => {
