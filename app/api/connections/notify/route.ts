@@ -6,14 +6,47 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
     try {
-        const { receiverId, senderId, senderName, message } = await request.json();
+        const supabase = await createClient();
 
-        if (!receiverId || !senderName) {
+        // Verify the user is authenticated
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !user) {
+            return NextResponse.json(
+                { error: 'Authentication required to send connection requests' },
+                { status: 401 }
+            );
+        }
+
+        const { receiverId, message } = await request.json();
+
+        if (!receiverId) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const supabase = await createClient();
+        // The sender is always the authenticated user - prevents impersonation
+        const senderId = user.id;
+
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tuprisma.com';
+
+        // Get sender's profile info
+        const { data: sender, error: senderError } = await supabase
+            .from('profiles')
+            .select(`
+                full_name,
+                headline,
+                avatar_url,
+                careers(name),
+                universities(name)
+            `)
+            .eq('id', senderId)
+            .single();
+
+        if (senderError || !sender) {
+            return NextResponse.json({ error: 'Sender profile not found' }, { status: 404 });
+        }
+
+        const senderName = sender.full_name || 'Un usuario';
 
         // Get receiver's email
         const { data: receiver, error: fetchError } = await supabase
@@ -32,35 +65,12 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: true, skipped: true, reason: 'no_email' });
         }
 
-        // Get sender's profile info for the card
-        let senderInfo = {
-            career_name: '',
-            university_name: '',
-            avatar_url: '',
-            headline: ''
+        const senderInfo = {
+            career_name: (sender.careers as any)?.name || '',
+            university_name: (sender.universities as any)?.name || '',
+            avatar_url: sender.avatar_url || '',
+            headline: sender.headline || ''
         };
-
-        if (senderId) {
-            const { data: sender } = await supabase
-                .from('profiles')
-                .select(`
-                    headline,
-                    avatar_url,
-                    careers(name),
-                    universities(name)
-                `)
-                .eq('id', senderId)
-                .single();
-
-            if (sender) {
-                senderInfo = {
-                    career_name: (sender.careers as any)?.name || '',
-                    university_name: (sender.universities as any)?.name || '',
-                    avatar_url: sender.avatar_url || '',
-                    headline: sender.headline || ''
-                };
-            }
-        }
 
         const exploreUrl = `${baseUrl}/explorar?tab=solicitudes`;
         const logoUrl = `${baseUrl}/logo-prisma.png`;
@@ -112,7 +122,7 @@ export async function POST(request: Request) {
     </div>
     <!-- Preheader spacer (prevents Gmail from showing other content) -->
     <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">
-        &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+        &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F9FAFB;">
         <tr>

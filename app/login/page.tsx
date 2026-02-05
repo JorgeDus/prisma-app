@@ -22,7 +22,7 @@ export default function LoginPage() {
         try {
             const baseUrl = process.env.NODE_ENV === 'development'
                 ? 'http://localhost:3000'
-                : 'https://prisma-app-bay.vercel.app'
+                : (process.env.NEXT_PUBLIC_APP_URL || 'https://tuprisma.com')
 
             const { error } = await supabase.auth.signInWithOtp({
                 email,
