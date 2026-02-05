@@ -1,13 +1,17 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 
-// Admin secret for authentication - REQUIRED in production
-const ADMIN_SECRET = process.env.ADMIN_SECRET
-if (!ADMIN_SECRET) {
-    throw new Error('ADMIN_SECRET environment variable is required. Admin endpoints are disabled.')
-}
-
 export async function DELETE(request: Request) {
+    // Check ADMIN_SECRET at runtime (not build time)
+    const ADMIN_SECRET = process.env.ADMIN_SECRET
+    if (!ADMIN_SECRET) {
+        console.error('ADMIN_SECRET environment variable is not set')
+        return NextResponse.json(
+            { error: 'Server configuration error' },
+            { status: 500 }
+        )
+    }
+
     // Simple admin authentication via Authorization header
     const authHeader = request.headers.get('Authorization')
     if (authHeader !== `Bearer ${ADMIN_SECRET}`) {
