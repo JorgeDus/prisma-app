@@ -115,6 +115,7 @@ export interface Database {
                     paused_at: string | null
                     deletion_requested_at: string | null
                     deletion_token: string | null
+                    has_completed_tour: boolean
                     created_at: string
                     updated_at: string
                 }
@@ -160,6 +161,7 @@ export interface Database {
                     paused_at?: string | null
                     deletion_requested_at?: string | null
                     deletion_token?: string | null
+                    has_completed_tour?: boolean
                 }
                 Relationships: [
                     {

@@ -50,6 +50,7 @@ import AchievementFormModal from './AchievementFormModal'
 import ProfileEditModal from './ProfileEditModal'
 import LanguagesModal from './LanguagesModal'
 import { Language } from '@/types/database.types'
+import OnboardingTour from '@/components/onboarding/OnboardingTour'
 
 interface DashboardContentProps {
     profile: any
@@ -355,7 +356,7 @@ export default function DashboardContent({
             </nav>
 
             {/* Impact Header */}
-            <div className="mt-16">
+            <div className="mt-16" data-tour="header">
                 <ImpactHeader
                     name={profile.full_name || profile.username}
                     headline={profile.headline || undefined}
@@ -595,7 +596,7 @@ export default function DashboardContent({
                     </div>
 
                     {/* Sidebar */}
-                    <aside className="lg:col-span-4 space-y-12 lg:border-l lg:border-slate-100 lg:pl-8">
+                    <aside className="lg:col-span-4 space-y-12 lg:border-l lg:border-slate-100 lg:pl-8" data-tour="trajectory">
                         <section className="sticky top-24 space-y-8">
                             <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
                             <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
@@ -785,6 +786,12 @@ export default function DashboardContent({
                 onClose={() => setIsLanguagesModalOpen(false)}
                 initialLanguages={languages}
                 userId={profile.id}
+            />
+
+            {/* Onboarding Tour */}
+            <OnboardingTour
+                profileId={profile.id}
+                hasCompletedTour={profile.has_completed_tour ?? false}
             />
         </div>
     )

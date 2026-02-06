@@ -111,3 +111,101 @@ code,
   font-size: 0.7rem;
   font-weight: 600;
 }
+
+/* =============================================
+   Onboarding Tour (Driver.js) 
+   ============================================= */
+.driver-popover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  border-radius: 1rem !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  padding: 1.25rem !important;
+  max-width: 340px !important;
+}
+
+.driver-popover-title {
+  font-family: var(--font-sans) !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.driver-popover-description {
+  font-family: var(--font-sans) !important;
+  font-size: 0.875rem !important;
+  color: #64748b !important;
+  line-height: 1.6 !important;
+}
+
+.driver-popover-progress-text {
+  font-family: var(--font-mono) !important;
+  font-size: 0.625rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: #94a3b8 !important;
+}
+
+.driver-popover-navigation-btns {
+  gap: 0.5rem !important;
+  margin-top: 1rem !important;
+}
+
+.driver-popover-prev-btn,
+.driver-popover-next-btn {
+  font-family: var(--font-mono) !important;
+  font-size: 0.625rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
+}
+
+.driver-popover-prev-btn {
+  background: transparent !important;
+  color: #64748b !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.driver-popover-prev-btn:hover {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+.driver-popover-next-btn {
+  background: #4f46e5 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.driver-popover-next-btn:hover {
+  background: #4338ca !important;
+  transform: scale(1.02) !important;
+}
+
+.driver-popover-close-btn {
+  color: #94a3b8 !important;
+}
+
+.driver-popover-close-btn:hover {
+  color: #1e293b !important;
+}
+
+.driver-popover-arrow-side-left,
+.driver-popover-arrow-side-right,
+.driver-popover-arrow-side-top,
+.driver-popover-arrow-side-bottom {
+  border-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Spotlight overlay */
+.driver-overlay {
+  background: rgba(15, 23, 42, 0.6) !important;
+}
