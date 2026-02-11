@@ -10,6 +10,7 @@
     "gen:types": "npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.types.ts"
   },
   "dependencies": {
+    "@iconify/react": "^6.0.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.87.1",
     "driver.js": "^1.4.0",
