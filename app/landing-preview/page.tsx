@@ -58,18 +58,18 @@ export default function LandingPreview() {
                                 alt="Prisma"
                                 width={150}
                                 height={50}
-                                className="h-8 w-auto object-contain"
+                                className="h-12 w-auto object-contain"
                                 priority
                             />
                         </Link>
                     </div>
-                    <div className="hidden md:flex items-center gap-8 text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400">
+                    <div className="hidden md:flex items-center gap-8 text-[14px] font-mono font-bold uppercase tracking-widest text-slate-400">
                         <a href="#home" className="hover:text-indigo-600 transition-colors">Home</a>
                         <a href="#vision" className="hover:text-indigo-600 transition-colors">Visión</a>
                         <a href="#process" className="hover:text-indigo-600 transition-colors">Cómo Funciona</a>
                         <a href="#faq" className="hover:text-indigo-600 transition-colors">FAQ</a>
                     </div>
-                    <a href="/login" className="px-5 py-2 bg-slate-900 text-white text-[10px] font-mono font-bold uppercase tracking-widest rounded-lg hover:bg-slate-800 transition-all">
+                    <a href="/login" className="px-6 py-2.5 bg-indigo-600 text-white text-xs font-mono font-bold uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100/50 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0">
                         Acceder
                     </a>
                 </div>

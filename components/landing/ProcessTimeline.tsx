@@ -38,8 +38,8 @@ const steps = [
 
 export const ProcessTimeline = () => {
     return (
-        <section id="process" className="py-32 px-6 bg-white">
-            <div className="max-w-7xl mx-auto">
+        <section id="process" className="py-32 bg-white">
+            <div className="max-w-7xl mx-auto px-6">
                 <div className="max-w-2xl mb-24 reveal">
                     <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6 font-sans">
                         Así funciona Prisma.<br />
@@ -50,15 +50,15 @@ export const ProcessTimeline = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
                     {steps.map((step, index) => (
                         <div key={index} className={`group reveal`} style={{ animationDelay: `${index * 0.1}s` }}>
-                            {/* Step Number */}
+                            {/* Step Indicator (Dot) */}
                             <div className="flex items-center gap-4 mb-6">
-                                <span className="text-[10px] font-mono font-bold text-slate-300 uppercase tracking-widest">{step.number}</span>
-                                <div className="h-px flex-1 bg-slate-100 group-hover:bg-indigo-100 transition-colors"></div>
+                                <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                                <div className="h-px flex-1 bg-slate-100 group-hover:bg-blue-100 transition-colors"></div>
                             </div>
 
                             {/* Icon */}
-                            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-900 mb-6 group-hover:border-indigo-100 group-hover:bg-indigo-50/50 transition-all duration-300 group-hover:-translate-y-1">
-                                <Icon icon={step.icon} width="28" className="group-hover:text-indigo-600 transition-colors" />
+                            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-blue-600 mb-6 group-hover:border-blue-100 group-hover:bg-blue-50/50 transition-all duration-300 group-hover:-translate-y-1">
+                                <Icon icon={step.icon} width="28" className="group-hover:text-blue-700 transition-colors" />
                             </div>
 
                             {/* Content */}

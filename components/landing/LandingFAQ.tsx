@@ -22,7 +22,7 @@ const faqs = [
     },
     {
         question: '¿En qué se diferencia de LinkedIn?',
-        answer: 'LinkedIn es una red social con perfil estático. Prisma es una plataforma de evidencia profesional: te permite curar tus mejores trabajos, verificar tu trayectoria y conectar con talento afín basado en habilidades reales, no en conexiones superficiales.'
+        answer: 'LinkedIn es una red social con perfil estático. Prisma es una plataforma de evidencia profesional: te permite demostrar tus mejores trabajos, verificar tu trayectoria y conectar con talento afín basado en habilidades reales, no en conexiones superficiales.'
     },
     {
         question: '¿Puedo conectar mis repositorios o portafolios externos?',
@@ -31,6 +31,10 @@ const faqs = [
     {
         question: '¿Mis datos están seguros?',
         answer: 'Absolutamente. No compartimos tu información personal con terceros sin tu consentimiento. Usamos conexiones cifradas, autenticación segura y tú tienes control total sobre qué es visible en tu perfil. Puedes leer nuestra <a href="/privacidad" class="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">Política de Privacidad</a> completa.'
+    },
+    {
+        question: '¿Puedo usar Prisma para encontrar colaboradores?',
+        answer: 'Sí. Con la función Explorar puedes descubrir perfiles afines por área de interés o habilidad. Arma equipos, propón colaboraciones y crea proyectos con personas que complementan tus capacidades. La idea es que construyas oportunidades propias, no que solo esperes a que lleguen.'
     }
 ]
 
@@ -42,10 +46,10 @@ export const LandingFAQ = () => {
     }
 
     return (
-        <section id="faq" className="py-32 px-6 bg-slate-50/50 border-y border-slate-100">
-            <div className="max-w-3xl mx-auto">
+        <section id="faq" className="py-32 bg-slate-50/50 border-y border-slate-100">
+            <div className="max-w-3xl mx-auto px-6">
                 <div className="mb-16 reveal">
-                    <p className="text-[10px] font-mono font-bold text-indigo-500 uppercase tracking-[0.3em] mb-4">
+                    <p className="text-[14px] font-mono font-bold text-indigo-500 uppercase tracking-[0.3em] mb-4">
                         Preguntas Frecuentes
                     </p>
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 font-sans">

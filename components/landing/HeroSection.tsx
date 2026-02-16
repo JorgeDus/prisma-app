@@ -5,8 +5,8 @@ import { Icon } from '@iconify/react'
 
 export const HeroSection = () => {
     return (
-        <section id="home" className="pt-32 pb-20 md:pt-48 md:pb-32 px-6 border-b border-zinc-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-50 via-white to-white overflow-hidden">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-16 lg:gap-20 items-center">
+        <section id="home" className="pt-32 pb-20 md:pt-48 md:pb-32 border-b border-zinc-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-50 via-white to-white overflow-hidden">
+            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-16 lg:gap-20 items-center">
 
                 {/* Content */}
                 <div className="max-w-2xl fade-enter">
@@ -16,7 +16,7 @@ export const HeroSection = () => {
                     </h1>
 
                     <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed max-w-lg mb-10 font-sans">
-                        Prisma no es donde buscas trabajo. Es donde construyes la evidencia de lo que vales.
+                        Prisma no es donde buscas trabajo. Es donde construyes la evidencia de lo que vales, y encuentras a quienes quieres construir contigo.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">

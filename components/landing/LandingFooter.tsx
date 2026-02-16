@@ -7,8 +7,8 @@ import { Icon } from '@iconify/react'
 
 export const LandingFooter = () => {
     return (
-        <footer className="bg-slate-900 text-white pt-20 pb-10 px-6">
-            <div className="max-w-7xl mx-auto">
+        <footer className="bg-slate-900 text-white pt-20 pb-10">
+            <div className="max-w-7xl mx-auto px-6">
                 {/* CTA Section */}
                 <div className="text-center mb-20 reveal">
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-sans mb-6">
@@ -41,7 +41,7 @@ export const LandingFooter = () => {
                         </div>
 
                         {/* Links */}
-                        <div className="flex items-center gap-8 text-[10px] font-mono font-bold uppercase tracking-widest text-slate-500">
+                        <div className="flex items-center gap-8 text-[14px] font-mono font-bold uppercase tracking-widest text-slate-500">
                             <Link href="/privacidad" className="hover:text-white transition-colors">
                                 Privacidad
                             </Link>
