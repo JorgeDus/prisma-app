@@ -214,7 +214,7 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                             <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center text-center space-y-4">
                                 <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 overflow-hidden">
                                     {profile.avatar_url ? (
-                                        <img src={profile.avatar_url} alt={profile.full_name || ''} className="w-full h-full object-cover grayscale" />
+                                        <img src={profile.avatar_url} alt={profile.full_name || ''} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-xl font-bold text-slate-400">
                                             {(profile.full_name || profile.username).charAt(0).toUpperCase()}

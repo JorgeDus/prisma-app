@@ -75,7 +75,7 @@ export const ImpactHeader = ({
                                 <img
                                     src={avatarUrl}
                                     alt={name}
-                                    className="w-full h-full object-cover transition-all duration-700 filter grayscale group-hover:grayscale-0"
+                                    className="w-full h-full object-cover transition-all duration-700"
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300 font-bold text-5xl">

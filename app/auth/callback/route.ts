@@ -18,12 +18,22 @@ export async function GET(request: Request) {
             if (user) {
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('university_id, career_id')
+                    .select('university_id, career_id, full_name')
                     .eq('id', user.id)
                     .single()
 
+                // Also check the new multi-career table
+                const { count: careerCount } = await supabase
+                    .from('user_careers')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('user_id', user.id)
+
+                const hasLegacyCareer = profile?.university_id && profile?.career_id
+                const hasNewCareer = (careerCount ?? 0) > 0
+                const hasName = !!profile?.full_name
+
                 // Logic: Complete profile -> Dashboard, Incomplete -> Onboarding
-                if (profile && profile.university_id && profile.career_id) {
+                if (profile && hasName && (hasLegacyCareer || hasNewCareer)) {
                     targetPath = '/dashboard'
                 } else {
                     targetPath = '/onboarding'

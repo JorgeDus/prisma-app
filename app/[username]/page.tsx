@@ -246,6 +246,19 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
     const getAcademicStatus = () => {
         const today = new Date()
+
+        // Check user_careers (new multi-career system) first
+        if (primaryCareer) {
+            if (!primaryCareer.is_current && primaryCareer.end_year) {
+                return primaryCareer.end_year <= today.getFullYear() ? "EGRESADO" : `EGRESA ${primaryCareer.end_year}`
+            }
+            if (primaryCareer.is_current && primaryCareer.start_year) {
+                const diffYears = today.getFullYear() - primaryCareer.start_year + 1
+                return diffYears > 0 ? `${diffYears}º AÑO` : "EN CURSO"
+            }
+        }
+
+        // Fallback to legacy profile fields
         if (profile.career_end_date && new Date(profile.career_end_date) <= today) return "EGRESADO"
         if (!profile.career_start_date) return "EN CURSO"
 
@@ -430,7 +443,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             <div className="flex items-center justify-between">
                                 <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
                                     <LayoutGrid size={20} className="text-slate-500" />
-                                    01 / Mi Vitrina
+                                    Mi Vitrina
                                 </h2>
                                 <EvidenceBadge label="Verificado por Prisma" />
                             </div>
@@ -453,7 +466,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         <section id="logros" className="section-anchor space-y-8">
                             <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
                                 <Trophy size={20} className="text-slate-500" />
-                                02 / Logros / Hitos
+                                Logros / Hitos
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {achievements?.map((ach) => (
@@ -506,7 +519,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         <section id="experiencia" className="section-anchor space-y-8">
                             <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
                                 <Sparkles size={20} className="text-slate-500" />
-                                03 / Experiencias
+                                Experiencias
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {experiences?.length ? (
@@ -545,7 +558,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         <section id="proyectos" className="section-anchor space-y-8">
                             <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
                                 <Briefcase size={20} className="text-slate-500" />
-                                04 / Proyectos
+                                Proyectos
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {projects?.length ? (
@@ -574,7 +587,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             <section id="testimonios" className="section-anchor space-y-8">
                                 <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
                                     <MessageSquare size={20} className="text-slate-500" />
-                                    05 / Testimonios
+                                    Testimonios
                                 </h2>
                                 <TestimonialSection testimonials={testimonials || []} userId={profile.id} isReadOnly={true} />
                             </section>
@@ -582,10 +595,12 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     </div>
 
                     {/* Sidebar / Trayectoria */}
-                    <aside className="lg:col-span-4 space-y-12 h-fit sticky top-24 lg:border-l lg:border-slate-100 lg:pl-8">
-                        <section className="space-y-8">
-                            <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
-                            <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
+                    <aside className="lg:col-span-4 space-y-12 h-fit lg:border-l lg:border-slate-100 lg:pl-8">
+                        <section className="sticky top-24 space-y-8">
+                            <div className="max-h-[calc(100vh-8rem)] overflow-y-auto pr-2 scrollbar-thin space-y-8">
+                                <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
+                                <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
+                            </div>
 
                             {/* Languages Section */}
                             {languages && languages.length > 0 && (
@@ -636,7 +651,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         <div className="max-w-2xl mx-auto space-y-12 text-center">
                             <h2 className="text-sm font-mono font-black tracking-[0.2em] uppercase text-indigo-400 flex items-center justify-center gap-2">
                                 <Mail size={18} />
-                                06 / Contacto
+                                Contacto
                             </h2>
                             <p className="text-4xl font-bold text-white leading-tight">
                                 ¿Buscas establecer una conexión profesional?

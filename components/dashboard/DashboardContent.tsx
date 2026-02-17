@@ -65,6 +65,8 @@ interface DashboardContentProps {
         career_id: number | null
         custom_career: string | null
         institution: string | null
+        start_year: number | null
+        end_year: number | null
         is_current: boolean
         career?: { id: number; name: string } | null
     } | null
@@ -168,6 +170,19 @@ export default function DashboardContent({
 
     const getAcademicStatus = () => {
         const today = new Date()
+
+        // Check user_careers (new multi-career system) first
+        if (primaryCareer) {
+            if (!primaryCareer.is_current && primaryCareer.end_year) {
+                return primaryCareer.end_year <= today.getFullYear() ? "EGRESADO" : `EGRESA ${primaryCareer.end_year}`
+            }
+            if (primaryCareer.is_current && primaryCareer.start_year) {
+                const diffYears = today.getFullYear() - primaryCareer.start_year + 1
+                return diffYears > 0 ? `${diffYears}º AÑO` : "EN CURSO"
+            }
+        }
+
+        // Fallback to legacy profile fields
         if (profile.career_end_date && new Date(profile.career_end_date) <= today) return "EGRESADO"
         if (!profile.career_start_date) return "EN CURSO"
 
@@ -389,7 +404,7 @@ export default function DashboardContent({
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
                                 <LayoutGrid size={20} className="text-slate-600" />
-                                01 / Mi Vitrina
+                                Mi Vitrina
                             </h2>
                             <EvidenceBadge label="Modo Edición Activo" count={(profile.featured_items || []).length} />
                         </div>
@@ -412,7 +427,7 @@ export default function DashboardContent({
                             <div className="flex items-center justify-between">
                                 <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
                                     <Trophy size={20} className="text-slate-600" />
-                                    02 / Logros / Hitos
+                                    Logros / Hitos
                                 </h2>
                                 <button
                                     onClick={() => { setEditingAch(null); setIsAchModalOpen(true); }}
@@ -487,7 +502,7 @@ export default function DashboardContent({
                             <div className="flex items-center justify-between">
                                 <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
                                     <Sparkles size={20} className="text-slate-600" />
-                                    03 / Experiencias
+                                    Experiencias
                                 </h2>
                                 <button
                                     onClick={() => { setEditingExp(null); setIsExpModalOpen(true); }}
@@ -542,7 +557,7 @@ export default function DashboardContent({
                             <div className="flex items-center justify-between">
                                 <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
                                     <Briefcase size={20} className="text-slate-600" />
-                                    04 / Proyectos
+                                    Proyectos
                                 </h2>
                                 <button
                                     onClick={() => { setEditingProj(null); setIsProjModalOpen(true); }}
@@ -587,7 +602,7 @@ export default function DashboardContent({
                             <div className="flex items-center justify-between">
                                 <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
                                     <MessageSquare size={20} className="text-slate-600" />
-                                    05 / Testimonios
+                                    Testimonios
                                 </h2>
                                 <button className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">+ Solicitar Testimonio</button>
                             </div>
@@ -598,8 +613,10 @@ export default function DashboardContent({
                     {/* Sidebar */}
                     <aside className="lg:col-span-4 space-y-12 lg:border-l lg:border-slate-100 lg:pl-8" data-tour="trajectory">
                         <section className="sticky top-24 space-y-8">
-                            <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
-                            <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
+                            <div className="max-h-[calc(100vh-8rem)] overflow-y-auto pr-2 scrollbar-thin space-y-8">
+                                <h2 className="text-xs font-mono font-bold tracking-tight uppercase text-slate-500">Vista de Trayectoria</h2>
+                                <DashboardTrajectory hitos={hitosUnificados} initialCount={5} />
+                            </div>
 
                             {/* Languages Section */}
                             <div className="pt-8 border-t border-slate-100 space-y-4">
@@ -666,7 +683,7 @@ export default function DashboardContent({
                         <div className="max-w-4xl mx-auto">
                             <h2 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-indigo-400 mb-12 text-center flex items-center justify-center gap-2">
                                 <Mail size={14} />
-                                06 / Contacto
+                                Contacto
                             </h2>
                             <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-[2rem] space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

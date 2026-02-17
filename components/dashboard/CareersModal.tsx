@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { X, Plus, Star, Trash2, GraduationCap, Loader2 } from 'lucide-react'
+import { X, Plus, Star, Trash2, GraduationCap, Loader2, Pencil } from 'lucide-react'
 import { Career, UserCareer, University } from '@/types/database.types'
 
 interface CareersModalProps {
@@ -29,6 +29,17 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
         end_year: null as number | null,
         is_current: true,
         is_primary: false
+    })
+
+    // Edit state
+    const [editingId, setEditingId] = useState<string | null>(null)
+    const [editCareer, setEditCareer] = useState({
+        career_id: null as number | null,
+        custom_career: '',
+        institution: '',
+        start_year: new Date().getFullYear(),
+        end_year: null as number | null,
+        is_current: true
     })
 
     // Fetch data on mount
@@ -108,6 +119,52 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
         } catch (error) {
             console.error('Error adding career:', error)
             alert('Error al agregar carrera')
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    const handleStartEdit = (uc: UserCareer & { career?: { id: number; name: string } | null }) => {
+        setEditingId(uc.id)
+        setEditCareer({
+            career_id: uc.career_id,
+            custom_career: uc.custom_career || '',
+            institution: uc.institution || '',
+            start_year: uc.start_year || new Date().getFullYear(),
+            end_year: uc.end_year,
+            is_current: uc.is_current
+        })
+        setShowAddForm(false)
+    }
+
+    const handleSaveEdit = async () => {
+        if (!editingId) return
+        if (!editCareer.career_id && !editCareer.custom_career.trim()) {
+            alert('Debes seleccionar una carrera o escribir un nombre personalizado')
+            return
+        }
+
+        setIsSaving(true)
+        try {
+            const { error } = await supabase
+                .from('user_careers')
+                .update({
+                    career_id: editCareer.career_id,
+                    custom_career: editCareer.custom_career.trim() || null,
+                    institution: editCareer.institution.trim() || null,
+                    start_year: editCareer.start_year,
+                    end_year: editCareer.is_current ? null : editCareer.end_year,
+                    is_current: editCareer.is_current
+                })
+                .eq('id', editingId)
+
+            if (error) throw error
+
+            setEditingId(null)
+            await fetchData()
+        } catch (error) {
+            console.error('Error updating career:', error)
+            alert('Error al actualizar carrera')
         } finally {
             setIsSaving(false)
         }
@@ -193,46 +250,158 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
                                                 : 'border-slate-200 bg-white hover:border-slate-300'
                                                 }`}
                                         >
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <h3 className="font-semibold text-slate-900 truncate">
-                                                            {(uc as any).career?.name || uc.custom_career}
-                                                        </h3>
-                                                        {uc.is_primary && (
-                                                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase">
-                                                                <Star size={10} /> Principal
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    {uc.institution && (
-                                                        <p className="text-sm text-slate-500 mt-0.5">{uc.institution}</p>
-                                                    )}
-                                                    <p className="text-xs text-slate-400 mt-1">
-                                                        {uc.start_year} - {uc.is_current ? 'Presente' : uc.end_year}
-                                                    </p>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    {!uc.is_primary && (
-                                                        <button
-                                                            onClick={() => handleSetPrimary(uc.id)}
-                                                            disabled={isSaving}
-                                                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-indigo-600"
-                                                            title="Marcar como principal"
+                                            {editingId === uc.id ? (
+                                                /* Inline edit form */
+                                                <div className="space-y-4">
+                                                    <h4 className="font-semibold text-slate-900">Editar Carrera</h4>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 mb-1">Carrera</label>
+                                                        <select
+                                                            value={editCareer.career_id || ''}
+                                                            onChange={(e) => setEditCareer({
+                                                                ...editCareer,
+                                                                career_id: e.target.value ? parseInt(e.target.value) : null,
+                                                                custom_career: e.target.value ? '' : editCareer.custom_career
+                                                            })}
+                                                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                                         >
-                                                            <Star size={16} />
-                                                        </button>
+                                                            <option value="">-- Seleccionar del catálogo --</option>
+                                                            {careersCatalog.map((c) => (
+                                                                <option key={c.id} value={c.id}>{c.name}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+
+                                                    {!editCareer.career_id && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 mb-1">O escribe el nombre</label>
+                                                            <input
+                                                                type="text"
+                                                                value={editCareer.custom_career}
+                                                                onChange={(e) => setEditCareer({ ...editCareer, custom_career: e.target.value })}
+                                                                placeholder="Ej: Ingeniería en Biotecnología"
+                                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                            />
+                                                        </div>
                                                     )}
-                                                    <button
-                                                        onClick={() => handleDeleteCareer(uc.id)}
-                                                        disabled={isSaving}
-                                                        className="p-2 hover:bg-rose-50 rounded-lg transition-colors text-slate-400 hover:text-rose-600"
-                                                        title="Eliminar"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 mb-1">Universidad</label>
+                                                        <select
+                                                            value={editCareer.institution}
+                                                            onChange={(e) => setEditCareer({ ...editCareer, institution: e.target.value })}
+                                                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                        >
+                                                            <option value="">-- Seleccionar universidad --</option>
+                                                            {universitiesCatalog.map((u) => (
+                                                                <option key={u.id} value={u.name}>{u.name}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 mb-1">Año inicio</label>
+                                                            <input
+                                                                type="number"
+                                                                value={editCareer.start_year}
+                                                                onChange={(e) => setEditCareer({ ...editCareer, start_year: parseInt(e.target.value) })}
+                                                                min="1950" max="2030"
+                                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 mb-1">Año término</label>
+                                                            <input
+                                                                type="number"
+                                                                value={editCareer.end_year || ''}
+                                                                onChange={(e) => setEditCareer({ ...editCareer, end_year: e.target.value ? parseInt(e.target.value) : null })}
+                                                                min="1950" max="2030"
+                                                                disabled={editCareer.is_current}
+                                                                placeholder={editCareer.is_current ? 'Presente' : ''}
+                                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-50 disabled:text-slate-400"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={editCareer.is_current}
+                                                            onChange={(e) => setEditCareer({ ...editCareer, is_current: e.target.checked })}
+                                                            className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                                                        />
+                                                        <span className="text-sm text-slate-700">Actualmente cursando</span>
+                                                    </label>
+
+                                                    <div className="flex gap-2 pt-2">
+                                                        <button
+                                                            onClick={() => setEditingId(null)}
+                                                            className="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                        <button
+                                                            onClick={handleSaveEdit}
+                                                            disabled={isSaving}
+                                                            className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                                        >
+                                                            {isSaving ? <Loader2 size={16} className="animate-spin" /> : null}
+                                                            Guardar
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            ) : (
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <h3 className="font-semibold text-slate-900 truncate">
+                                                                {(uc as any).career?.name || uc.custom_career}
+                                                            </h3>
+                                                            {uc.is_primary && (
+                                                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase">
+                                                                    <Star size={10} /> Principal
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {uc.institution && (
+                                                            <p className="text-sm text-slate-500 mt-0.5">{uc.institution}</p>
+                                                        )}
+                                                        <p className="text-xs text-slate-400 mt-1">
+                                                            {uc.start_year} - {uc.is_current ? 'Presente' : uc.end_year}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <button
+                                                            onClick={() => handleStartEdit(uc)}
+                                                            disabled={isSaving}
+                                                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-700"
+                                                            title="Editar"
+                                                        >
+                                                            <Pencil size={16} />
+                                                        </button>
+                                                        {!uc.is_primary && (
+                                                            <button
+                                                                onClick={() => handleSetPrimary(uc.id)}
+                                                                disabled={isSaving}
+                                                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-indigo-600"
+                                                                title="Marcar como principal"
+                                                            >
+                                                                <Star size={16} />
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => handleDeleteCareer(uc.id)}
+                                                            disabled={isSaving}
+                                                            className="p-2 hover:bg-rose-50 rounded-lg transition-colors text-slate-400 hover:text-rose-600"
+                                                            title="Eliminar"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

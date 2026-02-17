@@ -96,7 +96,7 @@ export default function TalentCard({
                                 <img
                                     src={profile.avatar_url}
                                     alt={profile.full_name || profile.username}
-                                    className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500"
+                                    className="w-full h-full object-cover transition-all duration-500"
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 font-bold text-xl">
