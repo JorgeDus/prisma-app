@@ -388,6 +388,8 @@ export default function DashboardContent({
                     interests={profile.interests || []}
                     skillCounts={skillCounts}
                     allCareers={userCareers}
+                    pinnedSkills={profile.skills_order || []}
+                    profileId={profile.id}
                 />
             </div>
 
@@ -405,7 +407,7 @@ export default function DashboardContent({
                         <div>
                             <div className="border-t border-slate-200" />
                             <div className="flex items-center justify-between py-2">
-                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
                                     Mi Vitrina
                                 </h2>
                                 <div className="flex items-center gap-3">
@@ -435,7 +437,7 @@ export default function DashboardContent({
                             <div>
                                 <div className="border-t border-slate-200" />
                                 <div className="flex items-center justify-between py-2">
-                                    <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                    <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
                                         Logros / Hitos
                                     </h2>
                                     <div className="flex items-center gap-3">
@@ -517,7 +519,7 @@ export default function DashboardContent({
                             <div>
                                 <div className="border-t border-slate-200" />
                                 <div className="flex items-center justify-between py-2">
-                                    <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                    <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
                                         Experiencias
                                     </h2>
                                     <div className="flex items-center gap-3">
@@ -579,7 +581,7 @@ export default function DashboardContent({
                             <div>
                                 <div className="border-t border-slate-200" />
                                 <div className="flex items-center justify-between py-2">
-                                    <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                    <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
                                         Proyectos
                                     </h2>
                                     <div className="flex items-center gap-3">
@@ -631,7 +633,7 @@ export default function DashboardContent({
                             <div>
                                 <div className="border-t border-slate-200" />
                                 <div className="flex items-center justify-between py-2">
-                                    <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                    <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
                                         Testimonios
                                     </h2>
                                     <div className="flex items-center gap-3">

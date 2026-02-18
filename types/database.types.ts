@@ -116,6 +116,7 @@ export interface Database {
                     deletion_requested_at: string | null
                     deletion_token: string | null
                     has_completed_tour: boolean
+                    skills_order: string[] | null
                     created_at: string
                     updated_at: string
                 }
@@ -140,6 +141,7 @@ export interface Database {
                     paused_at?: string | null
                     deletion_requested_at?: string | null
                     deletion_token?: string | null
+                    skills_order?: string[] | null
                 }
                 Update: {
                     username?: string
@@ -162,6 +164,7 @@ export interface Database {
                     deletion_requested_at?: string | null
                     deletion_token?: string | null
                     has_completed_tour?: boolean
+                    skills_order?: string[] | null
                 }
                 Relationships: [
                     {

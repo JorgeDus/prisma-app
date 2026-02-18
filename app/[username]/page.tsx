@@ -431,6 +431,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     interests={profile.interests || []}
                     skillCounts={skillCounts}
                     allCareers={userCareers || []}
+                    pinnedSkills={profile.skills_order || []}
                 />
             </div>
 

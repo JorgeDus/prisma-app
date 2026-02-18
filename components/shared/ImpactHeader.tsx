@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Github, Linkedin, Globe, Sparkles, Blocks, GraduationCap, ChevronDown } from "lucide-react";
 import SkillsModal from "@/components/shared/SkillsModal";
+import { createClient } from "@/utils/supabase/client";
 
 interface ImpactHeaderProps {
     name: string;
@@ -30,6 +31,8 @@ interface ImpactHeaderProps {
         end_year: number | null;
         career?: { id: number; name: string } | null;
     }[];
+    pinnedSkills?: string[];
+    profileId?: string;
 }
 
 export const ImpactHeader = ({
@@ -48,20 +51,53 @@ export const ImpactHeader = ({
     interests = [],
     skillCounts = {},
     allCareers = [],
+    pinnedSkills: initialSkillsOrder = [],
+    profileId,
 }: ImpactHeaderProps) => {
     const [activeTab, setActiveTab] = useState<'hard' | 'soft'>('hard');
     const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
     const [showCareersTooltip, setShowCareersTooltip] = useState(false);
+    const [skillsOrder, setSkillsOrder] = useState<string[]>(initialSkillsOrder);
 
     // Check if there are secondary careers to show
     const secondaryCareers = allCareers.filter(c => !c.is_primary);
     const hasMultipleCareers = secondaryCareers.length > 0;
 
-    const displaySkills = activeTab === 'hard' ? hardSkills : softSkills;
+    // Sort skills by saved order, then by evidence count for unordered ones
+    const sortSkills = (skills: string[]) => {
+        return [...skills].sort((a, b) => {
+            const aIndex = skillsOrder.indexOf(a);
+            const bIndex = skillsOrder.indexOf(b);
+            const aHasOrder = aIndex !== -1;
+            const bHasOrder = bIndex !== -1;
+            // Both have saved order → use that order
+            if (aHasOrder && bHasOrder) return aIndex - bIndex;
+            // Only one has order → ordered one comes first
+            if (aHasOrder && !bHasOrder) return -1;
+            if (!aHasOrder && bHasOrder) return 1;
+            // Neither has order → sort by evidence count
+            return (skillCounts[b] || 0) - (skillCounts[a] || 0);
+        });
+    };
+
+    const sortedHardSkills = sortSkills(hardSkills);
+    const sortedSoftSkills = sortSkills(softSkills);
+    const displaySkills = activeTab === 'hard' ? sortedHardSkills : sortedSoftSkills;
     const hasAnySkills = hardSkills.length > 0 || softSkills.length > 0;
     const SKILLS_LIMIT = 5;
     const visibleSkills = displaySkills.slice(0, SKILLS_LIMIT);
     const hasMoreSkills = displaySkills.length > SKILLS_LIMIT;
+
+    const handleReorder = async (newHardOrder: string[], newSoftOrder: string[]) => {
+        if (!profileId) return;
+        const supabase = createClient();
+        const combined = [...newHardOrder, ...newSoftOrder];
+        setSkillsOrder(combined);
+        await supabase
+            .from('profiles')
+            .update({ skills_order: combined })
+            .eq('id', profileId);
+    };
 
     return (
         <header className="relative pt-20 pb-8 px-6 max-w-7xl mx-auto">
@@ -237,7 +273,6 @@ export const ImpactHeader = ({
                                     {visibleSkills.length > 0 ? (
                                         <>
                                             {visibleSkills.map((skill) => {
-                                                // Count evidences for this skill
                                                 const count = skillCounts?.[skill] || 1
                                                 return (
                                                     <div
@@ -293,9 +328,11 @@ export const ImpactHeader = ({
             <SkillsModal
                 isOpen={isSkillsModalOpen}
                 onClose={() => setIsSkillsModalOpen(false)}
-                hardSkills={hardSkills}
-                softSkills={softSkills}
+                hardSkills={sortedHardSkills}
+                softSkills={sortedSoftSkills}
                 skillCounts={skillCounts}
+                onReorder={handleReorder}
+                isEditable={isEditable || false}
             />
         </header>
     );
