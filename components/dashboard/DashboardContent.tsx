@@ -401,12 +401,19 @@ export default function DashboardContent({
                 {/* 1. Highlights Section */}
                 <section id="highlights" className="section-anchor">
                     <div className="space-y-8">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                <LayoutGrid size={20} className="text-slate-600" />
-                                Mi Vitrina
-                            </h2>
-                            <EvidenceBadge label="Modo Edición Activo" count={(profile.featured_items || []).length} />
+                        {/* Section Divider */}
+                        <div>
+                            <div className="border-t border-slate-200" />
+                            <div className="flex items-center justify-between py-2">
+                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                    Mi Vitrina
+                                </h2>
+                                <div className="flex items-center gap-3">
+                                    <EvidenceBadge label="Modo Edición Activo" count={(profile.featured_items || []).length} />
+                                    <LayoutGrid size={18} className="text-indigo-400" />
+                                </div>
+                            </div>
+                            <div className="border-b border-slate-200" />
                         </div>
                         <VitrinaCurationSlots
                             profileId={profile.id}
@@ -424,17 +431,24 @@ export default function DashboardContent({
 
                         {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                    <Trophy size={20} className="text-slate-600" />
-                                    Logros / Hitos
-                                </h2>
-                                <button
-                                    onClick={() => { setEditingAch(null); setIsAchModalOpen(true); }}
-                                    className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
-                                >
-                                    + Nuevo Logro
-                                </button>
+                            {/* Section Divider */}
+                            <div>
+                                <div className="border-t border-slate-200" />
+                                <div className="flex items-center justify-between py-2">
+                                    <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                        Logros / Hitos
+                                    </h2>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => { setEditingAch(null); setIsAchModalOpen(true); }}
+                                            className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
+                                        >
+                                            + Nuevo Logro
+                                        </button>
+                                        <Trophy size={18} className="text-amber-400" />
+                                    </div>
+                                </div>
+                                <div className="border-b border-slate-200" />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {achievements?.length ? (
@@ -499,17 +513,24 @@ export default function DashboardContent({
 
                         {/* 3. Experiencia */}
                         <section id="experiencia" className="section-anchor space-y-8">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                    <Sparkles size={20} className="text-slate-600" />
-                                    Experiencias
-                                </h2>
-                                <button
-                                    onClick={() => { setEditingExp(null); setIsExpModalOpen(true); }}
-                                    className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
-                                >
-                                    + Nueva Experiencia
-                                </button>
+                            {/* Section Divider */}
+                            <div>
+                                <div className="border-t border-slate-200" />
+                                <div className="flex items-center justify-between py-2">
+                                    <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                        Experiencias
+                                    </h2>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => { setEditingExp(null); setIsExpModalOpen(true); }}
+                                            className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
+                                        >
+                                            + Nueva Experiencia
+                                        </button>
+                                        <Sparkles size={18} className="text-purple-400" />
+                                    </div>
+                                </div>
+                                <div className="border-b border-slate-200" />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {experiences?.length ? (
@@ -554,17 +575,24 @@ export default function DashboardContent({
 
                         {/* 4. Proyectos */}
                         <section id="proyectos" className="section-anchor space-y-8">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                    <Briefcase size={20} className="text-slate-600" />
-                                    Proyectos
-                                </h2>
-                                <button
-                                    onClick={() => { setEditingProj(null); setIsProjModalOpen(true); }}
-                                    className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
-                                >
-                                    + Nuevo Proyecto
-                                </button>
+                            {/* Section Divider */}
+                            <div>
+                                <div className="border-t border-slate-200" />
+                                <div className="flex items-center justify-between py-2">
+                                    <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                        Proyectos
+                                    </h2>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => { setEditingProj(null); setIsProjModalOpen(true); }}
+                                            className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors"
+                                        >
+                                            + Nuevo Proyecto
+                                        </button>
+                                        <Briefcase size={18} className="text-blue-400" />
+                                    </div>
+                                </div>
+                                <div className="border-b border-slate-200" />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {projects?.length ? (
@@ -599,12 +627,19 @@ export default function DashboardContent({
 
                         {/* 5. Testimonios */}
                         <section id="testimonios" className="section-anchor space-y-8">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500 flex items-center gap-2">
-                                    <MessageSquare size={20} className="text-slate-600" />
-                                    Testimonios
-                                </h2>
-                                <button className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">+ Solicitar Testimonio</button>
+                            {/* Section Divider */}
+                            <div>
+                                <div className="border-t border-slate-200" />
+                                <div className="flex items-center justify-between py-2">
+                                    <h2 className="text-lg font-mono font-bold tracking-widest uppercase text-slate-500">
+                                        Testimonios
+                                    </h2>
+                                    <div className="flex items-center gap-3">
+                                        <button className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 hover:text-indigo-700 transition-colors">+ Solicitar Testimonio</button>
+                                        <MessageSquare size={18} className="text-emerald-400" />
+                                    </div>
+                                </div>
+                                <div className="border-b border-slate-200" />
                             </div>
                             <TestimonialSection testimonials={testimonials || []} userId={profile.id} />
                         </section>

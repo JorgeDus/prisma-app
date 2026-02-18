@@ -440,13 +440,17 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                 <section id="highlights" className="section-anchor">
                     <div className="space-y-8">
                         <div className="flex flex-col space-y-2">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
-                                    <LayoutGrid size={20} className="text-slate-500" />
+                            {/* Section Divider */}
+                            <div className="border-t border-slate-200" />
+                            <div className="flex items-center justify-between py-2">
+                                <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
                                     Mi Vitrina
                                 </h2>
-                                <EvidenceBadge label="Verificado por Prisma" />
+                                <div className="flex items-center gap-3">
+                                    <EvidenceBadge label="Verificado por Prisma" />
+                                </div>
                             </div>
+                            <div className="border-b border-slate-200" />
                             <p className="text-xs font-mono text-slate-500 uppercase tracking-tight">Acceso directo a mis experiencias y proyectos de mayor impacto</p>
                         </div>
                         <BentoHighlights
@@ -464,10 +468,17 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 2. Logros */}
                         <section id="logros" className="section-anchor space-y-8">
-                            <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
-                                <Trophy size={20} className="text-slate-500" />
-                                Logros / Hitos
-                            </h2>
+                            {/* Section Divider */}
+                            <div>
+                                <div className="border-t border-slate-200" />
+                                <div className="flex items-center justify-between py-2">
+                                    <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
+                                        Logros / Hitos
+                                    </h2>
+                                    <Trophy size={18} className="text-amber-400" />
+                                </div>
+                                <div className="border-b border-slate-200" />
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {achievements?.map((ach) => (
                                     <BaseCard
@@ -517,10 +528,17 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 3. Experiencia */}
                         <section id="experiencia" className="section-anchor space-y-8">
-                            <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
-                                <Sparkles size={20} className="text-slate-500" />
-                                Experiencias
-                            </h2>
+                            {/* Section Divider */}
+                            <div>
+                                <div className="border-t border-slate-200" />
+                                <div className="flex items-center justify-between py-2">
+                                    <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
+                                        Experiencias
+                                    </h2>
+                                    <Sparkles size={18} className="text-purple-400" />
+                                </div>
+                                <div className="border-b border-slate-200" />
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {experiences?.length ? (
                                     experiences.map((exp) => (
@@ -556,10 +574,17 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
 
                         {/* 4. Proyectos */}
                         <section id="proyectos" className="section-anchor space-y-8">
-                            <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
-                                <Briefcase size={20} className="text-slate-500" />
-                                Proyectos
-                            </h2>
+                            {/* Section Divider */}
+                            <div>
+                                <div className="border-t border-slate-200" />
+                                <div className="flex items-center justify-between py-2">
+                                    <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
+                                        Proyectos
+                                    </h2>
+                                    <Briefcase size={18} className="text-blue-400" />
+                                </div>
+                                <div className="border-b border-slate-200" />
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {projects?.length ? (
                                     projects.map((proj) => (
@@ -585,10 +610,17 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                         {/* 5. Testimonios */}
                         {testimonials && testimonials.length > 0 && (
                             <section id="testimonios" className="section-anchor space-y-8">
-                                <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600 flex items-center gap-2">
-                                    <MessageSquare size={20} className="text-slate-500" />
-                                    Testimonios
-                                </h2>
+                                {/* Section Divider */}
+                                <div>
+                                    <div className="border-t border-slate-200" />
+                                    <div className="flex items-center justify-between py-2">
+                                        <h2 className="text-lg font-mono font-black tracking-widest uppercase text-slate-600">
+                                            Testimonios
+                                        </h2>
+                                        <MessageSquare size={18} className="text-emerald-400" />
+                                    </div>
+                                    <div className="border-b border-slate-200" />
+                                </div>
                                 <TestimonialSection testimonials={testimonials || []} userId={profile.id} isReadOnly={true} />
                             </section>
                         )}
