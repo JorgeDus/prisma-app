@@ -1,9 +1,6 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import { Suspense } from 'react';
 import { createClient } from '@/utils/supabase/server';
-import { LogOut, Users, LayoutDashboard } from 'lucide-react';
 import ExploreContent from '@/components/explore/ExploreContent';
 
 export const dynamic = 'force-dynamic';
@@ -107,46 +104,7 @@ export default async function ExplorePage() {
     });
 
     return (
-        <div className="bg-[#F9FAFB] min-h-screen pb-24 md:pb-24 selection:bg-indigo-100 selection:text-indigo-900">
-            {/* Top Navigation Bar */}
-            <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
-                <div className="max-w-5xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3 md:gap-4">
-                        <Link href="/" className="flex items-center gap-2">
-                            <Image
-                                src="/logo-prisma.png"
-                                alt="Prisma Logo"
-                                width={120}
-                                height={32}
-                                className="h-7 md:h-8 w-auto object-contain"
-                            />
-                        </Link>
-                        <div className="h-4 w-px bg-slate-200" />
-                        <div className="flex items-center gap-1 text-indigo-600">
-                            <Users size={16} />
-                            <span className="font-mono text-xs font-bold tracking-tighter uppercase">Explorar</span>
-                        </div>
-                    </div>
-
-                    {/* Desktop navigation */}
-                    <div className="hidden md:flex items-center gap-6">
-                        <Link
-                            href="/dashboard"
-                            className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 hover:text-indigo-600 transition-colors"
-                        >
-                            <LayoutDashboard size={14} />
-                            Mi Dashboard
-                        </Link>
-                        <form action="/auth/signout" method="post">
-                            <button className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 hover:text-red-600 transition-colors">
-                                <LogOut size={14} />
-                                Cerrar Sesión
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </nav>
-
+        <div className="pb-24 md:pb-24">
             {/* Main Content */}
             <main className="max-w-5xl mx-auto px-4 md:px-6 pt-24 md:pt-28">
                 {/* Page Header */}
@@ -168,29 +126,6 @@ export default async function ExplorePage() {
                     />
                 </Suspense>
             </main>
-
-            {/* Mobile Bottom Navigation */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 safe-area-pb">
-                <div className="flex items-center justify-around h-16">
-                    <Link
-                        href="/dashboard"
-                        className="flex flex-col items-center gap-1 px-4 py-2 text-slate-500"
-                    >
-                        <LayoutDashboard size={20} />
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Dashboard</span>
-                    </Link>
-                    <div className="flex flex-col items-center gap-1 px-4 py-2 text-indigo-600">
-                        <Users size={20} />
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Explorar</span>
-                    </div>
-                    <form action="/auth/signout" method="post">
-                        <button className="flex flex-col items-center gap-1 px-4 py-2 text-slate-500">
-                            <LogOut size={20} />
-                            <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Salir</span>
-                        </button>
-                    </form>
-                </div>
-            </nav>
         </div>
     );
 }
