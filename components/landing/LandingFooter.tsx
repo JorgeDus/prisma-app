@@ -48,6 +48,15 @@ export const LandingFooter = () => {
                             <a href="mailto:contacto@tuprisma.com" className="hover:text-white transition-colors">
                                 Contacto
                             </a>
+                            <a
+                                href="https://www.linkedin.com/company/tuprisma-edu/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-white transition-colors"
+                                aria-label="LinkedIn de Prisma"
+                            >
+                                <Icon icon="mdi:linkedin" width="20" />
+                            </a>
                         </div>
 
                         {/* Copyright */}
