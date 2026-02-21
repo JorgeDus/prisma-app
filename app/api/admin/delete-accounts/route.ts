@@ -1,30 +1,26 @@
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { NextResponse } from 'next/server'
 
-export async function DELETE(request: Request) {
-    // Check ADMIN_SECRET at runtime (not build time)
-    const ADMIN_SECRET = process.env.ADMIN_SECRET
-    if (!ADMIN_SECRET) {
-        console.error('ADMIN_SECRET environment variable is not set')
-        return NextResponse.json(
-            { error: 'Server configuration error' },
-            { status: 500 }
-        )
-    }
-
-    // Simple admin authentication via Authorization header
-    const authHeader = request.headers.get('Authorization')
-    if (authHeader !== `Bearer ${ADMIN_SECRET}`) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+export async function DELETE() {
+    // Session-based admin authentication
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    const adminClient = createAdminClient()
+    const { data: authUser } = await adminClient.auth.admin.getUserById(user.id)
+    if (authUser?.user?.app_metadata?.role !== 'admin') {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     // Get profiles ready for deletion (past 14 days grace period)
     const now = new Date()
     const gracePeriodCutoff = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
 
-    const { data: readyForDeletion, error: fetchError } = await supabase
+    const { data: readyForDeletion, error: fetchError } = await adminClient
         .from('profiles')
         .select('id, username, full_name, email, deletion_requested_at')
         .not('deletion_requested_at', 'is', null)
@@ -44,33 +40,33 @@ export async function DELETE(request: Request) {
     const deletedAccounts: string[] = []
     const errors: { id: string; error: string }[] = []
 
-    // Delete each account's data
     for (const profile of readyForDeletion) {
         try {
-            // Delete related data (RLS should handle cascade, but being explicit)
+            // Delete related data
             await Promise.all([
-                supabase.from('projects').delete().eq('user_id', profile.id),
-                supabase.from('experiences').delete().eq('user_id', profile.id),
-                supabase.from('achievements').delete().eq('user_id', profile.id),
-                supabase.from('testimonials').delete().eq('user_id', profile.id),
-                supabase.from('languages').delete().eq('user_id', profile.id),
-                supabase.from('user_careers').delete().eq('user_id', profile.id),
-                supabase.from('connections').delete().or(`sender_id.eq.${profile.id},receiver_id.eq.${profile.id}`),
+                adminClient.from('projects').delete().eq('user_id', profile.id),
+                adminClient.from('experiences').delete().eq('user_id', profile.id),
+                adminClient.from('achievements').delete().eq('user_id', profile.id),
+                adminClient.from('testimonials').delete().eq('user_id', profile.id),
+                adminClient.from('pivots').delete().eq('user_id', profile.id),
+                adminClient.from('languages').delete().eq('user_id', profile.id),
+                adminClient.from('user_careers').delete().eq('user_id', profile.id),
+                adminClient.from('connections').delete().or(`sender_id.eq.${profile.id},receiver_id.eq.${profile.id}`),
             ])
 
-            // Delete the profile itself
-            const { error: deleteError } = await supabase
+            // Delete the profile
+            const { error: deleteError } = await adminClient
                 .from('profiles')
                 .delete()
                 .eq('id', profile.id)
 
-            if (deleteError) {
-                throw deleteError
-            }
+            if (deleteError) throw deleteError
 
-            // Note: To fully delete the auth user, you'd need to use service role
-            // supabase.auth.admin.deleteUser(profile.id)
-            // This requires the service role key which shouldn't be exposed in API routes
+            // Delete the auth user (now possible with service_role)
+            const { error: authDeleteError } = await adminClient.auth.admin.deleteUser(profile.id)
+            if (authDeleteError) {
+                console.error(`Failed to delete auth user ${profile.id}:`, authDeleteError)
+            }
 
             deletedAccounts.push(profile.username!)
         } catch (error: any) {

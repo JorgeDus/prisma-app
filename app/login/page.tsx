@@ -14,6 +14,10 @@ export default function LoginPage() {
 
     const supabase = createClient()
 
+    // Read the 'next' param from the URL (set by middleware when redirecting from protected routes)
+    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+    const nextPath = searchParams?.get('next') || '/onboarding'
+
     const handleMagicLinkLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
@@ -27,7 +31,7 @@ export default function LoginPage() {
             const { error } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
-                    emailRedirectTo: `${baseUrl}/auth/callback?next=/onboarding`,
+                    emailRedirectTo: `${baseUrl}/auth/callback?next=${encodeURIComponent(nextPath)}`,
                 },
             })
 
@@ -49,7 +53,7 @@ export default function LoginPage() {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+                    redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
                 },
             })
             if (error) throw error

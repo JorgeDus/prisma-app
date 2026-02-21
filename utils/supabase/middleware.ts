@@ -43,7 +43,8 @@ export async function updateSession(request: NextRequest) {
     // Rutas que requieren autenticación
     const isProtectedRoute =
         request.nextUrl.pathname.startsWith('/dashboard') ||
-        request.nextUrl.pathname.startsWith('/onboarding')
+        request.nextUrl.pathname.startsWith('/onboarding') ||
+        request.nextUrl.pathname.startsWith('/admin')
 
     if (!user && isProtectedRoute) {
         const url = request.nextUrl.clone()

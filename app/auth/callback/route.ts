@@ -34,7 +34,8 @@ export async function GET(request: Request) {
 
                 // Logic: Complete profile -> Dashboard, Incomplete -> Onboarding
                 if (profile && hasName && (hasLegacyCareer || hasNewCareer)) {
-                    targetPath = '/dashboard'
+                    // Preserve the original destination if it was /admin
+                    targetPath = next.startsWith('/admin') ? next : '/dashboard'
                 } else {
                     targetPath = '/onboarding'
                 }
