@@ -18,6 +18,7 @@ export default async function AdminUsersPage() {
             paused_at,
             deletion_requested_at,
             created_at,
+            hidden_from_explore,
             universities(name)
         `)
         .order('created_at', { ascending: false })
@@ -30,11 +31,19 @@ export default async function AdminUsersPage() {
         adminClient.from('experiences').select('user_id').in('user_id', userIds),
     ])
 
+    // Get last_sign_in_at from auth.users (requires service_role)
+    const { data: authUsersData } = await adminClient.auth.admin.listUsers({ perPage: 1000 })
+    const authUsersMap = new Map(
+        (authUsersData?.users || []).map(u => [u.id, u.last_sign_in_at ?? null])
+    )
+
     const usersWithCounts = (profiles || []).map(profile => ({
         ...profile,
         university_name: (profile as any).universities?.name || null,
         project_count: projectCounts?.filter(p => p.user_id === profile.id).length || 0,
         experience_count: experienceCounts?.filter(e => e.user_id === profile.id).length || 0,
+        last_sign_in_at: authUsersMap.get(profile.id) ?? null,
+        hidden_from_explore: profile.hidden_from_explore ?? false,
         status: profile.deletion_requested_at
             ? 'deletion_pending' as const
             : profile.is_paused

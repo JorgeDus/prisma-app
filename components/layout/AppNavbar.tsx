@@ -9,14 +9,17 @@ import {
     Users,
     LayoutDashboard,
     Menu,
-    X
+    X,
+    Eye
 } from 'lucide-react'
+import ProfileVisitsPopover from './ProfileVisitsPopover'
 
 interface AppNavbarProps {
     username: string
+    unseenVisitCount?: number
 }
 
-export default function AppNavbar({ username }: AppNavbarProps) {
+export default function AppNavbar({ username, unseenVisitCount = 0 }: AppNavbarProps) {
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -47,8 +50,8 @@ export default function AppNavbar({ username }: AppNavbarProps) {
                             <Link
                                 href="/dashboard"
                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-widest uppercase transition-colors ${isDashboard
-                                        ? 'text-indigo-600 bg-indigo-50'
-                                        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                                    ? 'text-indigo-600 bg-indigo-50'
+                                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
                                     }`}
                             >
                                 <LayoutDashboard size={14} />
@@ -57,14 +60,17 @@ export default function AppNavbar({ username }: AppNavbarProps) {
                             <Link
                                 href="/explorar"
                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-widest uppercase transition-colors ${isExplorar
-                                        ? 'text-indigo-600 bg-indigo-50'
-                                        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                                    ? 'text-indigo-600 bg-indigo-50'
+                                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
                                     }`}
                             >
                                 <Users size={14} />
                                 Explorar
                             </Link>
                         </div>
+
+                        {/* Profile visits notification */}
+                        <ProfileVisitsPopover unseenCount={unseenVisitCount} />
 
                         {/* Mobile: current page indicator */}
                         <span className="md:hidden font-mono text-xs font-bold tracking-tighter uppercase text-slate-800">
@@ -155,6 +161,21 @@ export default function AppNavbar({ username }: AppNavbarProps) {
                         <Users size={20} />
                         <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Explorar</span>
                     </Link>
+                    <button
+                        className="relative flex flex-col items-center gap-1 px-4 py-2 text-slate-500"
+                        onClick={() => {
+                            // Navigate to dashboard — popover will be accessible from there
+                            window.location.href = '/dashboard'
+                        }}
+                    >
+                        <div className="relative">
+                            <Eye size={20} />
+                            {unseenVisitCount > 0 && (
+                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                            )}
+                        </div>
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Visitas</span>
+                    </button>
                     <form action="/auth/signout" method="post">
                         <button className="flex flex-col items-center gap-1 px-4 py-2 text-slate-500">
                             <LogOut size={20} />

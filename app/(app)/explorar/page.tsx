@@ -31,6 +31,7 @@ export default async function ExplorePage() {
             headline,
             about,
             avatar_url,
+            hidden_from_explore,
             universities(name),
             careers(name)
         `)
@@ -97,6 +98,7 @@ export default async function ExplorePage() {
             avatar_url: profile.avatar_url,
             career_name: (profile as any).careers?.name || null,
             university_name: (profile as any).universities?.name || null,
+            hidden_from_explore: (profile as any).hidden_from_explore ?? false,
             project_count: projCount,
             experience_count: expCount,
             skills: Array.from(allSkills),

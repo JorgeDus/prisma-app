@@ -9,8 +9,11 @@ import {
     Loader2,
     FolderOpen,
     Briefcase,
+    Trash2,
+    EyeOff,
+    Eye,
 } from 'lucide-react'
-import { toggleUserPause } from '@/app/(admin)/admin/actions'
+import { toggleUserPause, deleteUserAccount, toggleUserExploreVisibility } from '@/app/(admin)/admin/actions'
 
 interface UserRow {
     id: string
@@ -22,6 +25,8 @@ interface UserRow {
     paused_at: string | null
     deletion_requested_at: string | null
     created_at: string
+    last_sign_in_at: string | null
+    hidden_from_explore: boolean
     university_name: string | null
     project_count: number
     experience_count: number
@@ -38,6 +43,8 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
     const [search, setSearch] = useState('')
     const [statusFilter, setStatusFilter] = useState<string>('all')
     const [loadingId, setLoadingId] = useState<string | null>(null)
+    const [deletingId, setDeletingId] = useState<string | null>(null)
+    const [hidingId, setHidingId] = useState<string | null>(null)
     const [isPending, startTransition] = useTransition()
 
     const filtered = users.filter(user => {
@@ -58,6 +65,23 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
         startTransition(async () => {
             await toggleUserPause(userId)
             setLoadingId(null)
+        })
+    }
+
+    const handleDeleteUser = (userId: string, displayName: string) => {
+        if (!confirm(`¿Eliminar permanentemente la cuenta de "${displayName}"? Esta acción es irreversible y borrará todos sus datos.`)) return
+        setDeletingId(userId)
+        startTransition(async () => {
+            await deleteUserAccount(userId)
+            setDeletingId(null)
+        })
+    }
+
+    const handleToggleExplore = (userId: string) => {
+        setHidingId(userId)
+        startTransition(async () => {
+            await toggleUserExploreVisibility(userId)
+            setHidingId(null)
         })
     }
 
@@ -102,6 +126,7 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
                                 <th className="text-left px-5 py-3 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Universidad</th>
                                 <th className="text-center px-5 py-3 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Contenido</th>
                                 <th className="text-center px-5 py-3 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Estado</th>
+                                <th className="text-center px-5 py-3 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Último ingreso</th>
                                 <th className="text-center px-5 py-3 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Registro</th>
                                 <th className="text-right px-5 py-3 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">Acciones</th>
                             </tr>
@@ -109,7 +134,7 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
                         <tbody className="divide-y divide-slate-100">
                             {filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-5 py-12 text-center text-slate-400">
+                                    <td colSpan={7} className="px-5 py-12 text-center text-slate-400">
                                         No se encontraron usuarios
                                     </td>
                                 </tr>
@@ -159,6 +184,21 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
                                             </span>
                                         </td>
 
+                                        {/* Last sign in */}
+                                        <td className="px-5 py-4 text-center text-slate-400 text-xs">
+                                            {user.last_sign_in_at ? (
+                                                <span title={new Date(user.last_sign_in_at).toLocaleString('es-CL')}>
+                                                    {new Date(user.last_sign_in_at).toLocaleDateString('es-CL', {
+                                                        day: 'numeric',
+                                                        month: 'short',
+                                                        year: 'numeric',
+                                                    })}
+                                                </span>
+                                            ) : (
+                                                <span className="text-slate-300">Nunca</span>
+                                            )}
+                                        </td>
+
                                         {/* Registration date */}
                                         <td className="px-5 py-4 text-center text-slate-400 text-xs">
                                             {new Date(user.created_at).toLocaleDateString('es-CL', {
@@ -199,6 +239,35 @@ export default function AdminUsersClient({ users }: { users: UserRow[] }) {
                                                         )}
                                                     </button>
                                                 )}
+                                                <button
+                                                    onClick={() => handleToggleExplore(user.id)}
+                                                    disabled={hidingId === user.id || isPending}
+                                                    className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${user.hidden_from_explore
+                                                            ? 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
+                                                            : 'text-indigo-500 hover:bg-indigo-50'
+                                                        }`}
+                                                    title={user.hidden_from_explore ? 'Mostrar en Explorar' : 'Ocultar de Explorar'}
+                                                >
+                                                    {hidingId === user.id ? (
+                                                        <Loader2 size={16} className="animate-spin" />
+                                                    ) : user.hidden_from_explore ? (
+                                                        <EyeOff size={16} />
+                                                    ) : (
+                                                        <Eye size={16} />
+                                                    )}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteUser(user.id, user.full_name || user.username)}
+                                                    disabled={deletingId === user.id || isPending}
+                                                    className="p-2 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                                                    title="Eliminar cuenta permanentemente"
+                                                >
+                                                    {deletingId === user.id ? (
+                                                        <Loader2 size={16} className="animate-spin" />
+                                                    ) : (
+                                                        <Trash2 size={16} />
+                                                    )}
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>

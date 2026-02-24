@@ -190,43 +190,34 @@ export default function DashboardContent({
 
     const academicStatus = getAcademicStatus()
 
-    // --- AGREGACIÓN DE SKILLS (sin duplicados) + CONTEO ---
+    // --- AGREGACIÓN DE SKILLS (sin duplicados) + CONTEO + EVIDENCIAS ---
     const hardSkillsSet = new Set<string>()
     const softSkillsSet = new Set<string>()
     const skillCounts: Record<string, number> = {}
+    const skillEvidence: Record<string, { id: string; title: string; type: 'project' | 'experience' }[]> = {}
 
     projects?.forEach(proj => {
-        proj.hard_skills?.forEach((s: string) => {
-            const skill = s.trim()
-            if (skill) {
-                hardSkillsSet.add(skill)
-                skillCounts[skill] = (skillCounts[skill] || 0) + 1
-            }
-        })
-        proj.soft_skills?.forEach((s: string) => {
-            const skill = s.trim()
-            if (skill) {
-                softSkillsSet.add(skill)
-                skillCounts[skill] = (skillCounts[skill] || 0) + 1
-            }
-        })
+        const addSkill = (skill: string, set: Set<string>) => {
+            if (!skill) return
+            set.add(skill)
+            skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            if (!skillEvidence[skill]) skillEvidence[skill] = []
+            skillEvidence[skill].push({ id: proj.id, title: proj.title, type: 'project' })
+        }
+        proj.hard_skills?.forEach((s: string) => addSkill(s.trim(), hardSkillsSet))
+        proj.soft_skills?.forEach((s: string) => addSkill(s.trim(), softSkillsSet))
     })
 
     experiences?.forEach(exp => {
-        exp.hard_skills?.forEach((s: string) => {
-            const skill = s.trim()
-            if (skill) {
-                hardSkillsSet.add(skill)
-                skillCounts[skill] = (skillCounts[skill] || 0) + 1
-            }
-        })
-        exp.soft_skills?.forEach((s: string) => {
-            const skill = s.trim()
-            if (skill) {
-                softSkillsSet.add(skill)
-                skillCounts[skill] = (skillCounts[skill] || 0) + 1
-            }
-        })
+        const addSkill = (skill: string, set: Set<string>) => {
+            if (!skill) return
+            set.add(skill)
+            skillCounts[skill] = (skillCounts[skill] || 0) + 1
+            if (!skillEvidence[skill]) skillEvidence[skill] = []
+            skillEvidence[skill].push({ id: exp.id, title: exp.title, type: 'experience' })
+        }
+        exp.hard_skills?.forEach((s: string) => addSkill(s.trim(), hardSkillsSet))
+        exp.soft_skills?.forEach((s: string) => addSkill(s.trim(), softSkillsSet))
     })
 
     const aggregatedHardSkills = Array.from(hardSkillsSet)
@@ -296,6 +287,7 @@ export default function DashboardContent({
                     softSkills={aggregatedSoftSkills}
                     interests={profile.interests || []}
                     skillCounts={skillCounts}
+                    skillEvidence={skillEvidence}
                     allCareers={userCareers}
                     pinnedSkills={profile.skills_order || []}
                     profileId={profile.id}

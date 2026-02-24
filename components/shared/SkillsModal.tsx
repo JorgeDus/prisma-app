@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Sparkles, Brain, GripVertical } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
+import { Sparkles, Brain, GripVertical, FolderGit2, Briefcase } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
+import type { SkillEvidenceItem } from '@/components/shared/ImpactHeader'
 import {
     DndContext,
     closestCenter,
@@ -27,6 +29,8 @@ interface SkillsModalProps {
     hardSkills: string[]
     softSkills: string[]
     skillCounts?: Record<string, number>
+    skillEvidence?: Record<string, SkillEvidenceItem[]>
+    username?: string
     onReorder?: (hardSkills: string[], softSkills: string[]) => void
     isEditable?: boolean
 }
@@ -95,11 +99,28 @@ export default function SkillsModal({
     hardSkills: initialHardSkills,
     softSkills: initialSoftSkills,
     skillCounts = {},
+    skillEvidence = {},
+    username,
     onReorder,
     isEditable = false,
 }: SkillsModalProps) {
     const [hardSkills, setHardSkills] = useState(initialHardSkills)
     const [softSkills, setSoftSkills] = useState(initialSoftSkills)
+    const [activeEvidenceSkill, setActiveEvidenceSkill] = useState<string | null>(null)
+    const evidenceRef = useRef<HTMLDivElement>(null)
+
+    // Close evidence popover on click outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (evidenceRef.current && !evidenceRef.current.contains(event.target as Node)) {
+                setActiveEvidenceSkill(null)
+            }
+        }
+        if (activeEvidenceSkill) {
+            document.addEventListener('mousedown', handleClickOutside)
+            return () => document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [activeEvidenceSkill])
 
     // Sync state when props change (e.g. modal re-opens with updated data)
     useEffect(() => {
@@ -199,15 +220,62 @@ export default function SkillsModal({
                                         </SortableContext>
                                     </DndContext>
                                 ) : (
-                                    hardSkills.map((skill) => (
-                                        <SortableSkillItem
-                                            key={skill}
-                                            skill={skill}
-                                            type="hard"
-                                            count={skillCounts[skill] || 1}
-                                            isEditable={false}
-                                        />
-                                    ))
+                                    hardSkills.map((skill) => {
+                                        const evidence = skillEvidence[skill] || []
+                                        return (
+                                            <div key={skill} className="relative">
+                                                <div
+                                                    className="group flex items-center justify-between py-2 border-b border-slate-100 last:border-0 cursor-pointer"
+                                                    onClick={() => setActiveEvidenceSkill(activeEvidenceSkill === skill ? null : skill)}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                                                        <span className="text-sm font-medium text-slate-700 group-hover:text-indigo-600 transition-colors">
+                                                            {skill}
+                                                        </span>
+                                                    </div>
+                                                    <span className="font-mono text-[9px] font-black text-slate-400 uppercase tracking-[0.1em] group-hover:text-indigo-600 transition-colors">
+                                                        {skillCounts[skill] || 1} {(skillCounts[skill] || 1) === 1 ? 'evidencia' : 'evidencias'}
+                                                    </span>
+                                                </div>
+                                                {activeEvidenceSkill === skill && evidence.length > 0 && (
+                                                    <div ref={evidenceRef} className="mt-1 mb-2 w-full bg-white rounded-xl border border-slate-200 shadow-lg z-50 overflow-hidden">
+                                                        <div className="px-3 py-2 border-b border-slate-100 bg-slate-50">
+                                                            <p className="text-[9px] font-mono font-black text-slate-500 uppercase tracking-widest">
+                                                                Evidencias de "{skill}"
+                                                            </p>
+                                                        </div>
+                                                        <div className="max-h-40 overflow-y-auto divide-y divide-slate-50">
+                                                            {evidence.map((item, idx) => {
+                                                                const href = isEditable
+                                                                    ? (item.type === 'project' ? `/dashboard/project/${item.id}` : `/dashboard/experiencias/${item.id}`)
+                                                                    : (username ? `/${username}#${item.type === 'project' ? 'proyectos' : 'experiencia'}` : '#')
+                                                                return (
+                                                                    <Link
+                                                                        key={`${item.id}-${idx}`}
+                                                                        href={href}
+                                                                        className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 transition-colors"
+                                                                        onClick={() => { setActiveEvidenceSkill(null); onClose() }}
+                                                                    >
+                                                                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${item.type === 'project' ? 'bg-blue-50 text-blue-500' : 'bg-purple-50 text-purple-500'
+                                                                            }`}>
+                                                                            {item.type === 'project' ? <FolderGit2 size={12} /> : <Briefcase size={12} />}
+                                                                        </div>
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <p className="text-sm font-medium text-slate-700 truncate">{item.title}</p>
+                                                                            <p className="text-[10px] text-slate-400 font-mono uppercase">
+                                                                                {item.type === 'project' ? 'Proyecto' : 'Experiencia'}
+                                                                            </p>
+                                                                        </div>
+                                                                    </Link>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    })
                                 )
                             ) : (
                                 <p className="text-sm text-slate-400 italic py-4 text-center">
@@ -246,15 +314,62 @@ export default function SkillsModal({
                                         </SortableContext>
                                     </DndContext>
                                 ) : (
-                                    softSkills.map((skill) => (
-                                        <SortableSkillItem
-                                            key={skill}
-                                            skill={skill}
-                                            type="soft"
-                                            count={skillCounts[skill] || 1}
-                                            isEditable={false}
-                                        />
-                                    ))
+                                    softSkills.map((skill) => {
+                                        const evidence = skillEvidence[skill] || []
+                                        return (
+                                            <div key={skill} className="relative">
+                                                <div
+                                                    className="group flex items-center justify-between py-2 border-b border-slate-100 last:border-0 cursor-pointer"
+                                                    onClick={() => setActiveEvidenceSkill(activeEvidenceSkill === skill ? null : skill)}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                                        <span className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors">
+                                                            {skill}
+                                                        </span>
+                                                    </div>
+                                                    <span className="font-mono text-[9px] font-black text-slate-400 uppercase tracking-[0.1em] group-hover:text-blue-600 transition-colors">
+                                                        {skillCounts[skill] || 1} {(skillCounts[skill] || 1) === 1 ? 'evidencia' : 'evidencias'}
+                                                    </span>
+                                                </div>
+                                                {activeEvidenceSkill === skill && evidence.length > 0 && (
+                                                    <div ref={evidenceRef} className="mt-1 mb-2 w-full bg-white rounded-xl border border-slate-200 shadow-lg z-50 overflow-hidden">
+                                                        <div className="px-3 py-2 border-b border-slate-100 bg-slate-50">
+                                                            <p className="text-[9px] font-mono font-black text-slate-500 uppercase tracking-widest">
+                                                                Evidencias de "{skill}"
+                                                            </p>
+                                                        </div>
+                                                        <div className="max-h-40 overflow-y-auto divide-y divide-slate-50">
+                                                            {evidence.map((item, idx) => {
+                                                                const href = isEditable
+                                                                    ? (item.type === 'project' ? `/dashboard/project/${item.id}` : `/dashboard/experiencias/${item.id}`)
+                                                                    : (username ? `/${username}#${item.type === 'project' ? 'proyectos' : 'experiencia'}` : '#')
+                                                                return (
+                                                                    <Link
+                                                                        key={`${item.id}-${idx}`}
+                                                                        href={href}
+                                                                        className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 transition-colors"
+                                                                        onClick={() => { setActiveEvidenceSkill(null); onClose() }}
+                                                                    >
+                                                                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${item.type === 'project' ? 'bg-blue-50 text-blue-500' : 'bg-purple-50 text-purple-500'
+                                                                            }`}>
+                                                                            {item.type === 'project' ? <FolderGit2 size={12} /> : <Briefcase size={12} />}
+                                                                        </div>
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <p className="text-sm font-medium text-slate-700 truncate">{item.title}</p>
+                                                                            <p className="text-[10px] text-slate-400 font-mono uppercase">
+                                                                                {item.type === 'project' ? 'Proyecto' : 'Experiencia'}
+                                                                            </p>
+                                                                        </div>
+                                                                    </Link>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    })
                                 )
                             ) : (
                                 <p className="text-sm text-slate-400 italic py-4 text-center">

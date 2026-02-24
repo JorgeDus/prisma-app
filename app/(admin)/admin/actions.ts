@@ -146,3 +146,34 @@ export async function executePendingDeletions() {
         errors: errors.length > 0 ? errors : undefined,
     }
 }
+
+/**
+ * Toggle whether a user is hidden from the /explorar discovery page
+ */
+export async function toggleUserExploreVisibility(targetUserId: string) {
+    const { adminClient } = await verifyAdmin()
+
+    const { data: profile, error: fetchError } = await adminClient
+        .from('profiles')
+        .select('hidden_from_explore')
+        .eq('id', targetUserId)
+        .single()
+
+    if (fetchError || !profile) {
+        return { error: 'User not found' }
+    }
+
+    const newHiddenState = !profile.hidden_from_explore
+
+    const { error } = await adminClient
+        .from('profiles')
+        .update({ hidden_from_explore: newHiddenState })
+        .eq('id', targetUserId)
+
+    if (error) {
+        return { error: error.message }
+    }
+
+    revalidatePath('/admin/users')
+    return { success: true, hidden_from_explore: newHiddenState }
+}

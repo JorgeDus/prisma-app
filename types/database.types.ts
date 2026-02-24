@@ -116,6 +116,7 @@ export interface Database {
                     deletion_requested_at: string | null
                     deletion_token: string | null
                     has_completed_tour: boolean
+                    hidden_from_explore: boolean
                     skills_order: string[] | null
                     created_at: string
                     updated_at: string
@@ -141,6 +142,7 @@ export interface Database {
                     paused_at?: string | null
                     deletion_requested_at?: string | null
                     deletion_token?: string | null
+                    hidden_from_explore?: boolean
                     skills_order?: string[] | null
                 }
                 Update: {
@@ -164,6 +166,7 @@ export interface Database {
                     deletion_requested_at?: string | null
                     deletion_token?: string | null
                     has_completed_tour?: boolean
+                    hidden_from_explore?: boolean
                     skills_order?: string[] | null
                 }
                 Relationships: [
@@ -507,6 +510,49 @@ export interface Database {
                     }
                 ]
             }
+            profile_visits: {
+                Row: {
+                    id: string
+                    profile_id: string
+                    visitor_id: string
+                    visitor_career: string | null
+                    visitor_university: string | null
+                    visited_at: string
+                    seen_at: string | null
+                }
+                Insert: {
+                    id?: string
+                    profile_id: string
+                    visitor_id: string
+                    visitor_career?: string | null
+                    visitor_university?: string | null
+                    visited_at?: string
+                    seen_at?: string | null
+                }
+                Update: {
+                    id?: string
+                    profile_id?: string
+                    visitor_id?: string
+                    visitor_career?: string | null
+                    visitor_university?: string | null
+                    visited_at?: string
+                    seen_at?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "profile_visits_profile_id_fkey"
+                        columns: ["profile_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "profile_visits_visitor_id_fkey"
+                        columns: ["visitor_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
         Views: {
             [_ in never]: never
@@ -550,3 +596,4 @@ export type University = Tables<'universities'>
 export type Career = Tables<'careers'>
 export type UserCareer = Tables<'user_careers'>
 export type Connection = Tables<'connections'>
+export type ProfileVisit = Tables<'profile_visits'>

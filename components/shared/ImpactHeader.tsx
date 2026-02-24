@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { Github, Linkedin, Globe, Sparkles, Blocks, GraduationCap, ChevronDown } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { Github, Linkedin, Globe, Sparkles, Blocks, GraduationCap, ChevronDown, FolderGit2, Briefcase } from "lucide-react";
 import SkillsModal from "@/components/shared/SkillsModal";
 import { createClient } from "@/utils/supabase/client";
+
+export type SkillEvidenceItem = { id: string; title: string; type: 'project' | 'experience' }
 
 interface ImpactHeaderProps {
     name: string;
@@ -20,6 +23,8 @@ interface ImpactHeaderProps {
     softSkills?: string[];
     interests?: string[];
     skillCounts?: Record<string, number>;
+    skillEvidence?: Record<string, SkillEvidenceItem[]>;
+    username?: string;
     allCareers?: {
         id: string;
         career_id: number | null;
@@ -50,6 +55,8 @@ export const ImpactHeader = ({
     softSkills = [],
     interests = [],
     skillCounts = {},
+    skillEvidence = {},
+    username,
     allCareers = [],
     pinnedSkills: initialSkillsOrder = [],
     profileId,
@@ -58,6 +65,21 @@ export const ImpactHeader = ({
     const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
     const [showCareersTooltip, setShowCareersTooltip] = useState(false);
     const [skillsOrder, setSkillsOrder] = useState<string[]>(initialSkillsOrder);
+    const [activeEvidenceSkill, setActiveEvidenceSkill] = useState<string | null>(null);
+    const evidenceRef = useRef<HTMLDivElement>(null);
+
+    // Close evidence popover on click outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (evidenceRef.current && !evidenceRef.current.contains(event.target as Node)) {
+                setActiveEvidenceSkill(null);
+            }
+        }
+        if (activeEvidenceSkill) {
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [activeEvidenceSkill]);
 
     // Check if there are secondary careers to show
     const secondaryCareers = allCareers.filter(c => !c.is_primary);
@@ -274,23 +296,66 @@ export const ImpactHeader = ({
                                         <>
                                             {visibleSkills.map((skill) => {
                                                 const count = skillCounts?.[skill] || 1
+                                                const evidence = skillEvidence?.[skill] || []
                                                 return (
                                                     <div
                                                         key={skill}
-                                                        className="group flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0"
+                                                        className="relative"
                                                     >
-                                                        <div className="flex items-center gap-2">
-                                                            <span className={`w-1.5 h-1.5 rounded-full ${activeTab === 'hard' ? 'bg-indigo-400' : 'bg-blue-400'}`} />
-                                                            <span
-                                                                title={skill}
-                                                                className="text-sm font-medium text-slate-700 truncate max-w-[120px] group-hover:text-indigo-600 transition-colors cursor-default"
-                                                            >
-                                                                {skill}
+                                                        <div
+                                                            className="group flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0 cursor-pointer"
+                                                            onClick={() => setActiveEvidenceSkill(activeEvidenceSkill === skill ? null : skill)}
+                                                        >
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`w-1.5 h-1.5 rounded-full ${activeTab === 'hard' ? 'bg-indigo-400' : 'bg-blue-400'}`} />
+                                                                <span
+                                                                    title={skill}
+                                                                    className="text-sm font-medium text-slate-700 truncate max-w-[120px] group-hover:text-indigo-600 transition-colors"
+                                                                >
+                                                                    {skill}
+                                                                </span>
+                                                            </div>
+                                                            <span className="font-mono text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] group-hover:text-indigo-600 transition-colors">
+                                                                {count} {count === 1 ? 'EVIDENCIA' : 'EVIDENCIAS'}
                                                             </span>
                                                         </div>
-                                                        <span className="font-mono text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] group-hover:text-indigo-600 transition-colors">
-                                                            {count} {count === 1 ? 'EVIDENCIA' : 'EVIDENCIAS'}
-                                                        </span>
+
+                                                        {/* Evidence Popover */}
+                                                        {activeEvidenceSkill === skill && evidence.length > 0 && (
+                                                            <div ref={evidenceRef} className="absolute right-0 top-full mt-1 w-72 bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden">
+                                                                <div className="px-3 py-2 border-b border-slate-100 bg-slate-50">
+                                                                    <p className="text-[9px] font-mono font-black text-slate-500 uppercase tracking-widest">
+                                                                        Evidencias de "{skill}"
+                                                                    </p>
+                                                                </div>
+                                                                <div className="max-h-48 overflow-y-auto divide-y divide-slate-50">
+                                                                    {evidence.map((item, idx) => {
+                                                                        const href = isEditable
+                                                                            ? (item.type === 'project' ? `/dashboard/project/${item.id}` : `/dashboard/experiencias/${item.id}`)
+                                                                            : (username ? `/${username}#${item.type === 'project' ? 'proyectos' : 'experiencia'}` : '#');
+                                                                        return (
+                                                                            <Link
+                                                                                key={`${item.id}-${idx}`}
+                                                                                href={href}
+                                                                                className="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors"
+                                                                                onClick={() => setActiveEvidenceSkill(null)}
+                                                                            >
+                                                                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${item.type === 'project' ? 'bg-blue-50 text-blue-500' : 'bg-purple-50 text-purple-500'
+                                                                                    }`}>
+                                                                                    {item.type === 'project' ? <FolderGit2 size={13} /> : <Briefcase size={13} />}
+                                                                                </div>
+                                                                                <div className="flex-1 min-w-0">
+                                                                                    <p className="text-sm font-medium text-slate-700 truncate">{item.title}</p>
+                                                                                    <p className="text-[10px] text-slate-400 font-mono uppercase">
+                                                                                        {item.type === 'project' ? 'Proyecto' : 'Experiencia'}
+                                                                                    </p>
+                                                                                </div>
+                                                                            </Link>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )
                                             })}
@@ -331,6 +396,8 @@ export const ImpactHeader = ({
                 hardSkills={sortedHardSkills}
                 softSkills={sortedSoftSkills}
                 skillCounts={skillCounts}
+                skillEvidence={skillEvidence}
+                username={username}
                 onReorder={handleReorder}
                 isEditable={isEditable || false}
             />

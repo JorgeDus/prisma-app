@@ -17,6 +17,7 @@ interface ProfileWithCounts {
     avatar_url: string | null;
     career_name?: string;
     university_name?: string;
+    hidden_from_explore: boolean;
     project_count: number;
     experience_count: number;
     skills: string[];
@@ -104,7 +105,7 @@ export default function ExploreContent({
     const discoverProfiles = useMemo(() => {
         return filteredProfiles.filter(p => {
             const status = getConnectionStatus(p.id);
-            return status !== 'connected';
+            return status !== 'connected' && !p.hidden_from_explore;
         });
     }, [filteredProfiles, getConnectionStatus]);
 
