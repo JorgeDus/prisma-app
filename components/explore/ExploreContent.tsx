@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Search, Users, UserCheck, Bell, Compass } from 'lucide-react';
 import TalentCard from './TalentCard';
+import ProfilePreviewPanel from './ProfilePreviewPanel';
 import { Connection } from '@/types/database.types';
 
 interface ProfileWithCounts {
@@ -43,6 +44,7 @@ export default function ExploreContent({
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<TabType>('discover');
     const [connections, setConnections] = useState(initialConnections);
+    const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
 
     // Read tab from URL query params
     useEffect(() => {
@@ -285,6 +287,7 @@ export default function ExploreContent({
                             onAccept={() => handleAccept(profile.id)}
                             onReject={() => handleReject(profile.id)}
                             onDisconnect={() => handleDisconnect(profile.id)}
+                            onViewProfile={(username) => setSelectedUsername(username)}
                         />
                     ))}
                 </div>
@@ -307,6 +310,22 @@ export default function ExploreContent({
                     </div>
                 </div>
             )}
+            {/* Profile Preview Panel */}
+            {(() => {
+                const selectedProfile = profiles.find(p => p.username === selectedUsername);
+                return (
+                    <ProfilePreviewPanel
+                        username={selectedUsername}
+                        isOpen={!!selectedUsername}
+                        onClose={() => setSelectedUsername(null)}
+                        connectionStatus={selectedProfile ? getConnectionStatus(selectedProfile.id) : 'none'}
+                        onConnect={(message) => selectedProfile ? handleConnect(selectedProfile.id, message) : Promise.resolve()}
+                        onAccept={() => selectedProfile ? handleAccept(selectedProfile.id) : Promise.resolve()}
+                        onReject={() => selectedProfile ? handleReject(selectedProfile.id) : Promise.resolve()}
+                        onDisconnect={() => selectedProfile ? handleDisconnect(selectedProfile.id) : Promise.resolve()}
+                    />
+                );
+            })()}
         </div>
     );
 }

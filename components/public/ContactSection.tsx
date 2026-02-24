@@ -2,15 +2,17 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, Send, CheckCircle2, Loader2, Linkedin, Copy, Check } from 'lucide-react'
+import Link from 'next/link'
+import { Mail, Send, CheckCircle2, Loader2, Linkedin, Copy, Check, Lock, UserPlus } from 'lucide-react'
 
 interface ContactSectionProps {
     profileEmail: string | null
     profileName: string
     linkedinUrl?: string | null
+    isConnected?: boolean
 }
 
-export default function ContactSection({ profileEmail, profileName, linkedinUrl }: ContactSectionProps) {
+export default function ContactSection({ profileEmail, profileName, linkedinUrl, isConnected = true }: ContactSectionProps) {
     const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
     const [copiedEmail, setCopiedEmail] = useState(false)
     const [errorMsg, setErrorMsg] = useState('')
@@ -70,7 +72,38 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl 
             <div className="max-w-xl mx-auto">
                 {/* Formulario */}
                 <div className="bg-slate-800/50 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-black/20 border border-slate-700/50 p-8 md:p-12">
-                    {status === 'success' ? (
+                    {!isConnected ? (
+                        /* Locked state — not connected */
+                        <div className="flex flex-col items-center justify-center text-center py-10 space-y-6">
+                            <div className="w-20 h-20 bg-slate-700/50 rounded-full flex items-center justify-center">
+                                <Lock size={32} className="text-slate-500" />
+                            </div>
+                            <div className="space-y-3">
+                                <h3 className="text-xl font-bold text-white">Mensajería Restringida</h3>
+                                <p className="text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
+                                    Para enviar un mensaje a {profileName}, primero necesitas ser parte de su red de contactos.
+                                </p>
+                            </div>
+                            <Link
+                                href="/explorar"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full text-xs font-mono font-bold uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95"
+                            >
+                                <UserPlus size={14} />
+                                Conectar desde Explorar
+                            </Link>
+                            {linkedinUrl && (
+                                <a
+                                    href={linkedinUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-[10px] font-mono font-bold text-slate-500 hover:text-blue-400 uppercase tracking-widest transition-colors"
+                                >
+                                    <Linkedin size={14} />
+                                    Ver en LinkedIn
+                                </a>
+                            )}
+                        </div>
+                    ) : status === 'success' ? (
                         <div className="h-full flex flex-col items-center justify-center text-center py-10 animate-in zoom-in-95 duration-500">
                             <div className="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6">
                                 <CheckCircle2 size={40} className="text-indigo-400" />

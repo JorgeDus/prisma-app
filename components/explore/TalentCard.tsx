@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { UserPlus, Check, Clock, UserMinus, X, Briefcase, Sparkles, Send } from 'lucide-react';
 
 interface TalentCardProps {
@@ -23,6 +22,7 @@ interface TalentCardProps {
     onAccept: () => Promise<void>;
     onReject: () => Promise<void>;
     onDisconnect: () => Promise<void>;
+    onViewProfile?: (username: string) => void;
 }
 
 export default function TalentCard({
@@ -35,6 +35,7 @@ export default function TalentCard({
     onAccept,
     onReject,
     onDisconnect,
+    onViewProfile,
 }: TalentCardProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [showMessageInput, setShowMessageInput] = useState(false);
@@ -90,7 +91,7 @@ export default function TalentCard({
             <div className="flex gap-4">
                 {/* Avatar */}
                 <div className="shrink-0">
-                    <Link href={`/${profile.username}`}>
+                    <button onClick={() => onViewProfile?.(profile.username)} className="cursor-pointer">
                         <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100 bg-slate-50">
                             {profile.avatar_url ? (
                                 <img
@@ -104,18 +105,18 @@ export default function TalentCard({
                                 </div>
                             )}
                         </div>
-                    </Link>
+                    </button>
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0 space-y-2">
                     {/* Name & Headline */}
                     <div>
-                        <Link href={`/${profile.username}`}>
+                        <button onClick={() => onViewProfile?.(profile.username)} className="text-left cursor-pointer">
                             <h3 className="font-bold text-lg text-slate-800 hover:text-indigo-600 transition-colors truncate">
                                 {profile.full_name || profile.username}
                             </h3>
-                        </Link>
+                        </button>
                         {(profile.career_name || profile.university_name) && (
                             <p className="text-xs font-mono text-slate-500 truncate">
                                 {profile.career_name}
@@ -211,12 +212,12 @@ export default function TalentCard({
             {/* Action Buttons */}
             {!showMessageInput && (
                 <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
-                    <Link
-                        href={`/${profile.username}`}
-                        className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 hover:text-indigo-600 transition-colors"
+                    <button
+                        onClick={() => onViewProfile?.(profile.username)}
+                        className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer"
                     >
                         Ver Perfil
-                    </Link>
+                    </button>
 
                     {connectionStatus === 'none' && (
                         <button

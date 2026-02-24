@@ -36,6 +36,7 @@ import DashboardTrajectory from '@/components/dashboard/DashboardTrajectory'
 import TestimonialSection from '@/components/dashboard/TestimonialSection'
 import InterestsSection from '@/components/dashboard/InterestsSection'
 import ContactSection from '@/components/public/ContactSection'
+import AppNavbar from '@/components/layout/AppNavbar'
 import { Metadata } from 'next'
 
 interface PublicProfileProps {
@@ -160,6 +161,35 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
     const socialLinks = typeof profile.social_links === 'string'
         ? JSON.parse(profile.social_links)
         : profile.social_links || {}
+
+    // Check if the viewer is authenticated and connected
+    let isViewerConnected = false
+    let viewerUsername: string | null = null
+    const { data: { user: viewer } } = await supabase.auth.getUser()
+    if (viewer) {
+        // Fetch viewer's username for AppNavbar
+        const { data: viewerProfile } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', viewer.id)
+            .single()
+        viewerUsername = viewerProfile?.username || null
+
+        // Check if they're viewing their own profile
+        if (viewer.id === profile.id) {
+            isViewerConnected = true
+        } else {
+            // Check for accepted connection
+            const { data: connection } = await supabase
+                .from('connections')
+                .select('id')
+                .eq('status', 'accepted')
+                .or(`and(sender_id.eq.${viewer.id},receiver_id.eq.${profile.id}),and(sender_id.eq.${profile.id},receiver_id.eq.${viewer.id})`)
+                .limit(1)
+                .maybeSingle()
+            isViewerConnected = !!connection
+        }
+    }
 
     // 2. Obtener Datos Relacionados
     const { data: projects } = await supabase
@@ -399,21 +429,25 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
             {/* Nav Rail (Scroll-spy) */}
             <NavRail sections={sections} />
 
-            {/* Top Navigation Bar */}
-            <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2">
-                        <Image
-                            src="/logo-prisma.png"
-                            alt="Prisma Logo"
-                            width={120}
-                            height={32}
-                            className="h-8 w-auto object-contain"
-                        />
-                        <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-800"> / {username}</span>
-                    </Link>
-                </div>
-            </nav>
+            {/* Navigation */}
+            {viewerUsername ? (
+                <AppNavbar username={viewerUsername} />
+            ) : (
+                <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
+                    <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                        <Link href="/" className="flex items-center gap-2">
+                            <Image
+                                src="/logo-prisma.png"
+                                alt="Prisma Logo"
+                                width={120}
+                                height={32}
+                                className="h-8 w-auto object-contain"
+                            />
+                            <span className="font-mono text-xs font-bold tracking-tighter uppercase text-slate-800"> / {username}</span>
+                        </Link>
+                    </div>
+                </nav>
+            )}
 
             {/* Impact Header (Thesis) */}
             <div className="mt-16">
@@ -693,6 +727,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                 profileEmail={profile.email}
                                 profileName={profile.full_name || username}
                                 linkedinUrl={socialLinks.linkedin}
+                                isConnected={isViewerConnected}
                             />
                         </div>
                     </section>
