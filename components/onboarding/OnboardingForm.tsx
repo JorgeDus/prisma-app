@@ -129,6 +129,11 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
                                                 <span className="font-medium text-sm text-gray-900 truncate">
                                                     {(uc as any).career?.name || uc.custom_career}
                                                 </span>
+                                                {uc.degree_type && uc.degree_type !== 'Carrera de Pregrado' && (
+                                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600">
+                                                        {uc.degree_type}
+                                                    </span>
+                                                )}
                                                 {uc.is_primary && (
                                                     <Star size={12} className="text-purple-600 flex-shrink-0" fill="currentColor" />
                                                 )}

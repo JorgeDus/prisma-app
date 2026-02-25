@@ -56,6 +56,7 @@ export interface Database {
                     end_year: number | null
                     is_current: boolean
                     is_primary: boolean
+                    degree_type: 'Carrera de Pregrado' | 'Magíster' | 'Doctorado' | null
                     created_at: string
                 }
                 Insert: {
@@ -68,6 +69,7 @@ export interface Database {
                     end_year?: number | null
                     is_current?: boolean
                     is_primary?: boolean
+                    degree_type?: 'Carrera de Pregrado' | 'Magíster' | 'Doctorado' | null
                 }
                 Update: {
                     career_id?: number | null
@@ -77,6 +79,7 @@ export interface Database {
                     end_year?: number | null
                     is_current?: boolean
                     is_primary?: boolean
+                    degree_type?: 'Carrera de Pregrado' | 'Magíster' | 'Doctorado' | null
                 }
                 Relationships: [
                     {

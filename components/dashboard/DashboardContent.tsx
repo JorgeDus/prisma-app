@@ -160,9 +160,13 @@ export default function DashboardContent({
     ]
 
     // Get career and university names - prefer primaryCareer if available
-    const careerName = primaryCareer
+    const baseCareerName = primaryCareer
         ? ((primaryCareer as any).career?.name || primaryCareer.custom_career || 'Carrera')
         : (profile.careers?.name || 'Carrera')
+    const degreeType = primaryCareer ? (primaryCareer as any).degree_type : null;
+    const careerName = degreeType && degreeType !== 'Carrera de Pregrado'
+        ? `${degreeType} en ${baseCareerName}`
+        : baseCareerName;
     const universityName = primaryCareer?.institution || profile.universities?.name || 'Universidad'
 
     const getAcademicStatus = () => {

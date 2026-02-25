@@ -34,6 +34,7 @@ interface ImpactHeaderProps {
         is_primary: boolean;
         start_year: number | null;
         end_year: number | null;
+        degree_type?: string | null;
         career?: { id: number; name: string } | null;
     }[];
     pinnedSkills?: string[];
@@ -195,7 +196,10 @@ export const ImpactHeader = ({
                                                     <div key={c.id} className={`p-2 rounded-lg ${c.is_primary ? 'bg-indigo-50 border border-indigo-100' : 'bg-slate-50'}`}>
                                                         <div className="flex items-center justify-between gap-2">
                                                             <span className={`text-sm font-semibold ${c.is_primary ? 'text-indigo-700' : 'text-slate-700'}`}>
-                                                                {c.career?.name || c.custom_career}
+                                                                {c.degree_type && c.degree_type !== 'Carrera de Pregrado'
+                                                                    ? `${c.degree_type} en ${c.career?.name || c.custom_career}`
+                                                                    : (c.career?.name || c.custom_career)
+                                                                }
                                                             </span>
                                                             {c.is_primary && (
                                                                 <span className="text-[9px] font-bold text-indigo-500 uppercase">Principal</span>

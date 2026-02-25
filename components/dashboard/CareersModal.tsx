@@ -28,7 +28,8 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
         start_year: new Date().getFullYear(),
         end_year: null as number | null,
         is_current: true,
-        is_primary: false
+        is_primary: false,
+        degree_type: 'Carrera de Pregrado' as 'Carrera de Pregrado' | 'Magíster' | 'Doctorado' | null
     })
 
     // Edit state
@@ -39,7 +40,8 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
         institution: '',
         start_year: new Date().getFullYear(),
         end_year: null as number | null,
-        is_current: true
+        is_current: true,
+        degree_type: 'Carrera de Pregrado' as 'Carrera de Pregrado' | 'Magíster' | 'Doctorado' | null
     })
 
     // Fetch data on mount
@@ -99,7 +101,8 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
                     start_year: newCareer.start_year,
                     end_year: newCareer.is_current ? null : newCareer.end_year,
                     is_current: newCareer.is_current,
-                    is_primary: userCareers.length === 0 // First career is primary by default
+                    is_primary: userCareers.length === 0, // First career is primary by default
+                    degree_type: newCareer.degree_type
                 })
 
             if (error) throw error
@@ -112,7 +115,8 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
                 start_year: new Date().getFullYear(),
                 end_year: null,
                 is_current: true,
-                is_primary: false
+                is_primary: false,
+                degree_type: 'Carrera de Pregrado'
             })
             setShowAddForm(false)
             await fetchData()
@@ -132,7 +136,8 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
             institution: uc.institution || '',
             start_year: uc.start_year || new Date().getFullYear(),
             end_year: uc.end_year,
-            is_current: uc.is_current
+            is_current: uc.is_current,
+            degree_type: uc.degree_type || 'Carrera de Pregrado'
         })
         setShowAddForm(false)
     }
@@ -154,7 +159,8 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
                     institution: editCareer.institution.trim() || null,
                     start_year: editCareer.start_year,
                     end_year: editCareer.is_current ? null : editCareer.end_year,
-                    is_current: editCareer.is_current
+                    is_current: editCareer.is_current,
+                    degree_type: editCareer.degree_type
                 })
                 .eq('id', editingId)
 
@@ -256,31 +262,48 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
                                                     <h4 className="font-semibold text-slate-900">Editar Carrera</h4>
 
                                                     <div>
-                                                        <label className="block text-sm font-medium text-slate-700 mb-1">Carrera</label>
+                                                        <label className="block text-sm font-medium text-slate-700 mb-1">Nivel de Estudio</label>
                                                         <select
-                                                            value={editCareer.career_id || ''}
-                                                            onChange={(e) => setEditCareer({
-                                                                ...editCareer,
-                                                                career_id: e.target.value ? parseInt(e.target.value) : null,
-                                                                custom_career: e.target.value ? '' : editCareer.custom_career
-                                                            })}
+                                                            value={editCareer.degree_type || 'Carrera de Pregrado'}
+                                                            onChange={(e) => setEditCareer({ ...editCareer, degree_type: e.target.value as any })}
                                                             className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                                         >
-                                                            <option value="">-- Seleccionar del catálogo --</option>
-                                                            {careersCatalog.map((c) => (
-                                                                <option key={c.id} value={c.id}>{c.name}</option>
-                                                            ))}
+                                                            <option value="Carrera de Pregrado">Carrera de Pregrado</option>
+                                                            <option value="Magíster">Magíster</option>
+                                                            <option value="Doctorado">Doctorado</option>
                                                         </select>
                                                     </div>
 
-                                                    {!editCareer.career_id && (
+                                                    {editCareer.degree_type === 'Carrera de Pregrado' && (
                                                         <div>
-                                                            <label className="block text-sm font-medium text-slate-700 mb-1">O escribe el nombre</label>
+                                                            <label className="block text-sm font-medium text-slate-700 mb-1">Carrera / Programa</label>
+                                                            <select
+                                                                value={editCareer.career_id || ''}
+                                                                onChange={(e) => setEditCareer({
+                                                                    ...editCareer,
+                                                                    career_id: e.target.value ? parseInt(e.target.value) : null,
+                                                                    custom_career: e.target.value ? '' : editCareer.custom_career
+                                                                })}
+                                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                            >
+                                                                <option value="">-- Seleccionar del catálogo --</option>
+                                                                {careersCatalog.map((c) => (
+                                                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    )}
+
+                                                    {(!editCareer.career_id || editCareer.degree_type !== 'Carrera de Pregrado') && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                                                                {editCareer.degree_type === 'Carrera de Pregrado' ? 'O escribe el nombre' : 'Escribe el nombre'}
+                                                            </label>
                                                             <input
                                                                 type="text"
                                                                 value={editCareer.custom_career}
                                                                 onChange={(e) => setEditCareer({ ...editCareer, custom_career: e.target.value })}
-                                                                placeholder="Ej: Ingeniería en Biotecnología"
+                                                                placeholder={editCareer.degree_type === 'Carrera de Pregrado' ? 'Ej: Ingeniería en Biotecnología' : 'Ej: Astrofísica'}
                                                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                                             />
                                                         </div>
@@ -359,6 +382,11 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
                                                             <h3 className="font-semibold text-slate-900 truncate">
                                                                 {(uc as any).career?.name || uc.custom_career}
                                                             </h3>
+                                                            {uc.degree_type && uc.degree_type !== 'Carrera de Pregrado' && (
+                                                                <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-medium border border-slate-200">
+                                                                    {uc.degree_type}
+                                                                </span>
+                                                            )}
                                                             {uc.is_primary && (
                                                                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase">
                                                                     <Star size={10} /> Principal
@@ -417,38 +445,56 @@ export default function CareersModal({ isOpen, onClose, userId }: CareersModalPr
                                 <div className="mt-4 p-4 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 space-y-4">
                                     <h4 className="font-semibold text-slate-900">Nueva Carrera</h4>
 
-                                    {/* Career selection */}
+                                    {/* Nivel de Estudio */}
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">
-                                            Carrera
+                                            Nivel de Estudio
                                         </label>
                                         <select
-                                            value={newCareer.career_id || ''}
-                                            onChange={(e) => setNewCareer({
-                                                ...newCareer,
-                                                career_id: e.target.value ? parseInt(e.target.value) : null,
-                                                custom_career: e.target.value ? '' : newCareer.custom_career
-                                            })}
+                                            value={newCareer.degree_type || 'Carrera de Pregrado'}
+                                            onChange={(e) => setNewCareer({ ...newCareer, degree_type: e.target.value as any })}
                                             className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                         >
-                                            <option value="">-- Seleccionar del catálogo --</option>
-                                            {careersCatalog.map((c) => (
-                                                <option key={c.id} value={c.id}>{c.name}</option>
-                                            ))}
+                                            <option value="Carrera de Pregrado">Carrera de Pregrado</option>
+                                            <option value="Magíster">Magíster</option>
+                                            <option value="Doctorado">Doctorado</option>
                                         </select>
                                     </div>
 
-                                    {/* Custom career if not selected from catalog */}
-                                    {!newCareer.career_id && (
+                                    {/* Career selection */}
+                                    {newCareer.degree_type === 'Carrera de Pregrado' && (
                                         <div>
                                             <label className="block text-sm font-medium text-slate-700 mb-1">
-                                                O escribe el nombre
+                                                Carrera / Programa
+                                            </label>
+                                            <select
+                                                value={newCareer.career_id || ''}
+                                                onChange={(e) => setNewCareer({
+                                                    ...newCareer,
+                                                    career_id: e.target.value ? parseInt(e.target.value) : null,
+                                                    custom_career: e.target.value ? '' : newCareer.custom_career
+                                                })}
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                            >
+                                                <option value="">-- Seleccionar del catálogo --</option>
+                                                {careersCatalog.map((c) => (
+                                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {/* Custom career if not selected from catalog */}
+                                    {(!newCareer.career_id || newCareer.degree_type !== 'Carrera de Pregrado') && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                                                {newCareer.degree_type === 'Carrera de Pregrado' ? 'O escribe el nombre' : 'Escribe el nombre'}
                                             </label>
                                             <input
                                                 type="text"
                                                 value={newCareer.custom_career}
                                                 onChange={(e) => setNewCareer({ ...newCareer, custom_career: e.target.value })}
-                                                placeholder="Ej: Ingeniería en Biotecnología"
+                                                placeholder={newCareer.degree_type === 'Carrera de Pregrado' ? 'Ej: Ingeniería en Biotecnología' : 'Ej: Astrofísica'}
                                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                             />
                                         </div>
