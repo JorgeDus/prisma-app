@@ -5,11 +5,32 @@ import { Icon } from '@iconify/react'
 
 export const HeroSection = () => {
     return (
-        <section id="home" className="pt-32 pb-20 md:pt-48 md:pb-32 border-b border-zinc-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-50 via-white to-white overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-16 lg:gap-20 items-center">
+        <section id="home" className="relative pt-32 pb-20 md:pt-48 md:pb-32 border-b border-zinc-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-50 via-white to-white overflow-hidden">
+
+            {/* Background Icon */}
+            <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center opacity-[0.04]">
+                <img
+                    src="/Prisma Icono.png"
+                    alt="Fondo Prisma"
+                    className="w-[800px] h-[800px] object-contain grayscale md:w-[1200px] md:h-[1200px]"
+                />
+            </div>
+
+            <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-16 lg:gap-20 items-center">
 
                 {/* Content */}
                 <div className="max-w-2xl fade-enter">
+                    {/* Badge Audiencia */}
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 mb-8">
+                        <span className="flex h-2 w-2 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        </span>
+                        <span className="text-[10px] sm:text-xs font-mono font-bold text-indigo-700 uppercase tracking-widest px-1">
+                            Para estudiantes y recién egresados
+                        </span>
+                    </div>
+
                     <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-slate-900 leading-[1.1] mb-6 font-sans">
                         Demuestra tu valor.<br />
                         Crea tus oportunidades.

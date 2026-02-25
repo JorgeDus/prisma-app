@@ -69,7 +69,7 @@ export const FeatureGrid = () => {
                     <p className="text-slate-500 text-lg md:text-xl font-light leading-relaxed font-sans">
                         Las vacantes junior cayeron un <span className="text-indigo-600 font-semibold text-2xl">29%</span> a nivel global<SourceRef id={1} />.
                         En Chile, solo el <span className="text-indigo-600 font-semibold text-2xl">38%</span> de los jóvenes que buscan empleo lo encuentran<SourceRef id={2} />.
-                        Aplicar a cientos de posiciones ya no funciona.
+                        Aplicar a cientos de posiciones ya no funciona. <strong className="font-semibold text-slate-600">Por eso creamos Prisma: una plataforma diseñada para que el talento universitario y recién egresado destaque por sus capacidades reales.</strong>
                     </p>
                 </div>
 
