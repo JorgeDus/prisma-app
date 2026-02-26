@@ -191,8 +191,12 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
             isViewerConnected = !!connection
         }
 
-        // Record the visit (fire-and-forget, non-blocking)
-        recordProfileVisit(profile.id, viewer.id).catch(() => { })
+        // Record the visit (fire-and-forget, non-blocking, skip self-visits)
+        if (viewer.id !== profile.id) {
+            recordProfileVisit(profile.id, viewer.id).catch((err) => {
+                console.error('[recordProfileVisit] Error:', err)
+            })
+        }
     }
 
     // 2. Obtener Datos Relacionados

@@ -52,10 +52,14 @@ export async function recordProfileVisit(profileId: string, visitorId: string) {
     }
 
     // 3. Insert the visit
-    await supabase.from('profile_visits').insert({
+    const { error } = await supabase.from('profile_visits').insert({
         profile_id: profileId,
         visitor_id: visitorId,
         visitor_career: careerName,
         visitor_university: universityName,
     })
+
+    if (error) {
+        console.error('[recordProfileVisit] Insert failed:', error.message, error.details)
+    }
 }

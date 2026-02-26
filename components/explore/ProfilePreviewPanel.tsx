@@ -419,33 +419,6 @@ export default function ProfilePreviewPanel({
                                 </div>
                             )}
 
-                            {/* ── Skills ── */}
-                            {(hardSkills.length > 0 || softSkills.length > 0) && (
-                                <div className="px-6 py-5 border-b border-slate-100 space-y-3">
-                                    <h3 className="text-[10px] font-mono font-black text-slate-400 uppercase tracking-[0.2em]">
-                                        Competencias
-                                    </h3>
-                                    {hardSkills.length > 0 && (
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {hardSkills.map((skill) => (
-                                                <span key={skill} className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-mono font-semibold rounded-full border border-indigo-100">
-                                                    {skill}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {softSkills.length > 0 && (
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {softSkills.map((skill) => (
-                                                <span key={skill} className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-mono font-semibold rounded-full border border-amber-100">
-                                                    {skill}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
                             {/* ── Timeline Preview ── */}
                             {timeline.length > 0 && (
                                 <div className="px-6 py-5 border-b border-slate-100 space-y-3">
@@ -477,6 +450,33 @@ export default function ProfilePreviewPanel({
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                            )}
+
+                            {/* ── Skills ── */}
+                            {(hardSkills.length > 0 || softSkills.length > 0) && (
+                                <div className="px-6 py-5 border-b border-slate-100 space-y-3">
+                                    <h3 className="text-[10px] font-mono font-black text-slate-400 uppercase tracking-[0.2em]">
+                                        Competencias
+                                    </h3>
+                                    {hardSkills.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {hardSkills.map((skill) => (
+                                                <span key={skill} className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-mono font-semibold rounded-full border border-indigo-100">
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {softSkills.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {softSkills.map((skill) => (
+                                                <span key={skill} className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-mono font-semibold rounded-full border border-amber-100">
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

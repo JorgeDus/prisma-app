@@ -335,7 +335,34 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         <Modal isOpen={isOpen} onClose={() => { onClose(); setIsAdjusting(false); }} title={experienceToEdit ? "Editar Experiencia" : "Nueva Experiencia"}>
             <form onSubmit={handleSubmit} className="space-y-6 pb-4">
 
-                {/* 1. Base: Título, Rol e Institución */}
+                {/* 1. Categoría */}
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2.5 flex items-center gap-2">
+                        <Tag size={16} className="text-purple-500" /> Categoría de Experiencia
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {categories.map((cat) => {
+                            const Icon = cat.icon
+                            const isSelected = formData.type === cat.id
+                            return (
+                                <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, type: cat.id as any })}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${isSelected
+                                        ? 'bg-purple-50 border-purple-200 text-purple-700 shadow-sm'
+                                        : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <Icon size={20} className={`mb-1 ${isSelected ? 'text-purple-600' : 'text-gray-400'}`} />
+                                    <span className="text-xs font-bold text-center">{cat.label}</span>
+                                </button>
+                            )
+                        })}
+                    </div>
+                </div>
+
+                {/* 2. Base: Título, Rol e Institución */}
                 <div className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
@@ -378,66 +405,38 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                     </div>
                 </div>
 
-                {/* 2. Categorización y Tiempos */}
-                <div className="space-y-6 pt-2">
+                {/* 3. Fechas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2.5 flex items-center gap-2">
-                            <Tag size={16} className="text-purple-500" /> Categoría de Experiencia
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                            <Calendar size={16} className="text-purple-500" /> Fecha de Inicio
                         </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            {categories.map((cat) => {
-                                const Icon = cat.icon
-                                const isSelected = formData.type === cat.id
-                                return (
-                                    <button
-                                        key={cat.id}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, type: cat.id as any })}
-                                        className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${isSelected
-                                            ? 'bg-purple-50 border-purple-200 text-purple-700 shadow-sm'
-                                            : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'
-                                            }`}
-                                    >
-                                        <Icon size={20} className={`mb-1 ${isSelected ? 'text-purple-600' : 'text-gray-400'}`} />
-                                        <span className="text-xs font-bold text-center">{cat.label}</span>
-                                    </button>
-                                )
-                            })}
-                        </div>
+                        <MonthYearPicker
+                            required
+                            value={formData.start_date}
+                            onChange={(value) => setFormData({ ...formData, start_date: value })}
+                        />
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                                <Calendar size={16} className="text-purple-500" /> Fecha de Inicio
-                            </label>
-                            <MonthYearPicker
-                                required
-                                value={formData.start_date}
-                                onChange={(value) => setFormData({ ...formData, start_date: value })}
+                    <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-gray-700 mb-0 flex items-center gap-2">
+                            <Calendar size={16} className="text-gray-400" /> Fecha de Fin
+                        </label>
+                        <MonthYearPicker
+                            disabled={formData.is_current}
+                            value={formData.end_date}
+                            onChange={(value) => setFormData({ ...formData, end_date: value })}
+                        />
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="is_current"
+                                checked={formData.is_current}
+                                onChange={(e) => setFormData({ ...formData, is_current: e.target.checked, end_date: e.target.checked ? '' : formData.end_date })}
+                                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 border-gray-300"
                             />
-                        </div>
-                        <div className="space-y-3">
-                            <label className="block text-sm font-semibold text-gray-700 mb-0 flex items-center gap-2">
-                                <Calendar size={16} className="text-gray-400" /> Fecha de Fin
+                            <label htmlFor="is_current" className="text-sm text-purple-700 font-bold cursor-pointer select-none">
+                                Actualmente en este rol
                             </label>
-                            <MonthYearPicker
-                                disabled={formData.is_current}
-                                value={formData.end_date}
-                                onChange={(value) => setFormData({ ...formData, end_date: value })}
-                            />
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="is_current"
-                                    checked={formData.is_current}
-                                    onChange={(e) => setFormData({ ...formData, is_current: e.target.checked, end_date: e.target.checked ? '' : formData.end_date })}
-                                    className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 border-gray-300"
-                                />
-                                <label htmlFor="is_current" className="text-sm text-purple-700 font-bold cursor-pointer select-none">
-                                    Actualmente en este rol
-                                </label>
-                            </div>
                         </div>
                     </div>
                 </div>
