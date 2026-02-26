@@ -208,6 +208,7 @@ export interface Database {
                     team_members: string | null
                     learnings: string | null
                     gallery_images: string[]
+                    collaborator_ids: string[]
                     show_in_timeline: boolean
                     created_at: string
                     updated_at: string
@@ -232,6 +233,7 @@ export interface Database {
                     team_members?: string | null
                     learnings?: string | null
                     gallery_images?: string[]
+                    collaborator_ids?: string[]
                     show_in_timeline?: boolean
                     created_at?: string
                 }
@@ -253,6 +255,7 @@ export interface Database {
                     team_members?: string | null
                     learnings?: string | null
                     gallery_images?: string[]
+                    collaborator_ids?: string[]
                     show_in_timeline?: boolean
                     updated_at?: string
                 }
@@ -331,6 +334,7 @@ export interface Database {
                     soft_skills: string[] | null
                     is_featured: boolean | null
                     show_in_timeline: boolean | null
+                    collaborator_ids: string[] | null
                     created_at: string
                     updated_at: string
                 }
@@ -353,6 +357,7 @@ export interface Database {
                     soft_skills?: string[] | null
                     is_featured?: boolean | null
                     show_in_timeline?: boolean | null
+                    collaborator_ids?: string[] | null
                     created_at?: string
                     updated_at?: string
                 }
@@ -373,6 +378,7 @@ export interface Database {
                     soft_skills?: string[] | null
                     is_featured?: boolean | null
                     show_in_timeline?: boolean | null
+                    collaborator_ids?: string[] | null
                     updated_at?: string
                 }
                 Relationships: [

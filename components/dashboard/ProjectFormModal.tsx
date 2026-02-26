@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/client'
 import { Loader2, Type, AlignLeft, Calendar, Tag, Upload, X, ImageIcon, Move, Plus, Github, ExternalLink, Users, Target, Rocket, Award } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import MonthYearPicker from '@/components/ui/MonthYearPicker'
+import CollaboratorPicker from '@/components/shared/CollaboratorPicker'
 import { Project } from '@/types/database.types'
 
 interface ProjectFormModalProps {
@@ -50,7 +51,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
         results: [] as string[], // Cambiado a array para la UX de lista
         learnings: '',
         gallery_images: [] as string[],
-        show_in_timeline: true
+        show_in_timeline: true,
+        collaborator_ids: [] as string[]
     })
 
     // Estado local para los inputs de skills y resultados
@@ -78,7 +80,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 results: projectToEdit.results ? projectToEdit.results.split('\n').filter(r => r.trim() !== '') : [],
                 learnings: projectToEdit.learnings || '',
                 gallery_images: projectToEdit.gallery_images || [],
-                show_in_timeline: projectToEdit.show_in_timeline !== false
+                show_in_timeline: projectToEdit.show_in_timeline !== false,
+                collaborator_ids: projectToEdit.collaborator_ids || []
             })
             setImagePreview(projectToEdit.cover_image || null)
             setGalleryPreviews(projectToEdit.gallery_images || [])
@@ -104,7 +107,8 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 results: [],
                 learnings: '',
                 gallery_images: [],
-                show_in_timeline: true
+                show_in_timeline: true,
+                collaborator_ids: []
             })
             setImagePreview(null)
             setGalleryPreviews([])
@@ -304,6 +308,7 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                 results: formData.results.join('\n') || null,
                 learnings: formData.learnings || null,
                 gallery_images: finalGalleryUrls,
+                collaborator_ids: formData.collaborator_ids,
                 show_in_timeline: formData.show_in_timeline,
                 created_at: formData.date,
                 updated_at: new Date().toISOString()
@@ -554,7 +559,7 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                                    <Users size={16} className="text-purple-500" /> Colaboradores
+                                    <Users size={16} className="text-purple-500" /> Otros colaboradores
                                 </label>
                                 <input
                                     type="text"
@@ -565,6 +570,13 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                                 />
                             </div>
                         </div>
+
+                        {/* Collaborators from Prisma contacts */}
+                        <CollaboratorPicker
+                            userId={userId}
+                            selectedIds={formData.collaborator_ids}
+                            onChange={(ids) => setFormData(prev => ({ ...prev, collaborator_ids: ids }))}
+                        />
                     </div>
 
                     {/* 6. El Impacto (Resultados - Lista Dinámica) */}

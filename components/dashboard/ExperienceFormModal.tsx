@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/client'
 import { Loader2, Type, Building2, Calendar, Tag, Upload, X, ImageIcon, Move, Plus, Star, Award, Heart, HeartPulse, Palette, Dumbbell, GraduationCap, Briefcase, Zap } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import MonthYearPicker from '@/components/ui/MonthYearPicker'
+import CollaboratorPicker from '@/components/shared/CollaboratorPicker'
 import { Experience } from '@/types/database.types'
 
 interface ExperienceFormModalProps {
@@ -48,7 +49,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         soft_skills: [] as string[],
         cover_image: '',
         gallery_images: [] as string[],
-        show_in_timeline: true
+        show_in_timeline: true,
+        collaborator_ids: [] as string[]
     })
 
     // Estado local para los inputs de skills
@@ -73,7 +75,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 soft_skills: experienceToEdit.soft_skills || [],
                 cover_image: experienceToEdit.cover_image || '',
                 gallery_images: experienceToEdit.gallery_images || [],
-                show_in_timeline: experienceToEdit.show_in_timeline !== false
+                show_in_timeline: experienceToEdit.show_in_timeline !== false,
+                collaborator_ids: experienceToEdit.collaborator_ids || []
             })
             setImagePreview(experienceToEdit.cover_image || null)
             setGalleryPreviews(experienceToEdit.gallery_images || [])
@@ -97,7 +100,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 soft_skills: [],
                 cover_image: '',
                 gallery_images: [],
-                show_in_timeline: true
+                show_in_timeline: true,
+                collaborator_ids: []
             })
             setImagePreview(null)
             setGalleryPreviews([])
@@ -285,6 +289,7 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 cover_image: finalImageUrl || null,
                 gallery_images: finalGalleryUrls,
                 show_in_timeline: formData.show_in_timeline,
+                collaborator_ids: formData.collaborator_ids,
                 updated_at: new Date().toISOString()
             }
 
@@ -403,6 +408,13 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                             placeholder="Ej: Universidad de Chile"
                         />
                     </div>
+
+                    {/* Collaborators from Prisma contacts */}
+                    <CollaboratorPicker
+                        userId={userId}
+                        selectedIds={formData.collaborator_ids}
+                        onChange={(ids) => setFormData(prev => ({ ...prev, collaborator_ids: ids }))}
+                    />
                 </div>
 
                 {/* 3. Fechas */}

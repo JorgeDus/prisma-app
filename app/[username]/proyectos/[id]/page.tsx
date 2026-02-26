@@ -28,6 +28,16 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
         return notFound()
     }
 
+    // 2b. Fetch collaborator profiles if any
+    let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
+    if (project.collaborator_ids && project.collaborator_ids.length > 0) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url, headline')
+            .in('id', project.collaborator_ids)
+        collaborators = data || []
+    }
+
     // 2. Fetch Other Projects for Footer
     const { data: otherProjects } = await supabase
         .from('projects')
@@ -80,34 +90,36 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                     />
                 </section>
 
+
+                {/* 2. Header Information - full width, fuera del grid */}
+                <header className="max-w-4xl space-y-8 mb-16">
+                    <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                            {PROJECT_LABELS[project.type] || project.type}
+                        </span>
+                        <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">
+                            {formatDate(project.created_at)}
+                        </span>
+                    </div>
+
+                    <div className="space-y-4">
+                        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight text-left">
+                            {project.title}
+                        </h1>
+
+                        {project.role && (
+                            <p className="text-xl font-medium text-slate-500 border-l-2 border-slate-200 pl-6 text-left">
+                                {project.role}
+                            </p>
+                        )}
+                    </div>
+                </header>
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
                     {/* Left Column: Content */}
                     <div className="lg:col-span-8 space-y-12">
-                        {/* 2. Header Information */}
-                        <header className="space-y-8 h-fit">
-                            <div className="flex items-center gap-4">
-                                <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
-                                    {PROJECT_LABELS[project.type] || project.type}
-                                </span>
-                                <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">
-                                    {formatDate(project.created_at)}
-                                </span>
-                            </div>
-
-                            <div className="space-y-4">
-                                <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight text-left">
-                                    {project.title}
-                                </h1>
-
-                                {project.role && (
-                                    <p className="text-xl font-medium text-slate-500 border-l-2 border-slate-200 pl-6 text-left">
-                                        {project.role}
-                                    </p>
-                                )}
-                            </div>
-                        </header>
-
                         {/* 3. Text Content in Premium Card */}
+
                         <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
                             {/* Summary / Impact Thesis */}
                             <section className="space-y-6">
@@ -197,15 +209,52 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                                 softSkills={project.soft_skills}
                             />
 
-                            {/* Team */}
+                            {/* Team - free text field */}
                             {project.team_members && (
                                 <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
                                     <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-4 flex items-center gap-2">
                                         <Users size={14} className="text-indigo-500" />
-                                        Colaboradores
+                                        Otros colaboradores
                                     </h3>
                                     <div className="text-sm font-bold text-slate-700 bg-slate-50/50 p-4 rounded-xl border border-slate-100/50 italic">
                                         "{project.team_members}"
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Collaborators from Prisma */}
+                            {collaborators.length > 0 && (
+                                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                                    <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-4 flex items-center gap-2">
+                                        <Users size={14} className="text-indigo-500" />
+                                        Equipo en Prisma
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {collaborators.map(collab => (
+                                            <Link
+                                                key={collab.id}
+                                                href={`/${collab.username}`}
+                                                className="flex items-center gap-3 group hover:bg-slate-50 rounded-xl p-2 transition-colors"
+                                            >
+                                                <div className="w-9 h-9 rounded-full bg-indigo-50 overflow-hidden flex-shrink-0 border border-slate-100">
+                                                    {collab.avatar_url ? (
+                                                        <img src={collab.avatar_url} alt={collab.full_name || ''} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-sm font-bold text-indigo-400">
+                                                            {(collab.full_name || collab.username).charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
+                                                        {collab.full_name || collab.username}
+                                                    </p>
+                                                    {collab.headline && (
+                                                        <p className="text-[10px] text-slate-400 truncate">{collab.headline}</p>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        ))}
                                     </div>
                                 </div>
                             )}

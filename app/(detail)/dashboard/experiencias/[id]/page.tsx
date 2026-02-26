@@ -1,10 +1,11 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import { Calendar, Building2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Star } from 'lucide-react'
+import { Calendar, Building2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Star, Users } from 'lucide-react'
 import ExperienceDetailActions from '@/components/dashboard/ExperienceDetailActions'
 import ProjectGallery from '@/components/projects/ProjectGallery'
 import { DEFAULT_EXP_IMAGES } from '@/constants/images'
 import { SkillsDetailTabs } from '@/components/shared/SkillsDetailTabs'
+import Link from 'next/link'
 
 // Tipos para props y params de Next.js
 interface PageProps {
@@ -29,6 +30,16 @@ export default async function ExperienceDetailPage(props: PageProps) {
 
     if (error || !experience) {
         return notFound()
+    }
+
+    // 3. Fetch collaborator profiles if any
+    let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
+    if (experience.collaborator_ids && experience.collaborator_ids.length > 0) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url, headline')
+            .in('id', experience.collaborator_ids)
+        collaborators = data || []
     }
 
     // Helper para fecha
@@ -158,7 +169,45 @@ export default async function ExperienceDetailPage(props: PageProps) {
                                 softSkills={experience.soft_skills}
                             />
 
-                            {/* Divider and Owner Info */}
+                            {/* Collaborators from Prisma */}
+                            {collaborators.length > 0 && (
+                                <div className="mt-8 pt-8 border-t border-slate-50">
+                                    <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-4 flex items-center gap-2">
+                                        <Users size={14} className="text-indigo-500" />
+                                        Equipo en Prisma
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {collaborators.map(collab => (
+                                            <Link
+                                                key={collab.id}
+                                                href={`/${collab.username}`}
+                                                target="_blank"
+                                                className="flex items-center gap-3 group hover:bg-slate-50 rounded-xl p-2 transition-colors"
+                                            >
+                                                <div className="w-9 h-9 rounded-full bg-indigo-50 overflow-hidden flex-shrink-0 border border-slate-100">
+                                                    {collab.avatar_url ? (
+                                                        <img src={collab.avatar_url} alt={collab.full_name || ''} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-sm font-bold text-indigo-400">
+                                                            {(collab.full_name || collab.username).charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
+                                                        {collab.full_name || collab.username}
+                                                    </p>
+                                                    {collab.headline && (
+                                                        <p className="text-[10px] text-slate-400 truncate">{collab.headline}</p>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Owner Info */}
                             <div className="mt-8 pt-8 border-t border-slate-50 space-y-4">
                                 <div className="flex items-center gap-3 text-amber-600 bg-amber-50/50 p-4 rounded-xl border border-amber-100/50">
                                     <Star size={16} className="shrink-0" />

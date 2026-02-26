@@ -28,6 +28,16 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
         return notFound()
     }
 
+    // 2. Fetch collaborator profiles if any
+    let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
+    if (project.collaborator_ids && project.collaborator_ids.length > 0) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url, headline')
+            .in('id', project.collaborator_ids)
+        collaborators = data || []
+    }
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
@@ -163,6 +173,40 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                             hardSkills={project.hard_skills}
                             softSkills={project.soft_skills}
                         />
+
+                        {/* Collaborators */}
+                        {collaborators.length > 0 && (
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                                <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-widest opacity-50 text-center">Equipo en Prisma</h3>
+                                <div className="space-y-3">
+                                    {collaborators.map(collab => (
+                                        <a
+                                            key={collab.id}
+                                            href={`/${collab.username}`}
+                                            className="flex items-center gap-3 group hover:bg-purple-50 rounded-xl p-2 transition-colors"
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                                                {collab.avatar_url ? (
+                                                    <img src={collab.avatar_url} alt={collab.full_name || ''} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-base font-bold text-purple-600">
+                                                        {(collab.full_name || collab.username).charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-semibold text-sm text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                                                    {collab.full_name || collab.username}
+                                                </p>
+                                                {collab.headline && (
+                                                    <p className="text-[10px] text-gray-400 truncate">{collab.headline}</p>
+                                                )}
+                                            </div>
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Quick Stats or info */}
                         <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl shadow-purple-100">

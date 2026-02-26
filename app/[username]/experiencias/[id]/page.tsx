@@ -28,6 +28,16 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
         return notFound()
     }
 
+    // 2. Fetch collaborator profiles if any
+    let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
+    if (experience.collaborator_ids && experience.collaborator_ids.length > 0) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url, headline')
+            .in('id', experience.collaborator_ids)
+        collaborators = data || []
+    }
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
@@ -87,41 +97,43 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                     />
                 </section>
 
+
+                {/* 2. Header Information - full width, fuera del grid */}
+                <header className="max-w-4xl space-y-8 mb-16">
+                    <div className="flex items-center gap-4">
+                        <span className={`text-[10px] px-3 py-1 rounded-full font-mono font-bold uppercase tracking-[0.2em] border flex items-center gap-2 ${category.bg} ${category.color} ${category.border}`}>
+                            <CategoryIcon size={12} />
+                            {category.label}
+                        </span>
+                        <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 bg-white">
+                            <Calendar size={12} className="text-indigo-400" />
+                            <span>{getDateRange()}</span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight text-left">
+                            {experience.title}
+                        </h1>
+                        {experience.role && (
+                            <p className="text-2xl font-semibold text-indigo-600 text-left">
+                                {experience.role}
+                            </p>
+                        )}
+                        {experience.organization && (
+                            <div className="flex items-center gap-2 text-xl text-slate-500 font-medium border-l-2 border-slate-200 pl-6 text-left">
+                                <Building2 size={24} className="text-slate-400" />
+                                {experience.organization}
+                            </div>
+                        )}
+                    </div>
+                </header>
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
                     {/* Left Column: Content */}
                     <div className="lg:col-span-8 space-y-12">
-                        {/* 2. Header Information */}
-                        <header className="space-y-8 h-fit">
-                            <div className="flex items-center gap-4">
-                                <span className={`text-[10px] px-3 py-1 rounded-full font-mono font-bold uppercase tracking-[0.2em] border flex items-center gap-2 ${category.bg} ${category.color} ${category.border}`}>
-                                    <CategoryIcon size={12} />
-                                    {category.label}
-                                </span>
-                                <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 bg-white">
-                                    <Calendar size={12} className="text-indigo-400" />
-                                    <span>{getDateRange()}</span>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight text-left">
-                                    {experience.title}
-                                </h1>
-                                {experience.role && (
-                                    <p className="text-2xl font-semibold text-indigo-600 text-left">
-                                        {experience.role}
-                                    </p>
-                                )}
-                                {experience.organization && (
-                                    <div className="flex items-center gap-2 text-xl text-slate-500 font-medium border-l-2 border-slate-200 pl-6 text-left">
-                                        <Building2 size={24} className="text-slate-400" />
-                                        {experience.organization}
-                                    </div>
-                                )}
-                            </div>
-                        </header>
-
                         {/* 3. Text Content in Premium Card */}
+
                         <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
                             {/* Description */}
                             <section className="space-y-6">
@@ -167,6 +179,40 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                                 hardSkills={experience.hard_skills}
                                 softSkills={experience.soft_skills}
                             />
+
+                            {/* Collaborators */}
+                            {collaborators.length > 0 && (
+                                <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 space-y-4">
+                                    <h4 className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 text-center">Equipo en Prisma</h4>
+                                    <div className="space-y-3">
+                                        {collaborators.map(collab => (
+                                            <a
+                                                key={collab.id}
+                                                href={`/${collab.username}`}
+                                                className="flex items-center gap-3 group hover:bg-slate-50 rounded-xl p-2 transition-colors"
+                                            >
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden flex-shrink-0">
+                                                    {collab.avatar_url ? (
+                                                        <img src={collab.avatar_url} alt={collab.full_name || ''} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-base font-bold text-slate-400">
+                                                            {(collab.full_name || collab.username).charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="font-semibold text-sm text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
+                                                        {collab.full_name || collab.username}
+                                                    </p>
+                                                    {collab.headline && (
+                                                        <p className="text-[10px] text-slate-400 truncate">{collab.headline}</p>
+                                                    )}
+                                                </div>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Author Card */}
                             <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center text-center space-y-6">
