@@ -6,6 +6,7 @@ import { Calendar, Building2, ArrowLeft, Globe, Award, Heart, Zap, Briefcase, Gr
 import ProjectGallery from '@/components/projects/ProjectGallery'
 import { DEFAULT_EXP_IMAGES } from '@/constants/images'
 import { SkillsDetailTabs } from '@/components/shared/SkillsDetailTabs'
+import BackButton from '@/components/shared/BackButton'
 
 interface ExperiencePageProps {
     params: Promise<{ username: string; id: string }>
@@ -31,11 +32,22 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
     // 2. Fetch collaborator profiles if any
     let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
     if (experience.collaborator_ids && experience.collaborator_ids.length > 0) {
-        const { data } = await supabase
-            .from('profiles')
-            .select('id, username, full_name, avatar_url, headline')
-            .in('id', experience.collaborator_ids)
-        collaborators = data || []
+        // Only fetch profiles that haven't rejected the invite
+        const { data: activeCollabs } = await supabase
+            .from('experience_collaborations')
+            .select('collaborator_id')
+            .eq('experience_id', experience.id)
+            .neq('status', 'rejected')
+
+        const activeIds = activeCollabs?.map(c => c.collaborator_id) || []
+        
+        if (activeIds.length > 0) {
+            const { data } = await supabase
+                .from('profiles')
+                .select('id, username, full_name, avatar_url, headline')
+                .in('id', activeIds)
+            collaborators = data || []
+        }
     }
 
     const formatDate = (dateString: string) => {
@@ -73,10 +85,7 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
             {/* Nav */}
             <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <Link href={`/${params.username}`} className="flex items-center gap-2 group">
-                        <ArrowLeft size={16} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
-                        <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 group-hover:text-slate-900 transition-colors">Volver</span>
-                    </Link>
+                    <BackButton fallbackHref={`/${params.username}`} />
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
                             <span className="text-white font-bold text-lg">P</span>

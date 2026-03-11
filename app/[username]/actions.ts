@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createNotification } from '@/app/(app)/notification-actions'
 
 export async function recordProfileVisit(profileId: string, visitorId: string) {
     const supabase = await createClient()
@@ -61,5 +62,17 @@ export async function recordProfileVisit(profileId: string, visitorId: string) {
 
     if (error) {
         console.error('[recordProfileVisit] Insert failed:', error.message, error.details)
+        return
     }
+
+    // 4. Also create a unified notification for the profile owner
+    const visitorLabel = [careerName, universityName].filter(Boolean).join(' · ') || 'Alguien'
+    await createNotification(
+        profileId,
+        'profile_visit',
+        'Alguien visitó tu perfil',
+        visitorLabel,
+        { visitor_id: visitorId, visitor_career: careerName, visitor_university: universityName }
+    )
 }
+

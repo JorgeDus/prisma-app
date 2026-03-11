@@ -98,22 +98,26 @@ export const BaseCard = ({
                         )}
                     </div>
 
-                    {isEditable && (
+                    {isEditable && (onEdit || onDelete) && (
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity relative z-20">
-                            <button
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit?.(); }}
-                                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-indigo-600 transition-colors"
-                                title="Editar"
-                            >
-                                <Edit2 size={18} strokeWidth={1.5} />
-                            </button>
-                            <button
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete?.(); }}
-                                className="p-2 hover:bg-red-50 rounded-full text-slate-400 hover:text-red-600 transition-colors"
-                                title="Eliminar"
-                            >
-                                <Trash2 size={18} strokeWidth={1.5} />
-                            </button>
+                            {onEdit && (
+                                <button
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
+                                    className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-indigo-600 transition-colors"
+                                    title="Editar"
+                                >
+                                    <Edit2 size={18} strokeWidth={1.5} />
+                                </button>
+                            )}
+                            {onDelete && (
+                                <button
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }}
+                                    className="p-2 hover:bg-red-50 rounded-full text-slate-400 hover:text-red-600 transition-colors"
+                                    title="Eliminar"
+                                >
+                                    <Trash2 size={18} strokeWidth={1.5} />
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

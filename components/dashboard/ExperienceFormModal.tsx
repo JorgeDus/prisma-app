@@ -6,6 +6,7 @@ import Modal from '@/components/ui/Modal'
 import MonthYearPicker from '@/components/ui/MonthYearPicker'
 import CollaboratorPicker from '@/components/shared/CollaboratorPicker'
 import { Experience } from '@/types/database.types'
+import { syncExperienceCollaborators } from '@/app/(app)/collaboration-actions'
 
 interface ExperienceFormModalProps {
     isOpen: boolean
@@ -300,16 +301,26 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                     .eq('id', experienceToEdit.id)
 
                 if (error) throw error
+
+                // Sync collaborations
+                await syncExperienceCollaborators(experienceToEdit.id, userId, formData.collaborator_ids)
             } else {
-                const { error } = await supabase
+                const { data: newExperience, error } = await supabase
                     .from('experiences')
                     .insert({
                         user_id: userId,
                         ...experienceData,
                         created_at: new Date().toISOString()
                     })
+                    .select('id')
+                    .single()
 
                 if (error) throw error
+
+                // Sync collaborations for the new experience
+                if (newExperience && formData.collaborator_ids.length > 0) {
+                    await syncExperienceCollaborators(newExperience.id, userId, formData.collaborator_ids)
+                }
             }
 
             onSuccess()

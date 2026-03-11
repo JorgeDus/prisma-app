@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import DashboardContent from '@/components/dashboard/DashboardContent'
+import { getAcceptedCollaborations } from '../collaboration-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,13 +66,20 @@ export default async function DashboardPage() {
     // Get primary career for header display
     const primaryCareer = userCareers?.find(uc => uc.is_primary) || userCareers?.[0] || null
 
+    // 4. Fetch accepted collaborations
+    const { projects: collabProjects, experiences: collabExperiences } = await getAcceptedCollaborations(user.id)
+
+    // Merge collaborations into own projects/experiences
+    const allProjects = [...(projects || []), ...collabProjects] as any[]
+    const allExperiences = [...(experiences || []), ...collabExperiences] as any[]
+
     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
     const hitosUnificados: any[] = []
     const universityName = profile.universities?.name || 'Universidad'
     const careerName = profile.careers?.name || 'Carrera'
 
     // 1. Experiencias
-    experiences?.filter(exp => exp.show_in_timeline !== false).forEach(exp => {
+    allExperiences?.filter(exp => exp.show_in_timeline !== false).forEach(exp => {
         hitosUnificados.push({
             id: exp.id,
             title: exp.title,
@@ -80,21 +88,27 @@ export default async function DashboardPage() {
             type: 'experience',
             category: exp.type,
             description: exp.description,
-            link: `/${profile.username}/experiencias/${exp.id}`
+            link: exp.isCollaboration && exp.ownerProfile
+                ? `/${exp.ownerProfile.username}/experiencias/${exp.id}`
+                : `/${profile.username}/experiencias/${exp.id}`,
+            isCollaboration: exp.isCollaboration
         })
     })
 
     // 2. Proyectos
-    projects?.filter(proj => proj.show_in_timeline !== false).forEach(proj => {
+    allProjects?.filter(proj => proj.show_in_timeline !== false).forEach(proj => {
         hitosUnificados.push({
             id: proj.id,
             title: proj.title,
-            subtitle: 'Proyecto',
+            subtitle: proj.isCollaboration ? (proj.collaborationRole || 'Colaborador') : 'Proyecto',
             date: proj.created_at,
             type: 'project',
             category: proj.type,
             description: proj.description,
-            link: `/${profile.username}/proyectos/${proj.id}`
+            link: proj.isCollaboration && proj.ownerProfile
+                ? `/${proj.ownerProfile.username}/proyectos/${proj.id}`
+                : `/${profile.username}/proyectos/${proj.id}`,
+            isCollaboration: proj.isCollaboration
         })
     })
 
@@ -142,8 +156,8 @@ export default async function DashboardPage() {
     return (
         <DashboardContent
             profile={profile}
-            projects={projects || []}
-            experiences={experiences || []}
+            projects={allProjects}
+            experiences={allExperiences}
             achievements={achievements || []}
             testimonials={testimonials || []}
             languages={languages || []}

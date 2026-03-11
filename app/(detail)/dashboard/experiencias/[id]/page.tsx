@@ -35,11 +35,22 @@ export default async function ExperienceDetailPage(props: PageProps) {
     // 3. Fetch collaborator profiles if any
     let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
     if (experience.collaborator_ids && experience.collaborator_ids.length > 0) {
-        const { data } = await supabase
-            .from('profiles')
-            .select('id, username, full_name, avatar_url, headline')
-            .in('id', experience.collaborator_ids)
-        collaborators = data || []
+        // Obtenemos solo los que NO han rechazado
+        const { data: activeCollabs } = await supabase
+            .from('experience_collaborations')
+            .select('collaborator_id')
+            .eq('experience_id', experience.id)
+            .neq('status', 'rejected')
+
+        const activeIds = activeCollabs?.map(c => c.collaborator_id) || []
+        
+        if (activeIds.length > 0) {
+            const { data } = await supabase
+                .from('profiles')
+                .select('id, username, full_name, avatar_url, headline')
+                .in('id', activeIds)
+            collaborators = data || []
+        }
     }
 
     // Helper para fecha

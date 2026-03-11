@@ -24,6 +24,7 @@ import {
     HeartPulse,
     Star
 } from 'lucide-react'
+import { Lightbulb } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from '@/constants/images'
@@ -39,6 +40,8 @@ import DashboardTrajectory from '@/components/dashboard/DashboardTrajectory'
 import InterestsSection from '@/components/dashboard/InterestsSection'
 import TestimonialSection from '@/components/dashboard/TestimonialSection'
 import ContactSection from '@/components/public/ContactSection'
+import CollaborationInbox from './CollaborationInbox'
+import { removeCollaboration } from '@/app/(app)/collaboration-actions'
 
 // Modals
 import ExperienceFormModal from './ExperienceFormModal'
@@ -269,6 +272,17 @@ export default function DashboardContent({
         }
     }
 
+    const handleRemoveCollaboration = async (collaborationId: string, type: 'project' | 'experience') => {
+        if (!confirm('¿Dejar de ser colaborador de este elemento? Podrás ser agregado nuevamente en el futuro.')) return
+
+        try {
+            await removeCollaboration(collaborationId, type)
+            router.refresh()
+        } catch {
+            alert('Error al dejar la colaboración')
+        }
+    }
+
     return (
         <div className="pb-24 md:pb-24">
             {/* Nav Rail (Scroll-spy) */}
@@ -305,6 +319,10 @@ export default function DashboardContent({
             />
 
             <main className="max-w-7xl mx-auto px-6 space-y-32">
+                {/* Collaboration Inbox - shows pending invitations */}
+                <div className="pt-4">
+                    <CollaborationInbox userId={profile.id} />
+                </div>
                 {/* 1. Highlights Section */}
                 <section id="highlights" className="section-anchor">
                     <div className="space-y-8">
@@ -441,33 +459,50 @@ export default function DashboardContent({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {experiences?.length ? (
-                                    experiences.map((exp) => (
-                                        <BaseCard
-                                            key={exp.id}
-                                            title={exp.title}
-                                            subtitle={exp.organization}
-                                            overline={
-                                                (() => {
-                                                    const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
-                                                    const Icon = cat.icon;
-                                                    return (
+                                    experiences.map((exp) => {
+                                        const isCollab = exp.isCollaboration
+                                        const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
+                                        const Icon = cat.icon;
+                                        return (
+                                            <BaseCard
+                                                key={isCollab ? `collab-exp-${exp.id}` : exp.id}
+                                                title={exp.title}
+                                                subtitle={isCollab ? (exp.collaborationRole || exp.organization) : exp.organization}
+                                                overline={
+                                                    <div className="flex items-center gap-2">
                                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${cat.bg} ${cat.color} ${cat.border}`}>
                                                             <Icon size={12} strokeWidth={2.5} />
                                                             {cat.label}
                                                         </span>
-                                                    )
-                                                })()
-                                            }
-                                            description={exp.description || ""}
-                                            imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
-                                            dateRange={exp.start_date ? `${formatDate(exp.start_date)} - ${exp.is_current ? 'Presente' : (exp.end_date ? formatDate(exp.end_date) : '')}` : ""}
-                                            tags={[...(exp.hard_skills || []), ...(exp.soft_skills || [])]}
-                                            href={`/dashboard/experiencias/${exp.id}`}
-                                            isEditable={true}
-                                            onEdit={() => { setEditingExp(exp); setIsExpModalOpen(true); }}
-                                            onDelete={() => handleDelete('experiences', exp.id)}
-                                        />
-                                    ))
+                                                        {isCollab && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                                                <Users size={10} /> Colaborador
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                }
+                                                description={exp.description || ""}
+                                                imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
+                                                dateRange={exp.start_date ? `${formatDate(exp.start_date)} - ${exp.is_current ? 'Presente' : (exp.end_date ? formatDate(exp.end_date) : '')}` : ""}
+                                                tags={[...(exp.hard_skills || []), ...(exp.soft_skills || [])]}
+                                                href={isCollab && exp.ownerProfile ? `/${exp.ownerProfile.username}/experiencias/${exp.id}` : `/dashboard/experiencias/${exp.id}`}
+                                                isEditable={true}
+                                                onEdit={isCollab ? undefined : () => { setEditingExp(exp); setIsExpModalOpen(true); }}
+                                                onDelete={isCollab ? () => handleRemoveCollaboration(exp.collaborationId, 'experience') : () => handleDelete('experiences', exp.id)}
+                                            >
+                                                {isCollab && exp.collaborationLearnings && (
+                                                    <div className="mt-4 pl-3 border-l-2 border-emerald-200">
+                                                        <p className="text-[10px] font-mono font-bold text-emerald-600 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                                            <Lightbulb size={10} /> Mi aprendizaje
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 italic leading-relaxed">
+                                                            {exp.collaborationLearnings}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </BaseCard>
+                                        )
+                                    })
                                 ) : (
                                     <EmptyState
                                         title="Registra tus Experiencias Significativas"
@@ -503,21 +538,40 @@ export default function DashboardContent({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {projects?.length ? (
-                                    projects.map((proj) => (
-                                        <BaseCard
-                                            key={proj.id}
-                                            title={proj.title}
-                                            subtitle={proj.role || proj.type}
-                                            description={proj.description || ""}
-                                            imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
-                                            tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
-                                            href={`/dashboard/project/${proj.id}`}
-                                            isEditable={true}
-                                            is_learning_artifact={proj.is_startup}
-                                            onEdit={() => { setEditingProj(proj); setIsProjModalOpen(true); }}
-                                            onDelete={() => handleDelete('projects', proj.id)}
-                                        />
-                                    ))
+                                    projects.map((proj) => {
+                                        const isCollab = proj.isCollaboration
+                                        return (
+                                            <BaseCard
+                                                key={isCollab ? `collab-proj-${proj.id}` : proj.id}
+                                                title={proj.title}
+                                                subtitle={isCollab ? (proj.collaborationRole || 'Colaborador') : (proj.role || proj.type)}
+                                                overline={isCollab ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                                        <Users size={10} /> Colaborador
+                                                    </span>
+                                                ) : undefined}
+                                                description={proj.description || ""}
+                                                imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
+                                                tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
+                                                href={isCollab && proj.ownerProfile ? `/${proj.ownerProfile.username}/proyectos/${proj.id}` : `/dashboard/project/${proj.id}`}
+                                                isEditable={true}
+                                                is_learning_artifact={proj.is_startup}
+                                                onEdit={isCollab ? undefined : () => { setEditingProj(proj); setIsProjModalOpen(true); }}
+                                                onDelete={isCollab ? () => handleRemoveCollaboration(proj.collaborationId, 'project') : () => handleDelete('projects', proj.id)}
+                                            >
+                                                {isCollab && proj.collaborationLearnings && (
+                                                    <div className="mt-4 pl-3 border-l-2 border-emerald-200">
+                                                        <p className="text-[10px] font-mono font-bold text-emerald-600 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                                            <Lightbulb size={10} /> Mi aprendizaje
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 italic leading-relaxed">
+                                                            {proj.collaborationLearnings}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </BaseCard>
+                                        )
+                                    })
                                 ) : (
                                     <div className="col-span-2">
                                         <EmptyState

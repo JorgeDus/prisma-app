@@ -10,16 +10,16 @@ import {
     LayoutDashboard,
     Menu,
     X,
-    Eye
+    Bell
 } from 'lucide-react'
-import ProfileVisitsPopover from './ProfileVisitsPopover'
+import NotificationsPopover from './NotificationsPopover'
 
 interface AppNavbarProps {
     username: string
-    unseenVisitCount?: number
+    unseenNotificationCount?: number
 }
 
-export default function AppNavbar({ username, unseenVisitCount = 0 }: AppNavbarProps) {
+export default function AppNavbar({ username, unseenNotificationCount = 0 }: AppNavbarProps) {
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -69,8 +69,8 @@ export default function AppNavbar({ username, unseenVisitCount = 0 }: AppNavbarP
                             </Link>
                         </div>
 
-                        {/* Profile visits notification */}
-                        <ProfileVisitsPopover unseenCount={unseenVisitCount} />
+                        {/* Notifications */}
+                        <NotificationsPopover unseenCount={unseenNotificationCount} />
 
                         {/* Mobile: current page indicator */}
                         <span className="md:hidden font-mono text-xs font-bold tracking-tighter uppercase text-slate-800">
@@ -169,12 +169,12 @@ export default function AppNavbar({ username, unseenVisitCount = 0 }: AppNavbarP
                         }}
                     >
                         <div className="relative">
-                            <Eye size={20} />
-                            {unseenVisitCount > 0 && (
+                            <Bell size={20} />
+                            {unseenNotificationCount > 0 && (
                                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
                             )}
                         </div>
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Visitas</span>
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wide">Alertas</span>
                     </button>
                     <form action="/auth/signout" method="post">
                         <button className="flex flex-col items-center gap-1 px-4 py-2 text-slate-500">

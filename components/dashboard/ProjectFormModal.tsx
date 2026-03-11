@@ -6,6 +6,7 @@ import Modal from '@/components/ui/Modal'
 import MonthYearPicker from '@/components/ui/MonthYearPicker'
 import CollaboratorPicker from '@/components/shared/CollaboratorPicker'
 import { Project } from '@/types/database.types'
+import { syncProjectCollaborators } from '@/app/(app)/collaboration-actions'
 
 interface ProjectFormModalProps {
     isOpen: boolean
@@ -321,15 +322,25 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                     .eq('id', projectToEdit.id)
 
                 if (error) throw error
+
+                // Sync collaborations
+                await syncProjectCollaborators(projectToEdit.id, userId, formData.collaborator_ids)
             } else {
-                const { error } = await supabase
+                const { data: newProject, error } = await supabase
                     .from('projects')
                     .insert({
                         user_id: userId,
                         ...projectData
                     })
+                    .select('id')
+                    .single()
 
                 if (error) throw error
+
+                // Sync collaborations for the new project
+                if (newProject && formData.collaborator_ids.length > 0) {
+                    await syncProjectCollaborators(newProject.id, userId, formData.collaborator_ids)
+                }
             }
 
             onSuccess()

@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { recordProfileVisit } from './actions'
+import { getAcceptedCollaborations } from '@/app/(app)/collaboration-actions'
 import {
     Briefcase,
     FolderGit2,
@@ -240,6 +241,13 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
     // Get primary career for header display
     const primaryCareer = userCareers?.find(uc => uc.is_primary) || userCareers?.[0] || null
 
+    // Fetch accepted collaborations for this profile
+    const { projects: collabProjects, experiences: collabExperiences } = await getAcceptedCollaborations(profile.id)
+
+    // Merge collaborations into own items
+    const allProjects = [...(projects || []), ...collabProjects] as any[]
+    const allExperiences = [...(experiences || []), ...collabExperiences] as any[]
+
     // 3. Fetch curated vitrina items if featured_items exists
     let curatedVitrinaItems: any[] = []
     if (profile.featured_items && Array.isArray(profile.featured_items) && profile.featured_items.length > 0) {
@@ -318,7 +326,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
     const skillEvidence: Record<string, { id: string; title: string; type: 'project' | 'experience' }[]> = {}
 
     // De proyectos: hard_skills y soft_skills
-    projects?.forEach(proj => {
+    allProjects?.forEach(proj => {
         const addSkill = (skill: string, set: Set<string>) => {
             if (!skill) return
             set.add(skill)
@@ -331,7 +339,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
     })
 
     // De experiencias: hard_skills y soft_skills
-    experiences?.forEach(exp => {
+    allExperiences?.forEach(exp => {
         const addSkill = (skill: string, set: Set<string>) => {
             if (!skill) return
             set.add(skill)
@@ -350,7 +358,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
     const hitosUnificados: any[] = []
 
     // 1. Experiencias
-    experiences?.filter(exp => exp.show_in_timeline !== false).forEach(exp => {
+    allExperiences?.filter(exp => exp.show_in_timeline !== false).forEach(exp => {
         hitosUnificados.push({
             id: exp.id,
             title: exp.title,
@@ -359,21 +367,27 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
             type: 'experience',
             category: exp.type,
             description: exp.description,
-            link: `/${username}/experiencias/${exp.id}`
+            link: exp.isCollaboration && exp.ownerProfile
+                ? `/${exp.ownerProfile.username}/experiencias/${exp.id}`
+                : `/${username}/experiencias/${exp.id}`,
+            isCollaboration: exp.isCollaboration
         })
     })
 
     // 2. Proyectos
-    projects?.filter(proj => proj.show_in_timeline !== false).forEach(proj => {
+    allProjects?.filter(proj => proj.show_in_timeline !== false).forEach(proj => {
         hitosUnificados.push({
             id: proj.id,
             title: proj.title,
-            subtitle: 'Proyecto',
+            subtitle: proj.isCollaboration ? (proj.collaborationRole || 'Colaborador') : 'Proyecto',
             date: proj.created_at,
             type: 'project',
             category: proj.type,
             description: proj.description,
-            link: `/${username}/proyectos/${proj.id}`
+            link: proj.isCollaboration && proj.ownerProfile
+                ? `/${proj.ownerProfile.username}/proyectos/${proj.id}`
+                : `/${username}/proyectos/${proj.id}`,
+            isCollaboration: proj.isCollaboration
         })
     })
 
@@ -494,7 +508,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             <p className="text-xs font-mono text-slate-500 uppercase tracking-tight">Acceso directo a mis experiencias y proyectos de mayor impacto</p>
                         </div>
                         <BentoHighlights
-                            items={[...(projects || []), ...(experiences || [])]}
+                            items={[...allProjects, ...allExperiences]}
                             username={profile.username}
                             isEditable={false}
                             curatedItems={curatedVitrinaItems.length > 0 ? curatedVitrinaItems : undefined}
@@ -580,32 +594,38 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                 <div className="border-b border-slate-200" />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {experiences?.length ? (
-                                    experiences.map((exp) => (
-                                        <BaseCard
-                                            key={exp.id}
-                                            title={exp.title}
-                                            subtitle={exp.role || exp.organization || ''}
-                                            overline={
-                                                (() => {
-                                                    const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
-                                                    const Icon = cat.icon;
-                                                    return (
+                                {allExperiences?.length ? (
+                                    allExperiences.map((exp) => {
+                                        const isCollab = exp.isCollaboration
+                                        const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
+                                        const Icon = cat.icon;
+                                        return (
+                                            <BaseCard
+                                                key={isCollab ? `collab-exp-${exp.id}` : exp.id}
+                                                title={exp.title}
+                                                subtitle={isCollab ? (exp.collaborationRole || exp.role || exp.organization || '') : (exp.role || exp.organization || '')}
+                                                overline={
+                                                    <div className="flex items-center gap-2">
                                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${cat.bg} ${cat.color} ${cat.border}`}>
                                                             <Icon size={12} strokeWidth={2.5} />
                                                             {cat.label}
                                                         </span>
-                                                    )
-                                                })()
-                                            }
-                                            description={exp.description || ""}
-                                            imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
-                                            dateRange={exp.start_date ? `${formatDate(exp.start_date)} - ${exp.is_current ? 'Presente' : (exp.end_date ? formatDate(exp.end_date) : '')}` : ""}
-                                            tags={[...(exp.hard_skills || []), ...(exp.soft_skills || [])]}
-                                            href={`/${username}/experiencias/${exp.id}`}
-                                            isEditable={false}
-                                        />
-                                    ))
+                                                        {isCollab && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                                                <Users size={10} /> Colaborador
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                }
+                                                description={exp.description || ""}
+                                                imageUrl={exp.cover_image || DEFAULT_EXP_IMAGES[exp.type || 'otro'] || DEFAULT_EXP_IMAGES.otro}
+                                                dateRange={exp.start_date ? `${formatDate(exp.start_date)} - ${exp.is_current ? 'Presente' : (exp.end_date ? formatDate(exp.end_date) : '')}` : ""}
+                                                tags={[...(exp.hard_skills || []), ...(exp.soft_skills || [])]}
+                                                href={isCollab && exp.ownerProfile ? `/${exp.ownerProfile.username}/experiencias/${exp.id}` : `/${username}/experiencias/${exp.id}`}
+                                                isEditable={false}
+                                            />
+                                        )
+                                    })
                                 ) : (
                                     <p className="text-slate-400">No hay experiencias registradas aún por el usuario.</p>
                                 )}
@@ -626,19 +646,27 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                 <div className="border-b border-slate-200" />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {projects?.length ? (
-                                    projects.map((proj) => (
-                                        <BaseCard
-                                            key={proj.id}
-                                            title={proj.title}
-                                            subtitle={proj.role || proj.type}
-                                            description={proj.description || ""}
-                                            imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
-                                            tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
-                                            href={`/${username}/proyectos/${proj.id}`}
-                                            isEditable={false}
-                                        />
-                                    ))
+                                {allProjects?.length ? (
+                                    allProjects.map((proj) => {
+                                        const isCollab = proj.isCollaboration
+                                        return (
+                                            <BaseCard
+                                                key={isCollab ? `collab-proj-${proj.id}` : proj.id}
+                                                title={proj.title}
+                                                subtitle={isCollab ? (proj.collaborationRole || 'Colaborador') : (proj.role || proj.type)}
+                                                overline={isCollab ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                                        <Users size={10} /> Colaborador
+                                                    </span>
+                                                ) : undefined}
+                                                description={proj.description || ""}
+                                                imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
+                                                tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
+                                                href={isCollab && proj.ownerProfile ? `/${proj.ownerProfile.username}/proyectos/${proj.id}` : `/${username}/proyectos/${proj.id}`}
+                                                isEditable={false}
+                                            />
+                                        )
+                                    })
                                 ) : (
                                     <div className="col-span-2">
                                         <p className="text-slate-400 text-center">Sin artefactos de proyecto disponibles.</p>

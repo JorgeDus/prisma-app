@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import AppNavbar from '@/components/layout/AppNavbar'
-import { getUnseenVisitCount } from './visit-actions'
+import { getUnseenNotificationCount } from './notification-actions'
 
 export default async function AppLayout({
     children,
@@ -22,12 +22,12 @@ export default async function AppLayout({
 
     if (!profile) redirect('/onboarding')
 
-    // Fetch unseen visit count for notification badge
-    const unseenVisitCount = await getUnseenVisitCount()
+    // Fetch unseen notification count for badge
+    const unseenNotificationCount = await getUnseenNotificationCount()
 
     return (
         <div className="min-h-screen selection:bg-indigo-100 selection:text-indigo-900">
-            <AppNavbar username={profile.username} unseenVisitCount={unseenVisitCount} />
+            <AppNavbar username={profile.username} unseenNotificationCount={unseenNotificationCount} />
             {children}
         </div>
     )

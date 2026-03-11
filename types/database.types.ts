@@ -562,6 +562,166 @@ export interface Database {
                     }
                 ]
             }
+            notifications: {
+                Row: {
+                    id: string
+                    user_id: string
+                    type: string
+                    title: string
+                    body: string | null
+                    metadata: Json
+                    action_url: string | null
+                    seen_at: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    type: string
+                    title: string
+                    body?: string | null
+                    metadata?: Json
+                    action_url?: string | null
+                    seen_at?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    type?: string
+                    title?: string
+                    body?: string | null
+                    metadata?: Json
+                    action_url?: string | null
+                    seen_at?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "notifications_user_id_fkey"
+                        columns: ["user_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
+            project_collaborations: {
+                Row: {
+                    id: string
+                    project_id: string
+                    owner_id: string
+                    collaborator_id: string
+                    status: 'pending' | 'accepted' | 'rejected'
+                    custom_role: string | null
+                    custom_learnings: string | null
+                    show_in_profile: boolean
+                    show_in_timeline: boolean
+                    custom_hard_skills: string[]
+                    custom_soft_skills: string[]
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    project_id: string
+                    owner_id: string
+                    collaborator_id: string
+                    status?: 'pending' | 'accepted' | 'rejected'
+                    custom_role?: string | null
+                    custom_learnings?: string | null
+                    show_in_profile?: boolean
+                    show_in_timeline?: boolean
+                    custom_hard_skills?: string[]
+                    custom_soft_skills?: string[]
+                }
+                Update: {
+                    status?: 'pending' | 'accepted' | 'rejected'
+                    custom_role?: string | null
+                    custom_learnings?: string | null
+                    show_in_profile?: boolean
+                    show_in_timeline?: boolean
+                    custom_hard_skills?: string[]
+                    custom_soft_skills?: string[]
+                    updated_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "project_collaborations_project_id_fkey"
+                        columns: ["project_id"]
+                        referencedRelation: "projects"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "project_collaborations_owner_id_fkey"
+                        columns: ["owner_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "project_collaborations_collaborator_id_fkey"
+                        columns: ["collaborator_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
+            experience_collaborations: {
+                Row: {
+                    id: string
+                    experience_id: string
+                    owner_id: string
+                    collaborator_id: string
+                    status: 'pending' | 'accepted' | 'rejected'
+                    custom_role: string | null
+                    custom_learnings: string | null
+                    show_in_profile: boolean
+                    show_in_timeline: boolean
+                    custom_hard_skills: string[]
+                    custom_soft_skills: string[]
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    experience_id: string
+                    owner_id: string
+                    collaborator_id: string
+                    status?: 'pending' | 'accepted' | 'rejected'
+                    custom_role?: string | null
+                    custom_learnings?: string | null
+                    show_in_profile?: boolean
+                    show_in_timeline?: boolean
+                    custom_hard_skills?: string[]
+                    custom_soft_skills?: string[]
+                }
+                Update: {
+                    status?: 'pending' | 'accepted' | 'rejected'
+                    custom_role?: string | null
+                    custom_learnings?: string | null
+                    show_in_profile?: boolean
+                    show_in_timeline?: boolean
+                    custom_hard_skills?: string[]
+                    custom_soft_skills?: string[]
+                    updated_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "experience_collaborations_experience_id_fkey"
+                        columns: ["experience_id"]
+                        referencedRelation: "experiences"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "experience_collaborations_owner_id_fkey"
+                        columns: ["owner_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "experience_collaborations_collaborator_id_fkey"
+                        columns: ["collaborator_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
         Views: {
             [_ in never]: never
@@ -606,3 +766,6 @@ export type Career = Tables<'careers'>
 export type UserCareer = Tables<'user_careers'>
 export type Connection = Tables<'connections'>
 export type ProfileVisit = Tables<'profile_visits'>
+export type Notification = Tables<'notifications'>
+export type ProjectCollaboration = Tables<'project_collaborations'>
+export type ExperienceCollaboration = Tables<'experience_collaborations'>

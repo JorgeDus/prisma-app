@@ -6,6 +6,7 @@ import { Calendar, Github, ExternalLink, ArrowLeft, Globe, MapPin, Code, FolderG
 import { DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 import ProjectGallery from '@/components/projects/ProjectGallery'
 import { SkillsDetailTabs } from '@/components/shared/SkillsDetailTabs'
+import BackButton from '@/components/shared/BackButton'
 
 interface ProjectPageProps {
     params: Promise<{ username: string; id: string }>
@@ -31,11 +32,22 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
     // 2. Fetch collaborator profiles if any
     let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
     if (project.collaborator_ids && project.collaborator_ids.length > 0) {
-        const { data } = await supabase
-            .from('profiles')
-            .select('id, username, full_name, avatar_url, headline')
-            .in('id', project.collaborator_ids)
-        collaborators = data || []
+        // Only fetch profiles that haven't rejected the invite
+        const { data: activeCollabs } = await supabase
+            .from('project_collaborations')
+            .select('collaborator_id')
+            .eq('project_id', project.id)
+            .neq('status', 'rejected')
+
+        const activeIds = activeCollabs?.map(c => c.collaborator_id) || []
+        
+        if (activeIds.length > 0) {
+            const { data } = await supabase
+                .from('profiles')
+                .select('id, username, full_name, avatar_url, headline')
+                .in('id', activeIds)
+            collaborators = data || []
+        }
     }
 
     const formatDate = (dateString: string) => {
@@ -51,10 +63,7 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
             {/* Simple Navbar */}
             <nav className="bg-white border-b sticky top-0 z-50 backdrop-blur-sm bg-white/90">
                 <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-                    <Link href={`/${params.username}`} className="flex items-center gap-2 text-gray-600 hover:text-purple-600 font-medium transition-colors">
-                        <ArrowLeft size={20} />
-                        <span>Volver al perfil</span>
-                    </Link>
+                    <BackButton fallbackHref={`/${params.username}`} label="Volver al perfil" />
                     <Link href="/" className="flex items-center">
                         <Image
                             src="/logo-prisma.png"
