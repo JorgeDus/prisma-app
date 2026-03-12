@@ -79,7 +79,7 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl,
                                 <Lock size={32} className="text-slate-500" />
                             </div>
                             <div className="space-y-3">
-                                <h3 className="text-xl font-bold text-white">Mensajería Restringida</h3>
+                                <h3 className="text-xl font-bold text-white">Conecta para Contactar</h3>
                                 <p className="text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
                                     Para enviar un mensaje a {profileName}, primero necesitas ser parte de su red de contactos.
                                 </p>
