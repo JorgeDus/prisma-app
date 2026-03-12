@@ -52,3 +52,6 @@ Thumbs.db
 # research & docs
 public/Tendencias*
 public/del cv a evidencias.txt
+
+# Supabase
+supabase/.temp/
