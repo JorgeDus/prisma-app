@@ -23,14 +23,75 @@ export interface Database {
                 Row: {
                     id: number
                     name: string
+                    slug: string | null
+                    logo_url: string | null
+                    domain: string | null
+                    plan: string | null
+                    settings: Json
                 }
                 Insert: {
                     name: string
+                    slug?: string | null
+                    logo_url?: string | null
+                    domain?: string | null
+                    plan?: string | null
+                    settings?: Json
                 }
                 Update: {
                     name?: string
+                    slug?: string | null
+                    logo_url?: string | null
+                    domain?: string | null
+                    plan?: string | null
+                    settings?: Json
                 }
                 Relationships: []
+            }
+            university_accounts: {
+                Row: {
+                    id: string
+                    user_id: string
+                    university_id: number
+                    role: 'owner' | 'admin' | 'viewer'
+                    full_name: string
+                    position: string | null
+                    is_active: boolean
+                    created_at: string
+                    updated_at: string
+                    last_login_at: string | null
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    university_id: number
+                    role?: 'owner' | 'admin' | 'viewer'
+                    full_name: string
+                    position?: string | null
+                    is_active?: boolean
+                    last_login_at?: string | null
+                }
+                Update: {
+                    role?: 'owner' | 'admin' | 'viewer'
+                    full_name?: string
+                    position?: string | null
+                    is_active?: boolean
+                    last_login_at?: string | null
+                    updated_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "university_accounts_user_id_fkey"
+                        columns: ["user_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "university_accounts_university_id_fkey"
+                        columns: ["university_id"]
+                        referencedRelation: "universities"
+                        referencedColumns: ["id"]
+                    }
+                ]
             }
             careers: {
                 Row: {
@@ -763,6 +824,7 @@ export type Testimonial = Tables<'testimonials'>
 export type Language = Tables<'languages'>
 export type University = Tables<'universities'>
 export type Career = Tables<'careers'>
+export type UniversityAccount = Tables<'university_accounts'>
 export type UserCareer = Tables<'user_careers'>
 export type Connection = Tables<'connections'>
 export type ProfileVisit = Tables<'profile_visits'>

@@ -117,7 +117,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
         .from('profiles')
         .select(`
             *,
-            universities(name),
+            universities(name, logo_url),
             careers(name)
         `)
         .eq('username', username)
@@ -486,6 +486,26 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     allCareers={userCareers || []}
                     pinnedSkills={profile.skills_order || []}
                 />
+                {/* Badge Universidad Aliada */}
+                {(profile.universities as any)?.logo_url && (
+                    <div className="flex justify-center mt-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm">
+                            <Image
+                                src={(profile.universities as any).logo_url}
+                                alt={(profile.universities as any).name}
+                                width={18}
+                                height={18}
+                                className="w-4 h-4 object-contain rounded-sm"
+                            />
+                            <span className="text-xs font-medium text-slate-600">
+                                {(profile.universities as any).name}
+                            </span>
+                            <span className="text-[10px] font-mono text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded-full font-bold">
+                                Miembro Prisma
+                            </span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <main className="max-w-7xl mx-auto px-6 space-y-32">

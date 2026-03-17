@@ -55,3 +55,6 @@ public/del cv a evidencias.txt
 
 # Supabase
 supabase/.temp/
+
+# Env demo
+.env.demo
