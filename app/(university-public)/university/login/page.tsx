@@ -26,14 +26,12 @@ export default function UniversityLoginPage() {
             return
         }
 
-        // La redirección la maneja el layout guard — simplemente recargar
         window.location.href = '/university'
     }
 
     return (
         <div className="min-h-screen bg-indigo-950 flex flex-col items-center justify-center px-4">
             <div className="w-full max-w-md">
-                {/* Logo */}
                 <div className="flex flex-col items-center mb-8 gap-4">
                     <Image
                         src="/logo-prisma.png"
@@ -48,7 +46,6 @@ export default function UniversityLoginPage() {
                     </span>
                 </div>
 
-                {/* Card */}
                 <div className="bg-indigo-900/50 border border-indigo-800 rounded-2xl p-8 backdrop-blur-sm">
                     <h1 className="text-xl font-bold text-white mb-1">Acceso institucional</h1>
                     <p className="text-sm text-indigo-400 mb-6">
