@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { Experience } from '@/types/database.types'
-import { Calendar, Pencil, Trash2, Loader2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Building2, Clock, Star } from 'lucide-react'
+import { Calendar, Pencil, Trash2, Loader2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Building2, Clock, Star, Stethoscope } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Link from 'next/link'
 
@@ -62,6 +62,7 @@ export default function ExperienceCard({
         'deportivo': { label: 'Deportivo', icon: Dumbbell, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
         'creativo': { label: 'Creativo', icon: Palette, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100' },
         'cuidado_vida': { label: 'Cuidado y Vida', icon: HeartPulse, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+        'practica': { label: 'Práctica Profesional', icon: Stethoscope, color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100' },
         'otro': { label: 'Otro', icon: Star, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-100' },
     }
 

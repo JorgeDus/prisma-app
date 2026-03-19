@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronDown, ChevronUp, Briefcase, GraduationCap, Trophy, Rocket, Heart, Award, Star, Palette, Dumbbell, HeartPulse } from 'lucide-react'
+import { ChevronDown, ChevronUp, Briefcase, GraduationCap, Trophy, Rocket, Heart, Award, Star, Palette, Dumbbell, HeartPulse, Stethoscope } from 'lucide-react'
 
 export type MilestoneType = 'project' | 'achievement' | 'experience' | 'education'
 
@@ -42,6 +42,7 @@ const getMilestoneIcon = (hito: Milestone): { icon: React.ReactElement, color: s
                 case 'deportivo': return { icon: <Dumbbell size={14} />, color: 'text-emerald-500' }
                 case 'creativo': return { icon: <Palette size={14} />, color: 'text-pink-500' }
                 case 'cuidado_vida': return { icon: <HeartPulse size={14} />, color: 'text-teal-500' }
+                case 'practica': return { icon: <Stethoscope size={14} />, color: 'text-cyan-500' }
                 default: return { icon: <Briefcase size={14} />, color: 'text-blue-500' }
             }
         default:

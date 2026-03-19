@@ -182,6 +182,7 @@ export interface Database {
                     has_completed_tour: boolean
                     hidden_from_explore: boolean
                     skills_order: string[] | null
+                    career_status: 'estudiante_activo' | 'disponible_para_practica' | 'en_practica' | 'buscando_primer_empleo' | 'empleado' | 'empleado_fuera_area' | 'emprendiendo' | 'en_posgrado' | null
                     created_at: string
                     updated_at: string
                 }
@@ -208,6 +209,7 @@ export interface Database {
                     deletion_token?: string | null
                     hidden_from_explore?: boolean
                     skills_order?: string[] | null
+                    career_status?: 'estudiante_activo' | 'disponible_para_practica' | 'en_practica' | 'buscando_primer_empleo' | 'empleado' | 'empleado_fuera_area' | 'emprendiendo' | 'en_posgrado' | null
                 }
                 Update: {
                     username?: string
@@ -232,6 +234,7 @@ export interface Database {
                     has_completed_tour?: boolean
                     hidden_from_explore?: boolean
                     skills_order?: string[] | null
+                    career_status?: 'estudiante_activo' | 'disponible_para_practica' | 'en_practica' | 'buscando_primer_empleo' | 'empleado' | 'empleado_fuera_area' | 'emprendiendo' | 'en_posgrado' | null
                 }
                 Relationships: [
                     {
@@ -382,7 +385,8 @@ export interface Database {
                     title: string
                     organization: string | null
                     role: string | null
-                    type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
+                    type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'practica' | 'otro'
+                    internship_area: string | null
                     description: string | null
                     achievements: string | null
                     value_reflection: string | null
@@ -405,7 +409,8 @@ export interface Database {
                     title: string
                     organization?: string | null
                     role?: string | null
-                    type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
+                    type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'practica' | 'otro'
+                    internship_area?: string | null
                     description?: string | null
                     achievements?: string | null
                     value_reflection?: string | null
@@ -426,7 +431,8 @@ export interface Database {
                     title?: string
                     organization?: string | null
                     role?: string | null
-                    type?: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
+                    type?: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'practica' | 'otro'
+                    internship_area?: string | null
                     description?: string | null
                     achievements?: string | null
                     value_reflection?: string | null
@@ -793,7 +799,7 @@ export interface Database {
         Enums: {
             project_type: 'academic' | 'startup' | 'personal'
             achievement_type: 'award' | 'certification' | 'course_chair'
-            experience_type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'otro'
+            experience_type: 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'practica' | 'otro'
         }
         CompositeTypes: {
             [_ in never]: never

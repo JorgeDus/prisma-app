@@ -25,6 +25,7 @@ import {
     FileBadge,
     Users,
     Calendar,
+    Stethoscope,
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
@@ -75,6 +76,7 @@ const EXP_CATEGORY_MAP: Record<string, { label: string; icon: any; color: string
     deportivo: { label: 'Deportivo', icon: Dumbbell, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     creativo: { label: 'Creativo', icon: Palette, color: 'text-pink-600', bg: 'bg-pink-50' },
     cuidado_vida: { label: 'Cuidado y Vida', icon: HeartPulse, color: 'text-teal-600', bg: 'bg-teal-50' },
+    practica: { label: 'Práctica Profesional', icon: Stethoscope, color: 'text-cyan-600', bg: 'bg-cyan-50' },
     otro: { label: 'Otro', icon: Star, color: 'text-slate-600', bg: 'bg-slate-50' },
 };
 

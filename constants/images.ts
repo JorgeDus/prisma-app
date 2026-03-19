@@ -7,6 +7,7 @@ export const DEFAULT_EXP_IMAGES: Record<string, string> = {
     deportivo: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2070&auto=format&fit=crop',
     creativo: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=2071&auto=format&fit=crop',
     cuidado_vida: 'https://images.unsplash.com/photo-1505751172876-01929c83921b?q=80&w=2070&auto=format&fit=crop',
+    practica: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop',
     otro: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop'
 }
 

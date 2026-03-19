@@ -34,7 +34,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 const UNIVERSITY = {
     name: 'Universidad Mistral',
     slug: 'universidad-mistral',
-    logo_url: 'https://tuprisma.com/demo/logo-universidad-mistral.png', // subir el logo generado aquí
+    logo_url: 'public\logo-universidad-mistral.png', // subir el logo generado aquí
     domain: 'mistral.cl',
 }
 

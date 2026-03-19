@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Loader2, User, Type, FileText, School, Upload, X, Move, GraduationCap, Plus, Star, Settings, Pause, Play, Trash2, AlertTriangle, Mail, Calendar } from 'lucide-react'
+import { Loader2, User, Type, FileText, School, Upload, X, Move, GraduationCap, Plus, Star, Settings, Pause, Play, Trash2, AlertTriangle, Mail, Calendar, Briefcase } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import { Profile, University, Career, UserCareer } from '@/types/database.types'
 import Combobox from '@/components/ui/Combobox'
@@ -60,6 +60,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
         career_end_date: profile.career_end_date || '',
         custom_university: profile.custom_university || '',
         custom_career: profile.custom_career || '',
+        career_status: (profile as any).career_status || '',
     })
 
     const [isStudying, setIsStudying] = useState(!profile.career_end_date || new Date(profile.career_end_date) > new Date())
@@ -77,6 +78,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                 career_end_date: profile.career_end_date || '',
                 custom_university: profile.custom_university || '',
                 custom_career: profile.custom_career || '',
+                career_status: (profile as any).career_status || '',
             })
 
             const fetchCatalogs = async () => {
@@ -234,6 +236,7 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                     const isOther = name.includes('otro') || name.includes('no listada')
                     return isOther ? formData.custom_career : null
                 })(),
+                career_status: formData.career_status || null,
                 updated_at: new Date().toISOString()
             }
 
@@ -581,6 +584,32 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                     }}
                     userId={profile.id}
                 />
+
+                {/* Estado Profesional / Career Status */}
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                    <div className="flex items-center gap-2 text-slate-600">
+                        <Briefcase size={16} />
+                        <span className="text-sm font-semibold">Estado Actual</span>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                        ¿En qué etapa de tu carrera te encuentras? Esto es visible para tu universidad.
+                    </p>
+                    <select
+                        value={formData.career_status}
+                        onChange={(e) => setFormData({ ...formData, career_status: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 text-sm font-medium"
+                    >
+                        <option value="">Sin especificar</option>
+                        <option value="estudiante_activo">Estudiante Activo</option>
+                        <option value="disponible_para_practica">Disponible para Práctica</option>
+                        <option value="en_practica">En Práctica</option>
+                        <option value="buscando_primer_empleo">Buscando Primer Empleo</option>
+                        <option value="empleado">Empleado (en el área)</option>
+                        <option value="empleado_fuera_area">Empleado (fuera del área)</option>
+                        <option value="emprendiendo">Emprendiendo</option>
+                        <option value="en_posgrado">En Posgrado</option>
+                    </select>
+                </div>
 
                 {/* Account Management Section */}
                 <div className="mt-8 pt-6 border-t border-slate-200">

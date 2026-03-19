@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Loader2, Type, Building2, Calendar, Tag, Upload, X, ImageIcon, Move, Plus, Star, Award, Heart, HeartPulse, Palette, Dumbbell, GraduationCap, Briefcase, Zap } from 'lucide-react'
+import { Loader2, Type, Building2, Calendar, Tag, Upload, X, ImageIcon, Move, Plus, Star, Award, Heart, HeartPulse, Palette, Dumbbell, GraduationCap, Briefcase, Zap, Stethoscope, MapPin } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import MonthYearPicker from '@/components/ui/MonthYearPicker'
 import CollaboratorPicker from '@/components/shared/CollaboratorPicker'
@@ -51,7 +51,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         cover_image: '',
         gallery_images: [] as string[],
         show_in_timeline: true,
-        collaborator_ids: [] as string[]
+        collaborator_ids: [] as string[],
+        internship_area: ''
     })
 
     // Estado local para los inputs de skills
@@ -77,7 +78,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 cover_image: experienceToEdit.cover_image || '',
                 gallery_images: experienceToEdit.gallery_images || [],
                 show_in_timeline: experienceToEdit.show_in_timeline !== false,
-                collaborator_ids: experienceToEdit.collaborator_ids || []
+                collaborator_ids: experienceToEdit.collaborator_ids || [],
+                internship_area: (experienceToEdit as any).internship_area || ''
             })
             setImagePreview(experienceToEdit.cover_image || null)
             setGalleryPreviews(experienceToEdit.gallery_images || [])
@@ -102,7 +104,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 cover_image: '',
                 gallery_images: [],
                 show_in_timeline: true,
-                collaborator_ids: []
+                collaborator_ids: [],
+                internship_area: ''
             })
             setImagePreview(null)
             setGalleryPreviews([])
@@ -291,6 +294,7 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 gallery_images: finalGalleryUrls,
                 show_in_timeline: formData.show_in_timeline,
                 collaborator_ids: formData.collaborator_ids,
+                internship_area: (formData.type === 'practica' || formData.type === 'empleo_sustento') ? (formData.internship_area || null) : null,
                 updated_at: new Date().toISOString()
             }
 
@@ -340,6 +344,7 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         { id: 'social', label: 'Social / Voluntariado', icon: Heart },
         { id: 'emprendimiento', label: 'Emprendimiento', icon: Zap },
         { id: 'empleo_sustento', label: 'Empleo / Pasantía', icon: Briefcase },
+        { id: 'practica', label: 'Práctica Profesional', icon: Stethoscope },
         { id: 'academico', label: 'Académico (Ayudantías)', icon: GraduationCap },
         { id: 'deportivo', label: 'Deportivo', icon: Dumbbell },
         { id: 'creativo', label: 'Creativo / Artístico', icon: Palette },
@@ -377,6 +382,37 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                         })}
                     </div>
                 </div>
+
+                {/* 1.5 Área de Práctica (condicional) */}
+                {(formData.type === 'practica' || formData.type === 'empleo_sustento') && (
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                            <MapPin size={16} className="text-purple-500" /> Área
+                        </label>
+                        <select
+                            value={formData.internship_area}
+                            onChange={(e) => setFormData({ ...formData, internship_area: e.target.value })}
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium"
+                        >
+                            <option value="">Seleccionar área (opcional)</option>
+                            <option value="Clínica">Clínica</option>
+                            <option value="Educacional">Educacional</option>
+                            <option value="Laboral / Organizacional">Laboral / Organizacional</option>
+                            <option value="Social / Comunitaria">Social / Comunitaria</option>
+                            <option value="Jurídica / Forense">Jurídica / Forense</option>
+                            <option value="Investigación">Investigación</option>
+                            <option value="Tecnología / Desarrollo">Tecnología / Desarrollo</option>
+                            <option value="Diseño / Creatividad">Diseño / Creatividad</option>
+                            <option value="Salud">Salud</option>
+                            <option value="Finanzas / Contabilidad">Finanzas / Contabilidad</option>
+                            <option value="Marketing / Comunicaciones">Marketing / Comunicaciones</option>
+                            <option value="Operaciones / Logística">Operaciones / Logística</option>
+                            <option value="Recursos Humanos">Recursos Humanos</option>
+                            <option value="Legal">Legal</option>
+                            <option value="Otra">Otra</option>
+                        </select>
+                    </div>
+                )}
 
                 {/* 2. Base: Título, Rol e Institución */}
                 <div className="space-y-5">

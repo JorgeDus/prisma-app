@@ -13,6 +13,7 @@ const experienceTypeLabels: Record<string, string> = {
     deportivo: 'Deportivo',
     creativo: 'Creativo',
     cuidado_vida: 'Cuidado de Vida',
+    practica: 'Práctica Profesional',
     otro: 'Otro',
 }
 
