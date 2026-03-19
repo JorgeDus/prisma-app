@@ -23,6 +23,8 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
 
     const [formData, setFormData] = useState({
         full_name: userProfile.full_name || '',
+        gender: userProfile.gender || '',
+        custom_gender: userProfile.custom_gender || '',
     })
 
     // Fetch user careers on mount
@@ -52,11 +54,13 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
         setIsLoading(true)
 
         try {
-            // Update profile with full_name only
+            // Update profile with full_name and gender
             const { error: profileError } = await supabase
                 .from('profiles')
                 .update({
                     full_name: formData.full_name,
+                    gender: formData.gender || null,
+                    custom_gender: formData.gender === 'otro' ? formData.custom_gender : null,
                     updated_at: new Date().toISOString(),
                 })
                 .eq('id', userProfile.id)
@@ -107,6 +111,40 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
                         />
                     </div>
                 </div>
+
+                {/* Identidad de Género */}
+                <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-gray-700">
+                        Identidad de Género <span className="text-gray-400 font-normal text-xs">(Opcional)</span>
+                    </label>
+                    <select
+                        value={formData.gender}
+                        onChange={(e) => setFormData({ ...formData, gender: e.target.value, custom_gender: '' })}
+                        className="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-all text-gray-900 bg-white font-medium"
+                    >
+                        <option value="" disabled>Selecciona una opción</option>
+                        <option value="mujer">Mujer</option>
+                        <option value="hombre">Hombre</option>
+                        <option value="no_binario">No binario</option>
+                        <option value="otro">Prefiero autodescribirme</option>
+                        <option value="prefiero_no_decirlo">Prefiero no decirlo</option>
+                    </select>
+                    <p className="text-[11px] text-gray-500 mt-1">
+                        Utilizamos esta información de forma confidencial para entender a nuestra comunidad. No se mostrará públicamente.
+                    </p>
+                </div>
+
+                {formData.gender === 'otro' && (
+                    <div className="animate-in fade-in slide-in-from-top-2">
+                        <input
+                            type="text"
+                            placeholder="¿Cómo te describes?"
+                            value={formData.custom_gender}
+                            onChange={(e) => setFormData({ ...formData, custom_gender: e.target.value })}
+                            className="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-all text-gray-900 placeholder-gray-500 font-medium"
+                        />
+                    </div>
+                )}
 
                 {/* Formación Académica Section */}
                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">

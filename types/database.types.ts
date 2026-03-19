@@ -183,6 +183,8 @@ export interface Database {
                     hidden_from_explore: boolean
                     skills_order: string[] | null
                     career_status: 'estudiante_activo' | 'disponible_para_practica' | 'en_practica' | 'buscando_primer_empleo' | 'empleado' | 'empleado_fuera_area' | 'emprendiendo' | 'en_posgrado' | null
+                    gender: string | null
+                    custom_gender: string | null
                     created_at: string
                     updated_at: string
                 }
@@ -210,6 +212,8 @@ export interface Database {
                     hidden_from_explore?: boolean
                     skills_order?: string[] | null
                     career_status?: 'estudiante_activo' | 'disponible_para_practica' | 'en_practica' | 'buscando_primer_empleo' | 'empleado' | 'empleado_fuera_area' | 'emprendiendo' | 'en_posgrado' | null
+                    gender?: string | null
+                    custom_gender?: string | null
                 }
                 Update: {
                     username?: string
@@ -235,6 +239,8 @@ export interface Database {
                     hidden_from_explore?: boolean
                     skills_order?: string[] | null
                     career_status?: 'estudiante_activo' | 'disponible_para_practica' | 'en_practica' | 'buscando_primer_empleo' | 'empleado' | 'empleado_fuera_area' | 'emprendiendo' | 'en_posgrado' | null
+                    gender?: string | null
+                    custom_gender?: string | null
                 }
                 Relationships: [
                     {

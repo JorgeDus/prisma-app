@@ -61,6 +61,8 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
         custom_university: profile.custom_university || '',
         custom_career: profile.custom_career || '',
         career_status: (profile as any).career_status || '',
+        gender: profile.gender || '',
+        custom_gender: profile.custom_gender || '',
     })
 
     const [isStudying, setIsStudying] = useState(!profile.career_end_date || new Date(profile.career_end_date) > new Date())
@@ -79,6 +81,8 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                 custom_university: profile.custom_university || '',
                 custom_career: profile.custom_career || '',
                 career_status: (profile as any).career_status || '',
+                gender: profile.gender || '',
+                custom_gender: profile.custom_gender || '',
             })
 
             const fetchCatalogs = async () => {
@@ -237,6 +241,8 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                     return isOther ? formData.custom_career : null
                 })(),
                 career_status: formData.career_status || null,
+                gender: formData.gender || null,
+                custom_gender: formData.gender === 'otro' ? formData.custom_gender : null,
                 updated_at: new Date().toISOString()
             }
 
@@ -475,6 +481,37 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
                             />
                         </div>
                     </div>
+
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Identidad de Género <span className="text-slate-400 font-normal text-xs">(Opcional)</span></label>
+                        <select
+                            value={formData.gender}
+                            onChange={(e) => setFormData({ ...formData, gender: e.target.value, custom_gender: '' })}
+                            className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 text-sm transition-all"
+                        >
+                            <option value="" disabled>Selecciona una opción</option>
+                            <option value="mujer">Mujer</option>
+                            <option value="hombre">Hombre</option>
+                            <option value="no_binario">No binario</option>
+                            <option value="otro">Prefiero autodescribirme</option>
+                            <option value="prefiero_no_decirlo">Prefiero no decirlo</option>
+                        </select>
+                        <p className="text-[11px] text-slate-500 mt-1">
+                            Utilizamos esto para entender a nuestra comunidad. Es confidencial y no es público.
+                        </p>
+                    </div>
+
+                    {formData.gender === 'otro' && (
+                        <div className="animate-in fade-in slide-in-from-top-2">
+                            <input
+                                type="text"
+                                placeholder="¿Cómo te describes?"
+                                value={formData.custom_gender}
+                                onChange={(e) => setFormData({ ...formData, custom_gender: e.target.value })}
+                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 text-sm transition-all"
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Impact Fields */}
