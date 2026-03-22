@@ -172,7 +172,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         stats.byCareer[u.career] = (stats.byCareer[u.career] || 0) + 1
     }
 
-    const processSkills = (item: { hard_skills?: string[], soft_skills?: string[] }) => {
+    const processSkills = (item: { hard_skills?: string[] | null, soft_skills?: string[] | null }) => {
         item.hard_skills?.forEach(s => {
             const key = s.trim(); if(key){ hardSkillCount[key] = (hardSkillCount[key] || 0) + 1; totalHardSkills++ }
         })
