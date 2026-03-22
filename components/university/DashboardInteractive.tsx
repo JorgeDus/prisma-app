@@ -41,7 +41,7 @@ export default function DashboardInteractive({ university, stats }: any) {
                 {university?.logo_url && (
                     <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
                         <Image
-                            src={university.logo_url}
+                            src={university.logo_url.startsWith('http') ? university.logo_url : (university.logo_url.startsWith('/') ? university.logo_url : `/${university.logo_url}`)}
                             alt={university.name || 'Universidad'}
                             width={56}
                             height={56}

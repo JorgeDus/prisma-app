@@ -53,7 +53,7 @@ export default function UniversitySidebar({
                     {universityLogoUrl ? (
                         <div className="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shrink-0">
                             <Image
-                                src={universityLogoUrl}
+                                src={universityLogoUrl.startsWith('http') ? universityLogoUrl : (universityLogoUrl.startsWith('/') ? universityLogoUrl : `/${universityLogoUrl}`)}
                                 alt={universityName}
                                 width={40}
                                 height={40}
