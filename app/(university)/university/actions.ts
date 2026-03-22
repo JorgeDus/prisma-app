@@ -119,9 +119,9 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         { data: experiencesData },
         { data: achievementsData }
     ] = await Promise.all([
-        adminClient.from('projects').select('id, user_id, hard_skills, soft_skills').in('user_id', profileIds),
-        adminClient.from('experiences').select('id, user_id, hard_skills, soft_skills').in('user_id', profileIds),
-        adminClient.from('achievements').select('id, user_id').in('user_id', profileIds)
+        adminClient.from('projects').select('id, user_id, title, created_at, hard_skills, soft_skills').in('user_id', profileIds),
+        adminClient.from('experiences').select('id, user_id, role, start_date, hard_skills, soft_skills').in('user_id', profileIds),
+        adminClient.from('achievements').select('id, user_id, title, date').in('user_id', profileIds)
     ])
 
     const projects = projectsData || []
@@ -129,7 +129,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
     const achievements = achievementsData || []
 
     // 3. Procesar datos
-    const userDict: Record<string, { gender: string, cohort: string, career: string }> = {}
+    const userDict: Record<string, { gender: string, cohort: string, career: string, full_name: string | null, username: string | null }> = {}
     
     let active30 = 0, active60 = 0, active90 = 0
     let incompleteCount = 0
@@ -138,6 +138,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
     const genderCount: Record<string, number> = {}
     const cohortCount: Record<string, number> = {}
     const careerCount: Record<string, number> = {}
+    const deepDiveMap: Record<string, number> = {}
 
     profiles.forEach(p => {
         // Tiempos
@@ -154,11 +155,25 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         const cohortMatch = p.career_start_date ? p.career_start_date.substring(0, 4) : 'Sin cohorte'
         const career = getPrimaryCareerName(p)
 
-        userDict[p.id] = { gender, cohort: cohortMatch, career }
+        userDict[p.id] = { 
+            gender, 
+            cohort: cohortMatch, 
+            career,
+            full_name: p.full_name,
+            username: p.username
+        }
 
         genderCount[gender] = (genderCount[gender] || 0) + 1
         cohortCount[cohortMatch] = (cohortCount[cohortMatch] || 0) + 1
         careerCount[career] = (careerCount[career] || 0) + 1
+
+        const deepKey = `${career}|${cohortMatch}|${gender}`
+        deepDiveMap[deepKey] = (deepDiveMap[deepKey] || 0) + 1
+    })
+
+    const deepDiveData = Object.entries(deepDiveMap).map(([key, count]) => {
+        const [career, cohort, gender] = key.split('|')
+        return { career, cohort, gender, count }
     })
 
     // Helper para cruces
@@ -167,6 +182,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         byGender: {} as Record<string, number>,
         byCohort: {} as Record<string, number>,
         byCareer: {} as Record<string, number>,
+        items: [] as any[]
     })
 
     const projectStats = createCrossStats()
@@ -178,13 +194,21 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
     let totalHardSkills = 0
     let totalSoftSkills = 0
 
-    const processItem = (item: { user_id: string }, stats: ReturnType<typeof createCrossStats>) => {
+    const processItem = (item: any, stats: ReturnType<typeof createCrossStats>) => {
         const u = userDict[item.user_id]
         if (!u) return
         stats.total++
         stats.byGender[u.gender] = (stats.byGender[u.gender] || 0) + 1
         stats.byCohort[u.cohort] = (stats.byCohort[u.cohort] || 0) + 1
         stats.byCareer[u.career] = (stats.byCareer[u.career] || 0) + 1
+        
+        stats.items.push({
+            id: item.id,
+            title: item.title || item.role || 'Sin título',
+            userName: u.full_name || u.username || 'Usuario',
+            userUsername: u.username,
+            date: item.created_at || item.start_date || item.date
+        })
     }
 
     const processSkills = (item: any) => {
@@ -247,6 +271,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
             hard: { total: totalHardSkills, top: formatTop(hardSkillCount, 12) },
             soft: { total: totalSoftSkills, top: formatTop(softSkillCount, 12) }
         },
+        deepDiveData,
         filterOptions: { careers: Array.from(allCareersSet).sort(), cohorts: Array.from(allCohortsSet).sort() }
     }
 }
