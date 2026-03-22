@@ -64,9 +64,6 @@ export default async function OnboardingPage() {
                         userProfile={profile!}
                     />
                 </div>
-                <div className="mt-8 text-center text-xs text-gray-400">
-                    <p>Estos datos serán visibles en tu perfil público.</p>
-                </div>
             </div>
         </div>
     )

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Loader2, GraduationCap, User, Star, Settings, Plus } from 'lucide-react'
+import { Loader2, GraduationCap, User, Star, Settings, Plus, Briefcase } from 'lucide-react'
 import { University, Career, Profile, UserCareer } from '@/types/database.types'
 import CareersModal from '@/components/dashboard/CareersModal'
 
@@ -25,6 +25,7 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
         full_name: userProfile.full_name || '',
         gender: userProfile.gender || '',
         custom_gender: userProfile.custom_gender || '',
+        career_status: (userProfile as any).career_status || '',
     })
 
     // Fetch user careers on mount
@@ -61,6 +62,7 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
                     full_name: formData.full_name,
                     gender: formData.gender || null,
                     custom_gender: formData.gender === 'otro' ? formData.custom_gender : null,
+                    career_status: formData.career_status || null,
                     updated_at: new Date().toISOString(),
                 })
                 .eq('id', userProfile.id)
@@ -93,7 +95,7 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
                 {/* Nombre Completo */}
                 <div>
                     <label htmlFor="full_name" className="block text-sm font-medium text-gray-700">
-                        Nombre Completo
+                        Nombre Completo <span className="text-red-500">*</span>
                     </label>
                     <div className="mt-1 relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -115,9 +117,10 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
                 {/* Identidad de Género */}
                 <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-gray-700">
-                        Identidad de Género <span className="text-gray-400 font-normal text-xs">(Opcional)</span>
+                        Identidad de Género <span className="text-red-500">*</span>
                     </label>
                     <select
+                        required
                         value={formData.gender}
                         onChange={(e) => setFormData({ ...formData, gender: e.target.value, custom_gender: '' })}
                         className="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-all text-gray-900 bg-white font-medium"
@@ -150,7 +153,7 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
                     <div className="flex items-center gap-2 text-gray-700">
                         <GraduationCap size={18} className="text-purple-600" />
-                        <span className="text-sm font-semibold">Formación Académica</span>
+                        <span className="text-sm font-semibold">Formación Académica <span className="text-red-500">*</span></span>
                     </div>
 
                     {/* List of existing careers */}
@@ -214,9 +217,36 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
                     </button>
                 </div>
 
+                {/* Estado Profesional / Career Status */}
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
+                    <div className="flex items-center gap-2 text-gray-700">
+                        <Briefcase size={18} className="text-purple-600" />
+                        <span className="text-sm font-semibold">Estado Actual <span className="text-red-500">*</span></span>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                        ¿En qué etapa de tu carrera te encuentras? Esto es visible para tu universidad.
+                    </p>
+                    <select
+                        required
+                        value={formData.career_status}
+                        onChange={(e) => setFormData({ ...formData, career_status: e.target.value })}
+                        className="block w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm font-medium transition-all text-gray-900"
+                    >
+                        <option value="" disabled>Selecciona una opción</option>
+                        <option value="estudiante_activo">Estudiante Activo</option>
+                        <option value="disponible_para_practica">Disponible para Práctica</option>
+                        <option value="en_practica">En Práctica</option>
+                        <option value="buscando_primer_empleo">Buscando Primer Empleo</option>
+                        <option value="empleado">Empleado (en el área)</option>
+                        <option value="empleado_fuera_area">Empleado (fuera del área)</option>
+                        <option value="emprendiendo">Emprendiendo</option>
+                        <option value="en_posgrado">En Posgrado</option>
+                    </select>
+                </div>
+
                 <button
                     type="submit"
-                    disabled={isLoading || !formData.full_name || userCareers.length === 0}
+                    disabled={isLoading || !formData.full_name || !formData.gender || !formData.career_status || userCareers.length === 0}
                     className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-gradient-to-r from-purple-700 to-cyan-500 hover:from-purple-800 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     {isLoading ? (
