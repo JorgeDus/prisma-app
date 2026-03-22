@@ -365,22 +365,28 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                         {categories.map((cat) => {
                             const Icon = cat.icon
                             const isSelected = formData.type === cat.id
+                            const isClone = !!(experienceToEdit as any)?.original_experience_id;
+                            
                             return (
                                 <button
                                     key={cat.id}
                                     type="button"
+                                    disabled={isClone && !isSelected}
                                     onClick={() => setFormData({ ...formData, type: cat.id as any })}
                                     className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${isSelected
                                         ? 'bg-purple-50 border-purple-200 text-purple-700 shadow-sm'
-                                        : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'
+                                        : isClone ? 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed opacity-50' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'
                                         }`}
                                 >
-                                    <Icon size={20} className={`mb-1 ${isSelected ? 'text-purple-600' : 'text-gray-400'}`} />
+                                    <Icon size={20} className={`mb-1 ${isSelected ? 'text-purple-600' : isClone ? 'text-gray-300' : 'text-gray-400'}`} />
                                     <span className="text-xs font-bold text-center">{cat.label}</span>
                                 </button>
                             )
                         })}
                     </div>
+                    {!!(experienceToEdit as any)?.original_experience_id && (
+                        <p className="text-[9px] text-gray-400 mt-2 uppercase tracking-widest font-bold">Categoría definida por el creador original</p>
+                    )}
                 </div>
 
                 {/* 1.5 Área de Práctica (condicional) */}

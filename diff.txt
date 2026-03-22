@@ -1,0 +1,801 @@
+diff --git a/.gitignore b/.gitignore
+index b473ddb..c68bd09 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -59,8 +59,7 @@ supabase/.temp/
+ # Env demo
+ .env.demo
+ 
+-# Demo assets
+-public/logo-universidad-mistral.png
++
+ 
+ # Context
+ CONTEXTO_PRISMA.md
+\ No newline at end of file
+diff --git a/app/(app)/collaboration-actions.ts b/app/(app)/collaboration-actions.ts
+index bdc5168..78c6233 100644
+--- a/app/(app)/collaboration-actions.ts
++++ b/app/(app)/collaboration-actions.ts
+@@ -183,11 +183,11 @@ export async function respondToCollaboration(
+     collaborationId: string,
+     type: 'project' | 'experience',
+     accept: boolean
+-) {
++): Promise<{ success: boolean; clonedId?: string }> {
+     if (!accept) {
+         // If rejecting, completely remove the collaboration and remove from parent array
+         await removeCollaboration(collaborationId, type)
+-        return
++        return { success: true }
+     }
+ 
+     const supabase = await createClient()
+@@ -209,6 +209,45 @@ export async function respondToCollaboration(
+         .eq('collaborator_id', user.id)
+ 
+     if (error) throw error
++
++    // Perform the clone (Fork) for the collaborator
++    let clonedId: string | undefined = undefined
++
++    if (type === 'project') {
++        const { data: collab } = await supabase.from('project_collaborations').select('project_id').eq('id', collaborationId).single()
++        if (collab && collab.project_id) {
++            const { data: original } = await supabase.from('projects').select('*').eq('id', collab.project_id).single()
++            if (original) {
++                const { id, user_id, original_project_id, ...projectDataToClone } = original
++                const newProjectData = {
++                    ...projectDataToClone,
++                    user_id: user.id,
++                    original_project_id: original.id,
++                    collaborator_ids: [] // We don't copy the collaborators to the clone
++                }
++                const { data: cloned } = await supabase.from('projects').insert(newProjectData).select('id').single()
++                if (cloned) clonedId = cloned.id
++            }
++        }
++    } else {
++        const { data: collab } = await supabase.from('experience_collaborations').select('experience_id').eq('id', collaborationId).single()
++        if (collab && collab.experience_id) {
++            const { data: original } = await supabase.from('experiences').select('*').eq('id', collab.experience_id).single()
++            if (original) {
++                const { id, user_id, original_experience_id, ...experienceDataToClone } = original
++                const newExperienceData = {
++                    ...experienceDataToClone,
++                    user_id: user.id,
++                    original_experience_id: original.id,
++                    collaborator_ids: []
++                }
++                const { data: cloned } = await supabase.from('experiences').insert(newExperienceData).select('id').single()
++                if (cloned) clonedId = cloned.id
++            }
++        }
++    }
++
++    return { success: true, clonedId }
+ }
+ 
+ /**
+diff --git a/app/(app)/dashboard/page.tsx b/app/(app)/dashboard/page.tsx
+index 8b6fa0b..ecdd5ba 100644
+--- a/app/(app)/dashboard/page.tsx
++++ b/app/(app)/dashboard/page.tsx
+@@ -69,9 +69,16 @@ export default async function DashboardPage() {
+     // 4. Fetch accepted collaborations
+     const { projects: collabProjects, experiences: collabExperiences } = await getAcceptedCollaborations(user.id)
+ 
++    // Filter out collaborations that the user has already cloned
++    const clonedProjectIds = new Set((projects || []).map(p => p.original_project_id).filter(Boolean));
++    const filteredCollabProjects = collabProjects.filter(p => !clonedProjectIds.has(p.id));
++    
++    const clonedExperienceIds = new Set((experiences || []).map(e => e.original_experience_id).filter(Boolean));
++    const filteredCollabExperiences = collabExperiences.filter(e => !clonedExperienceIds.has(e.id));
++
+     // Merge collaborations into own projects/experiences
+-    const allProjects = [...(projects || []), ...collabProjects] as any[]
+-    const allExperiences = [...(experiences || []), ...collabExperiences] as any[]
++    const allProjects = [...(projects || []), ...filteredCollabProjects] as any[]
++    const allExperiences = [...(experiences || []), ...filteredCollabExperiences] as any[]
+ 
+     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
+     const hitosUnificados: any[] = []
+diff --git a/app/[username]/experiencias/[id]/page.tsx b/app/[username]/experiencias/[id]/page.tsx
+index b357104..58f069b 100644
+--- a/app/[username]/experiencias/[id]/page.tsx
++++ b/app/[username]/experiencias/[id]/page.tsx
+@@ -50,6 +50,27 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
+         }
+     }
+ 
++    // 3. Check if it's a Fork/Clone of another experience
++    let originalExperienceProfile: { username: string; full_name: string | null; title: string } | null = null;
++    if (experience.original_experience_id) {
++        const { data: originalExp } = await supabase
++            .from('experiences')
++            .select('user_id, title')
++            .eq('id', experience.original_experience_id)
++            .single()
++        
++        if (originalExp) {
++            const { data: originalProf } = await supabase
++                .from('profiles')
++                .select('username, full_name')
++                .eq('id', originalExp.user_id)
++                .single()
++            if (originalProf) {
++                originalExperienceProfile = { ...originalProf, title: originalExp.title }
++            }
++        }
++    }
++
+     const formatDate = (dateString: string) => {
+         return new Date(dateString).toLocaleDateString('es-ES', {
+             year: 'numeric',
+@@ -142,6 +163,26 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
+                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                     {/* Left Column: Content */}
+                     <div className="lg:col-span-8 space-y-12">
++                        {originalExperienceProfile && (
++                            <Link 
++                                href={`/${originalExperienceProfile.username}/experiencias/${experience.original_experience_id}`}
++                                className="block w-full bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 rounded-[2rem] p-6 hover:border-purple-300 transition-colors shadow-sm"
++                            >
++                                <div className="flex items-start gap-4">
++                                    <div className="p-3 bg-purple-100/50 text-purple-600 rounded-xl shrink-0 mt-0.5">
++                                        <Award size={24} />
++                                    </div>
++                                    <div>
++                                        <h4 className="text-xs font-mono font-bold text-purple-900 uppercase tracking-widest mb-1.5">
++                                            Experiencia Colaborativa
++                                        </h4>
++                                        <p className="text-base text-purple-800 font-medium">
++                                            Origen: <span className="font-bold">{originalExperienceProfile.title}</span> por {originalExperienceProfile.full_name || originalExperienceProfile.username}
++                                        </p>
++                                    </div>
++                                </div>
++                            </Link>
++                        )}
+                         {/* 3. Text Content in Premium Card */}
+ 
+                         <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
+diff --git a/app/[username]/page.tsx b/app/[username]/page.tsx
+index 7eca8f2..366b675 100644
+--- a/app/[username]/page.tsx
++++ b/app/[username]/page.tsx
+@@ -246,9 +246,16 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
+     // Fetch accepted collaborations for this profile
+     const { projects: collabProjects, experiences: collabExperiences } = await getAcceptedCollaborations(profile.id)
+ 
++    // Filter out collaborations that the user has already cloned
++    const clonedProjectIds = new Set((projects || []).map(p => p.original_project_id).filter(Boolean));
++    const filteredCollabProjects = collabProjects.filter(p => !clonedProjectIds.has(p.id));
++    
++    const clonedExperienceIds = new Set((experiences || []).map(e => e.original_experience_id).filter(Boolean));
++    const filteredCollabExperiences = collabExperiences.filter(e => !clonedExperienceIds.has(e.id));
++
+     // Merge collaborations into own items
+-    const allProjects = [...(projects || []), ...collabProjects] as any[]
+-    const allExperiences = [...(experiences || []), ...collabExperiences] as any[]
++    const allProjects = [...(projects || []), ...filteredCollabProjects] as any[]
++    const allExperiences = [...(experiences || []), ...filteredCollabExperiences] as any[]
+ 
+     // 3. Fetch curated vitrina items if featured_items exists
+     let curatedVitrinaItems: any[] = []
+diff --git a/app/[username]/project/[id]/page.tsx b/app/[username]/project/[id]/page.tsx
+index 918e4d9..17920d2 100644
+--- a/app/[username]/project/[id]/page.tsx
++++ b/app/[username]/project/[id]/page.tsx
+@@ -50,6 +50,27 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
+         }
+     }
+ 
++    // 3. Check if it's a Fork/Clone of another project
++    let originalProjectProfile: { username: string; full_name: string | null; title: string } | null = null;
++    if (project.original_project_id) {
++        const { data: originalProj } = await supabase
++            .from('projects')
++            .select('user_id, title')
++            .eq('id', project.original_project_id)
++            .single()
++        
++        if (originalProj) {
++            const { data: originalProf } = await supabase
++                .from('profiles')
++                .select('username, full_name')
++                .eq('id', originalProj.user_id)
++                .single()
++            if (originalProf) {
++                originalProjectProfile = { ...originalProf, title: originalProj.title }
++            }
++        }
++    }
++
+     const formatDate = (dateString: string) => {
+         return new Date(dateString).toLocaleDateString('es-ES', {
+             year: 'numeric',
+@@ -90,6 +111,26 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
+ 
+                     {/* Main Content */}
+                     <div className="lg:col-span-2 space-y-8">
++                        {originalProjectProfile && (
++                            <Link 
++                                href={`/${originalProjectProfile.username}/project/${project.original_project_id}`}
++                                className="block w-full bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl p-4 hover:border-indigo-300 transition-colors shadow-sm mb-4"
++                            >
++                                <div className="flex items-start gap-3">
++                                    <div className="p-2 bg-indigo-100/50 text-indigo-500 rounded-lg shrink-0 mt-0.5">
++                                        <Code size={18} />
++                                    </div>
++                                    <div>
++                                        <h4 className="text-xs font-bold text-indigo-900 uppercase tracking-wide mb-1">
++                                            Proyecto colaborativo
++                                        </h4>
++                                        <p className="text-sm text-indigo-700 font-medium">
++                                            Origen: <span className="font-bold">{originalProjectProfile.title}</span> por {originalProjectProfile.full_name || originalProjectProfile.username}
++                                        </p>
++                                    </div>
++                                </div>
++                            </Link>
++                        )}
+                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                             <div className="flex flex-wrap items-center gap-3 mb-4">
+                                 <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase tracking-widest ${project.type === 'startup' ? 'bg-blue-100 text-blue-700' :
+diff --git a/components/dashboard/CollaborationInbox.tsx b/components/dashboard/CollaborationInbox.tsx
+index 600a3e4..5a68069 100644
+--- a/components/dashboard/CollaborationInbox.tsx
++++ b/components/dashboard/CollaborationInbox.tsx
+@@ -1,8 +1,8 @@
+ 'use client'
+ 
+ import { useState, useEffect } from 'react'
+-import { Users, Check, X, ChevronDown, ChevronUp, Briefcase, Sparkles, Loader2, Plus, HelpCircle } from 'lucide-react'
+-import { getPendingCollaborations, respondToCollaboration, updateCollaborationDetails } from '@/app/(app)/collaboration-actions'
++import { Users, Check, X, Briefcase, Sparkles, Loader2, HelpCircle } from 'lucide-react'
++import { getPendingCollaborations, respondToCollaboration } from '@/app/(app)/collaboration-actions'
+ 
+ interface CollaborationInboxProps {
+     userId: string
+@@ -11,14 +11,6 @@ interface CollaborationInboxProps {
+ export default function CollaborationInbox({ userId }: CollaborationInboxProps) {
+     const [loading, setLoading] = useState(true)
+     const [collaborations, setCollaborations] = useState<{ projects: any[]; experiences: any[] }>({ projects: [], experiences: [] })
+-    const [expandedId, setExpandedId] = useState<string | null>(null)
+-    const [customRole, setCustomRole] = useState('')
+-    const [customLearnings, setCustomLearnings] = useState('')
+-    const [selectedHardSkills, setSelectedHardSkills] = useState<string[]>([])
+-    const [selectedSoftSkills, setSelectedSoftSkills] = useState<string[]>([])
+-    const [newSkillInput, setNewSkillInput] = useState('')
+-    const [showInProfile, setShowInProfile] = useState(true)
+-    const [showInTimeline, setShowInTimeline] = useState(true)
+     const [responding, setResponding] = useState<string | null>(null)
+     const [showHelp, setShowHelp] = useState(false)
+ 
+@@ -44,20 +36,7 @@ export default function CollaborationInbox({ userId }: CollaborationInboxProps)
+     const handleAccept = async (collab: any) => {
+         setResponding(collab.id)
+         try {
+-            await respondToCollaboration(collab.id, collab.type, true)
+-
+-            // If user customized, update details
+-            const hasCustomizations = customRole || customLearnings || selectedHardSkills.length > 0 || selectedSoftSkills.length > 0 || !showInProfile || !showInTimeline
+-            if (hasCustomizations) {
+-                await updateCollaborationDetails(collab.id, collab.type, {
+-                    customRole: customRole || undefined,
+-                    customLearnings: customLearnings || undefined,
+-                    customHardSkills: selectedHardSkills.length > 0 ? selectedHardSkills : undefined,
+-                    customSoftSkills: selectedSoftSkills.length > 0 ? selectedSoftSkills : undefined,
+-                    showInProfile,
+-                    showInTimeline
+-                })
+-            }
++            const result = await respondToCollaboration(collab.id, collab.type, true)
+ 
+             // Remove from local state
+             if (collab.type === 'project') {
+@@ -72,7 +51,12 @@ export default function CollaborationInbox({ userId }: CollaborationInboxProps)
+                 }))
+             }
+ 
+-            resetForm()
++            // Navigate to the newly cloned project/experience detail view
++            if (result && result.clonedId) {
++                window.location.href = collab.type === 'project'
++                    ? `/dashboard/project/${result.clonedId}?edit=true`
++                    : `/dashboard/experiencias/${result.clonedId}?edit=true`
++            }
+         } catch (err) {
+             console.error('Error accepting collaboration:', err)
+             alert('Error al aceptar la colaboración')
+@@ -107,60 +91,6 @@ export default function CollaborationInbox({ userId }: CollaborationInboxProps)
+         }
+     }
+ 
+-    const resetForm = () => {
+-        setExpandedId(null)
+-        setCustomRole('')
+-        setCustomLearnings('')
+-        setSelectedHardSkills([])
+-        setSelectedSoftSkills([])
+-        setNewSkillInput('')
+-        setShowInProfile(true)
+-        setShowInTimeline(true)
+-    }
+-
+-    const toggleExpand = (id: string, collab: any) => {
+-        if (expandedId === id) {
+-            setExpandedId(null)
+-        } else {
+-            setExpandedId(id)
+-            setCustomRole('')
+-            setCustomLearnings('')
+-            setNewSkillInput('')
+-            setShowInProfile(true)
+-            setShowInTimeline(true)
+-            // Pre-select all original skills
+-            const original = collab.type === 'project' ? collab.project : collab.experience
+-            setSelectedHardSkills([...(original?.hard_skills || [])])
+-            setSelectedSoftSkills([...(original?.soft_skills || [])])
+-        }
+-    }
+-
+-    const toggleSkill = (skill: string, type: 'hard' | 'soft') => {
+-        if (type === 'hard') {
+-            setSelectedHardSkills(prev =>
+-                prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+-            )
+-        } else {
+-            setSelectedSoftSkills(prev =>
+-                prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+-            )
+-        }
+-    }
+-
+-    const addCustomSkill = (type: 'hard' | 'soft') => {
+-        const trimmed = newSkillInput.trim()
+-        if (!trimmed) return
+-        if (type === 'hard') {
+-            if (!selectedHardSkills.includes(trimmed)) {
+-                setSelectedHardSkills(prev => [...prev, trimmed])
+-            }
+-        } else {
+-            if (!selectedSoftSkills.includes(trimmed)) {
+-                setSelectedSoftSkills(prev => [...prev, trimmed])
+-            }
+-        }
+-        setNewSkillInput('')
+-    }
+ 
+     return (
+         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
+@@ -190,13 +120,11 @@ export default function CollaborationInbox({ userId }: CollaborationInboxProps)
+             {showHelp && (
+                 <div className="bg-white border border-indigo-100 rounded-xl p-4 text-xs text-slate-600 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                     <p className="font-bold text-slate-800">¿Qué son las invitaciones de colaboración?</p>
+-                    <p>Otro usuario te ha agregado como colaborador en uno de sus proyectos o experiencias. Puedes:</p>
+-                    <ul className="list-disc pl-4 space-y-1">
+-                        <li><strong>Aceptar directamente</strong> — el proyecto/experiencia aparecerá en tu perfil con las skills del original.</li>
+-                        <li><strong>Personalizar antes de aceptar</strong> — presiona la flecha ↓ para definir tu rol, aprendizajes, elegir qué skills aplican a tu participación, y agregar skills propias.</li>
+-                        <li><strong>Rechazar</strong> — el proyecto no aparecerá en tu perfil.</li>
++                    <p>Otro usuario te ha agregado como colaborador. Al aceptar, el proyecto se clonará en tu portafolio para que puedas editar tu participación.</p>
++                    <ul className="list-disc pl-4 space-y-1 mt-2">
++                        <li><strong>Aceptar y Editar</strong> — se clonará el proyecto y te llevaremos a editarlo para que cuentes tu propia versión.</li>
++                        <li><strong>Rechazar</strong> — el proyecto no aparecerá en tu perfil y la invitación será eliminada.</li>
+                     </ul>
+-                    <p className="text-slate-400">Puedes eliminar la colaboración de tu perfil en cualquier momento desde tu dashboard.</p>
+                 </div>
+             )}
+ 
+@@ -207,7 +135,6 @@ export default function CollaborationInbox({ userId }: CollaborationInboxProps)
+                     const original = isProject ? collab.project : collab.experience
+                     const ownerName = collab.owner?.full_name || collab.owner?.username || 'Alguien'
+                     const ownerAvatar = collab.owner?.avatar_url
+-                    const isExpanded = expandedId === collab.id
+                     const isResponding = responding === collab.id
+ 
+                     // Get original skills for chip display
+@@ -254,13 +181,6 @@ export default function CollaborationInbox({ userId }: CollaborationInboxProps)
+                                     >
+                                         <X size={14} />
+                                     </button>
+-                                    <button
+-                                        onClick={() => toggleExpand(collab.id, collab)}
+-                                        className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:border-indigo-200 transition-colors"
+-                                        title="Personalizar antes de aceptar"
+-                                    >
+-                                        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+-                                    </button>
+                                     <button
+                                         onClick={() => handleAccept(collab)}
+                                         disabled={isResponding}
+@@ -271,165 +191,12 @@ export default function CollaborationInbox({ userId }: CollaborationInboxProps)
+                                         ) : (
+                                             <>
+                                                 <Check size={12} />
+-                                                Aceptar
++                                                Aceptar y Editar
+                                             </>
+                                         )}
+                                     </button>
+                                 </div>
+                             </div>
+-
+-                            {/* Expanded customization panel */}
+-                            {isExpanded && (
+-                                <div className="px-4 pb-4 pt-0 border-t border-slate-100 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+-                                    <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider pt-3">
+-                                        Personaliza cómo se mostrará en tu perfil
+-                                    </p>
+-
+-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+-                                        <div>
+-                                            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-1">
+-                                                Tu Rol
+-                                            </label>
+-                                            <input
+-                                                type="text"
+-                                                value={customRole}
+-                                                onChange={(e) => setCustomRole(e.target.value)}
+-                                                placeholder="Ej: Desarrollador Frontend"
+-                                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+-                                            />
+-                                        </div>
+-                                        <div>
+-                                            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-1">
+-                                                Aprendizajes
+-                                            </label>
+-                                            <input
+-                                                type="text"
+-                                                value={customLearnings}
+-                                                onChange={(e) => setCustomLearnings(e.target.value)}
+-                                                placeholder="Ej: Aprendí a trabajar en equipo..."
+-                                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+-                                            />
+-                                        </div>
+-                                    </div>
+-
+-                                    {/* Skills section */}
+-                                    {(originalHardSkills.length > 0 || originalSoftSkills.length > 0) && (
+-                                        <div className="space-y-3">
+-                                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+-                                                Selecciona las skills que aplican a tu participación
+-                                            </p>
+-
+-                                            {originalHardSkills.length > 0 && (
+-                                                <div>
+-                                                    <p className="text-[9px] font-mono text-slate-400 uppercase tracking-wider mb-1.5">Hard Skills</p>
+-                                                    <div className="flex flex-wrap gap-1.5">
+-                                                        {originalHardSkills.map(skill => (
+-                                                            <button
+-                                                                key={`h-${skill}`}
+-                                                                onClick={() => toggleSkill(skill, 'hard')}
+-                                                                className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all border ${selectedHardSkills.includes(skill)
+-                                                                    ? 'bg-indigo-100 text-indigo-700 border-indigo-200'
+-                                                                    : 'bg-slate-50 text-slate-400 border-slate-200 line-through'
+-                                                                    }`}
+-                                                            >
+-                                                                {skill}
+-                                                            </button>
+-                                                        ))}
+-                                                        {/* Custom hard skills added by collaborator */}
+-                                                        {selectedHardSkills.filter(s => !originalHardSkills.includes(s)).map(skill => (
+-                                                            <button
+-                                                                key={`hc-${skill}`}
+-                                                                onClick={() => toggleSkill(skill, 'hard')}
+-                                                                className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-emerald-100 text-emerald-700 border border-emerald-200 transition-all"
+-                                                            >
+-                                                                {skill} ✕
+-                                                            </button>
+-                                                        ))}
+-                                                    </div>
+-                                                </div>
+-                                            )}
+-
+-                                            {originalSoftSkills.length > 0 && (
+-                                                <div>
+-                                                    <p className="text-[9px] font-mono text-slate-400 uppercase tracking-wider mb-1.5">Soft Skills</p>
+-                                                    <div className="flex flex-wrap gap-1.5">
+-                                                        {originalSoftSkills.map(skill => (
+-                                                            <button
+-                                                                key={`s-${skill}`}
+-                                                                onClick={() => toggleSkill(skill, 'soft')}
+-                                                                className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all border ${selectedSoftSkills.includes(skill)
+-                                                                    ? 'bg-purple-100 text-purple-700 border-purple-200'
+-                                                                    : 'bg-slate-50 text-slate-400 border-slate-200 line-through'
+-                                                                    }`}
+-                                                            >
+-                                                                {skill}
+-                                                            </button>
+-                                                        ))}
+-                                                        {selectedSoftSkills.filter(s => !originalSoftSkills.includes(s)).map(skill => (
+-                                                            <button
+-                                                                key={`sc-${skill}`}
+-                                                                onClick={() => toggleSkill(skill, 'soft')}
+-                                                                className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-emerald-100 text-emerald-700 border border-emerald-200 transition-all"
+-                                                            >
+-                                                                {skill} ✕
+-                                                            </button>
+-                                                        ))}
+-                                                    </div>
+-                                                </div>
+-                                            )}
+-
+-                                            {/* Add custom skill */}
+-                                            <div className="flex items-center gap-2">
+-                                                <input
+-                                                    type="text"
+-                                                    value={newSkillInput}
+-                                                    onChange={(e) => setNewSkillInput(e.target.value)}
+-                                                    onKeyDown={(e) => {
+-                                                        if (e.key === 'Enter') e.preventDefault()
+-                                                    }}
+-                                                    placeholder="Añadir skill propia..."
+-                                                    className="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+-                                                />
+-                                                <button
+-                                                    onClick={() => addCustomSkill('hard')}
+-                                                    disabled={!newSkillInput.trim()}
+-                                                    className="px-2.5 py-1.5 text-[9px] font-mono font-bold uppercase bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+-                                                >
+-                                                    + Hard
+-                                                </button>
+-                                                <button
+-                                                    onClick={() => addCustomSkill('soft')}
+-                                                    disabled={!newSkillInput.trim()}
+-                                                    className="px-2.5 py-1.5 text-[9px] font-mono font-bold uppercase bg-purple-50 text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+-                                                >
+-                                                    + Soft
+-                                                </button>
+-                                            </div>
+-                                        </div>
+-                                    )}
+-
+-                                    <div className="flex items-center gap-6 pt-1">
+-                                        <label className="flex items-center gap-2 cursor-pointer">
+-                                            <input
+-                                                type="checkbox"
+-                                                checked={showInProfile}
+-                                                onChange={(e) => setShowInProfile(e.target.checked)}
+-                                                className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+-                                            />
+-                                            <span className="text-xs text-slate-600 font-medium">Mostrar en mi perfil</span>
+-                                        </label>
+-                                        <label className="flex items-center gap-2 cursor-pointer">
+-                                            <input
+-                                                type="checkbox"
+-                                                checked={showInTimeline}
+-                                                onChange={(e) => setShowInTimeline(e.target.checked)}
+-                                                className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+-                                            />
+-                                            <span className="text-xs text-slate-600 font-medium">Mostrar en trayectoria</span>
+-                                        </label>
+-                                    </div>
+-                                </div>
+-                            )}
+                         </div>
+                     )
+                 })}
+diff --git a/components/dashboard/DashboardContent.tsx b/components/dashboard/DashboardContent.tsx
+index 99ddb04..73a1aca 100644
+--- a/components/dashboard/DashboardContent.tsx
++++ b/components/dashboard/DashboardContent.tsx
+@@ -263,13 +263,28 @@ export default function DashboardContent({
+         router.refresh()
+     }
+ 
+-    const handleDelete = async (table: 'projects' | 'experiences' | 'achievements' | 'testimonials', id: string) => {
++    const handleDelete = async (table: 'projects' | 'experiences' | 'achievements' | 'testimonials', id: string, originalId?: string) => {
+         if (!confirm('¿Estás seguro de eliminar este elemento?')) return
+ 
+         const { error } = await supabase.from(table).delete().eq('id', id)
+         if (error) {
+             alert('Error al eliminar')
+         } else {
++            if (originalId) {
++                const collabTable = table === 'projects' ? 'project_collaborations' : 'experience_collaborations'
++                const parentIdField = table === 'projects' ? 'project_id' : 'experience_id'
++                
++                const { data: collab } = await supabase
++                    .from(collabTable)
++                    .select('id')
++                    .eq(parentIdField, originalId)
++                    .eq('collaborator_id', profile.id)
++                    .single()
++                    
++                if (collab) {
++                    await removeCollaboration(collab.id, table === 'projects' ? 'project' : 'experience').catch(console.error)
++                }
++            }
+             router.refresh()
+         }
+     }
+@@ -490,7 +505,7 @@ export default function DashboardContent({
+                                                 href={isCollab && exp.ownerProfile ? `/${exp.ownerProfile.username}/experiencias/${exp.id}` : `/dashboard/experiencias/${exp.id}`}
+                                                 isEditable={true}
+                                                 onEdit={isCollab ? undefined : () => { setEditingExp(exp); setIsExpModalOpen(true); }}
+-                                                onDelete={isCollab ? () => handleRemoveCollaboration(exp.collaborationId, 'experience') : () => handleDelete('experiences', exp.id)}
++                                                onDelete={isCollab ? () => handleRemoveCollaboration(exp.collaborationId, 'experience') : () => handleDelete('experiences', exp.id, exp.original_experience_id)}
+                                             >
+                                                 {isCollab && exp.collaborationLearnings && (
+                                                     <div className="mt-4 pl-3 border-l-2 border-emerald-200">
+@@ -559,7 +574,7 @@ export default function DashboardContent({
+                                                 isEditable={true}
+                                                 is_learning_artifact={proj.is_startup}
+                                                 onEdit={isCollab ? undefined : () => { setEditingProj(proj); setIsProjModalOpen(true); }}
+-                                                onDelete={isCollab ? () => handleRemoveCollaboration(proj.collaborationId, 'project') : () => handleDelete('projects', proj.id)}
++                                                onDelete={isCollab ? () => handleRemoveCollaboration(proj.collaborationId, 'project') : () => handleDelete('projects', proj.id, proj.original_project_id)}
+                                             >
+                                                 {isCollab && proj.collaborationLearnings && (
+                                                     <div className="mt-4 pl-3 border-l-2 border-emerald-200">
+diff --git a/components/dashboard/ExperienceDetailActions.tsx b/components/dashboard/ExperienceDetailActions.tsx
+index fb23a30..5662edc 100644
+--- a/components/dashboard/ExperienceDetailActions.tsx
++++ b/components/dashboard/ExperienceDetailActions.tsx
+@@ -1,13 +1,14 @@
+ 'use client'
+ 
+-import { useState } from 'react'
+-import { useRouter } from 'next/navigation'
++import { useState, useEffect } from 'react'
++import { useRouter, useSearchParams } from 'next/navigation'
+ import { ArrowLeft, Pencil, Trash2, Loader2, X } from 'lucide-react'
+ import Link from 'next/link'
+ import { Experience } from '@/types/database.types'
+ import ExperienceFormModal from './ExperienceFormModal'
+ import { createClient } from '@/utils/supabase/client'
+ import Modal from '@/components/ui/Modal'
++import { removeCollaboration } from '@/app/(app)/collaboration-actions'
+ 
+ interface ExperienceDetailActionsProps {
+     experience: Experience
+@@ -16,14 +17,38 @@ interface ExperienceDetailActionsProps {
+ 
+ export default function ExperienceDetailActions({ experience, userId }: ExperienceDetailActionsProps) {
+     const router = useRouter()
++    const searchParams = useSearchParams()
+     const supabase = createClient()
+     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+     const [isDeleting, setIsDeleting] = useState(false)
+ 
++    useEffect(() => {
++        if (searchParams.get('edit') === 'true') {
++            setIsEditModalOpen(true)
++            // Cleanup URL so Next.js internal router updates
++            const url = new URL(window.location.href)
++            url.searchParams.delete('edit')
++            router.replace(url.pathname + url.search, { scroll: false })
++        }
++    }, [searchParams, router])
++
+     const handleDelete = async () => {
+         setIsDeleting(true)
+         try {
++            if (experience.original_experience_id) {
++                const { data: collab } = await supabase
++                    .from('experience_collaborations')
++                    .select('id')
++                    .eq('experience_id', experience.original_experience_id)
++                    .eq('collaborator_id', userId)
++                    .single()
++                    
++                if (collab) {
++                    await removeCollaboration(collab.id, 'experience').catch(console.error)
++                }
++            }
++
+             const { error } = await supabase.from('experiences').delete().eq('id', experience.id)
+             if (error) throw error
+             router.push('/dashboard?tab=experiencias')
+diff --git a/components/dashboard/ProjectDetailActions.tsx b/components/dashboard/ProjectDetailActions.tsx
+index e1f194b..bca9335 100644
+--- a/components/dashboard/ProjectDetailActions.tsx
++++ b/components/dashboard/ProjectDetailActions.tsx
+@@ -1,13 +1,14 @@
+ 'use client'
+ 
+-import { useState } from 'react'
+-import { useRouter } from 'next/navigation'
++import { useState, useEffect } from 'react'
++import { useRouter, useSearchParams } from 'next/navigation'
+ import { ArrowLeft, Pencil, Trash2, Loader2, X } from 'lucide-react'
+ import Link from 'next/link'
+ import { Project } from '@/types/database.types'
+ import ProjectFormModal from './ProjectFormModal'
+ import { createClient } from '@/utils/supabase/client'
+ import Modal from '@/components/ui/Modal'
++import { removeCollaboration } from '@/app/(app)/collaboration-actions'
+ 
+ interface ProjectDetailActionsProps {
+     project: Project
+@@ -16,14 +17,38 @@ interface ProjectDetailActionsProps {
+ 
+ export default function ProjectDetailActions({ project, userId }: ProjectDetailActionsProps) {
+     const router = useRouter()
++    const searchParams = useSearchParams()
+     const supabase = createClient()
+     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+     const [isDeleting, setIsDeleting] = useState(false)
+ 
++    useEffect(() => {
++        if (searchParams.get('edit') === 'true') {
++            setIsEditModalOpen(true)
++            // Cleanup URL so Next.js internal router updates
++            const url = new URL(window.location.href)
++            url.searchParams.delete('edit')
++            router.replace(url.pathname + url.search, { scroll: false })
++        }
++    }, [searchParams, router])
++
+     const handleDelete = async () => {
+         setIsDeleting(true)
+         try {
++            if (project.original_project_id) {
++                const { data: collab } = await supabase
++                    .from('project_collaborations')
++                    .select('id')
++                    .eq('project_id', project.original_project_id)
++                    .eq('collaborator_id', userId)
++                    .single()
++                    
++                if (collab) {
++                    await removeCollaboration(collab.id, 'project').catch(console.error)
++                }
++            }
++
+             const { error } = await supabase.from('projects').delete().eq('id', project.id)
+             if (error) throw error
+             router.push('/dashboard?tab=proyectos')
+diff --git a/types/database.types.ts b/types/database.types.ts
+index 3ee6ab0..8384f41 100644
+--- a/types/database.types.ts
++++ b/types/database.types.ts
+@@ -280,6 +280,7 @@ export interface Database {
+                     gallery_images: string[]
+                     collaborator_ids: string[]
+                     show_in_timeline: boolean
++                    original_project_id: string | null
+                     created_at: string
+                     updated_at: string
+                 }
+@@ -305,6 +306,7 @@ export interface Database {
+                     gallery_images?: string[]
+                     collaborator_ids?: string[]
+                     show_in_timeline?: boolean
++                    original_project_id?: string | null
+                     created_at?: string
+                 }
+                 Update: {
+@@ -327,6 +329,7 @@ export interface Database {
+                     gallery_images?: string[]
+                     collaborator_ids?: string[]
+                     show_in_timeline?: boolean
++                    original_project_id?: string | null
+                     updated_at?: string
+                 }
+                 Relationships: [
+@@ -406,6 +409,7 @@ export interface Database {
+                     is_featured: boolean | null
+                     show_in_timeline: boolean | null
+                     collaborator_ids: string[] | null
++                    original_experience_id: string | null
+                     created_at: string
+                     updated_at: string
+                 }
+@@ -430,6 +434,7 @@ export interface Database {
+                     is_featured?: boolean | null
+                     show_in_timeline?: boolean | null
+                     collaborator_ids?: string[] | null
++                    original_experience_id?: string | null
+                     created_at?: string
+                     updated_at?: string
+                 }
+@@ -452,6 +457,7 @@ export interface Database {
+                     is_featured?: boolean | null
+                     show_in_timeline?: boolean | null
+                     collaborator_ids?: string[] | null
++                    original_experience_id?: string | null
+                     updated_at?: string
+                 }
+                 Relationships: [

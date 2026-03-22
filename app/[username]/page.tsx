@@ -23,7 +23,9 @@ import {
     Palette,
     HeartPulse,
     Star,
-    Stethoscope
+    Stethoscope,
+    Lightbulb,
+    Rocket
 } from 'lucide-react'
 import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from '@/constants/images'
 
@@ -246,9 +248,16 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
     // Fetch accepted collaborations for this profile
     const { projects: collabProjects, experiences: collabExperiences } = await getAcceptedCollaborations(profile.id)
 
+    // Filter out collaborations that the user has already cloned
+    const clonedProjectIds = new Set((projects || []).map(p => p.original_project_id).filter(Boolean));
+    const filteredCollabProjects = collabProjects.filter(p => !clonedProjectIds.has(p.id));
+    
+    const clonedExperienceIds = new Set((experiences || []).map(e => e.original_experience_id).filter(Boolean));
+    const filteredCollabExperiences = collabExperiences.filter(e => !clonedExperienceIds.has(e.id));
+
     // Merge collaborations into own items
-    const allProjects = [...(projects || []), ...collabProjects] as any[]
-    const allExperiences = [...(experiences || []), ...collabExperiences] as any[]
+    const allProjects = [...(projects || []), ...filteredCollabProjects] as any[]
+    const allExperiences = [...(experiences || []), ...filteredCollabExperiences] as any[]
 
     // 3. Fetch curated vitrina items if featured_items exists
     let curatedVitrinaItems: any[] = []
@@ -618,7 +627,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {allExperiences?.length ? (
                                     allExperiences.map((exp) => {
-                                        const isCollab = exp.isCollaboration
+                                        const isCollab = exp.isCollaboration || (exp.collaborator_ids && exp.collaborator_ids.length > 0) || exp.original_experience_id
                                         const cat = EXP_CATEGORY_MAP[exp.type || 'otro'] || EXP_CATEGORY_MAP.otro;
                                         const Icon = cat.icon;
                                         return (
@@ -633,8 +642,8 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                                                             {cat.label}
                                                         </span>
                                                         {isCollab && (
-                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                                                <Users size={10} /> Colaborador
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-violet-50 text-violet-600 border border-violet-200">
+                                                                <Users size={10} /> Collab
                                                             </span>
                                                         )}
                                                     </div>
@@ -670,17 +679,41 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {allProjects?.length ? (
                                     allProjects.map((proj) => {
-                                        const isCollab = proj.isCollaboration
+                                        const isCollab = proj.isCollaboration || (proj.collaborator_ids && proj.collaborator_ids.length > 0) || proj.original_project_id
+                                        
+                                        const PROJECT_LABELS: Record<string, string> = {
+                                            academic: 'Portafolio Académico',
+                                            startup: 'Emprendimiento',
+                                            personal: 'Innovación Personal'
+                                        }
+                                        const PROJECT_STYLES: Record<string, { bg: string, color: string, border: string, icon: any }> = {
+                                            academic: { bg: 'bg-indigo-50', color: 'text-indigo-600', border: 'border-indigo-100', icon: GraduationCap },
+                                            startup: { bg: 'bg-blue-50', color: 'text-blue-600', border: 'border-blue-100', icon: Rocket },
+                                            personal: { bg: 'bg-emerald-50', color: 'text-emerald-600', border: 'border-emerald-100', icon: Lightbulb }
+                                        }
+                                        
+                                        const pType = proj.type || 'personal'
+                                        const pStyle = PROJECT_STYLES[pType] || PROJECT_STYLES.personal
+                                        const PIcon = pStyle.icon
+
                                         return (
                                             <BaseCard
-                                                key={isCollab ? `collab-proj-${proj.id}` : proj.id}
+                                                key={proj.isCollaboration ? `collab-proj-${proj.id}` : proj.id}
                                                 title={proj.title}
-                                                subtitle={isCollab ? (proj.collaborationRole || 'Colaborador') : (proj.role || proj.type)}
-                                                overline={isCollab ? (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                                        <Users size={10} /> Colaborador
-                                                    </span>
-                                                ) : undefined}
+                                                subtitle={proj.isCollaboration ? (proj.collaborationRole || 'Colaborador') : (proj.role || PROJECT_LABELS[pType] || pType)}
+                                                overline={
+                                                    <div className="flex items-center flex-wrap gap-2">
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${pStyle.bg} ${pStyle.color} ${pStyle.border}`}>
+                                                            <PIcon size={12} strokeWidth={2.5} />
+                                                            {PROJECT_LABELS[pType] || pType}
+                                                        </span>
+                                                        {isCollab && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-violet-50 text-violet-600 border border-violet-200">
+                                                                <Users size={10} /> Collab
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                }
                                                 description={proj.description || ""}
                                                 imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
                                                 tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}

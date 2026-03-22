@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Pencil, Trash2, Loader2, X } from 'lucide-react'
 import Link from 'next/link'
 import { Project } from '@/types/database.types'
 import ProjectFormModal from './ProjectFormModal'
 import { createClient } from '@/utils/supabase/client'
 import Modal from '@/components/ui/Modal'
+import { removeCollaboration } from '@/app/(app)/collaboration-actions'
 
 interface ProjectDetailActionsProps {
     project: Project
@@ -16,14 +17,38 @@ interface ProjectDetailActionsProps {
 
 export default function ProjectDetailActions({ project, userId }: ProjectDetailActionsProps) {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const supabase = createClient()
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
 
+    useEffect(() => {
+        if (searchParams.get('edit') === 'true') {
+            setIsEditModalOpen(true)
+            // Cleanup URL so Next.js internal router updates
+            const url = new URL(window.location.href)
+            url.searchParams.delete('edit')
+            router.replace(url.pathname + url.search, { scroll: false })
+        }
+    }, [searchParams, router])
+
     const handleDelete = async () => {
         setIsDeleting(true)
         try {
+            if (project.original_project_id) {
+                const { data: collab } = await supabase
+                    .from('project_collaborations')
+                    .select('id')
+                    .eq('project_id', project.original_project_id)
+                    .eq('collaborator_id', userId)
+                    .single()
+                    
+                if (collab) {
+                    await removeCollaboration(collab.id, 'project').catch(console.error)
+                }
+            }
+
             const { error } = await supabase.from('projects').delete().eq('id', project.id)
             if (error) throw error
             router.push('/dashboard?tab=proyectos')

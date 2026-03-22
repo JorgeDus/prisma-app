@@ -368,12 +368,16 @@ export default function ProjectFormModal({ isOpen, onClose, userId, projectToEdi
                         <select
                             value={formData.type}
                             onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 text-sm font-bold appearance-none cursor-pointer"
+                            disabled={!!projectToEdit?.original_project_id}
+                            className={`w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 text-sm font-bold appearance-none ${!!projectToEdit?.original_project_id ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
                         >
                             <option value="academic">Académico</option>
                             <option value="personal">Personal</option>
                             <option value="startup">Emprendimiento</option>
                         </select>
+                        {!!projectToEdit?.original_project_id && (
+                            <p className="text-[9px] text-gray-400 mt-1 uppercase tracking-widest font-bold">Categoría definida por el creador original</p>
+                        )}
                     </div>
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">

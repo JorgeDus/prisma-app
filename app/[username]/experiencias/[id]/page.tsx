@@ -30,23 +30,56 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
     }
 
     // 2. Fetch collaborator profiles if any
-    let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
-    if (experience.collaborator_ids && experience.collaborator_ids.length > 0) {
-        // Only fetch profiles that haven't rejected the invite
-        const { data: activeCollabs } = await supabase
-            .from('experience_collaborations')
-            .select('collaborator_id')
-            .eq('experience_id', experience.id)
-            .neq('status', 'rejected')
-
-        const activeIds = activeCollabs?.map(c => c.collaborator_id) || []
+    // 2b. Fetch the Unified Team (Root Owner + Accepted Collaborators)
+    const rootExperienceId = experience.original_experience_id || experience.id;
+    
+    // a) Get Root Owner
+    const { data: rootExp } = await supabase.from('experiences').select('user_id').eq('id', rootExperienceId).single();
+    let rootOwnerProfile = null;
+    if (rootExp) {
+        const { data } = await supabase.from('profiles').select('id, username, full_name, avatar_url, headline').eq('id', rootExp.user_id).single();
+        rootOwnerProfile = data;
+    }
+    
+    // b) Get Accepted Collaborators of the Root Experience
+    const { data: activeCollabs } = await supabase
+        .from('experience_collaborations')
+        .select('collaborator_id')
+        .eq('experience_id', rootExperienceId)
+        .eq('status', 'accepted');
         
-        if (activeIds.length > 0) {
-            const { data } = await supabase
+    const activeIds = activeCollabs?.map(c => c.collaborator_id) || [];
+    let collabProfiles: any[] = [];
+    if (activeIds.length > 0) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url, headline')
+            .in('id', activeIds);
+        collabProfiles = data || [];
+    }
+    
+    // c) Combine and deduplicate
+    const fullTeamRaw = [rootOwnerProfile, ...collabProfiles].filter(Boolean);
+    const uniqueTeam = Array.from(new Map(fullTeamRaw.map(item => [item.id, item])).values());
+
+    // 3. Check if it's a Fork/Clone of another experience
+    let originalExperienceProfile: { username: string; full_name: string | null; title: string } | null = null;
+    if (experience.original_experience_id) {
+        const { data: originalExp } = await supabase
+            .from('experiences')
+            .select('user_id, title')
+            .eq('id', experience.original_experience_id)
+            .single()
+        
+        if (originalExp) {
+            const { data: originalProf } = await supabase
                 .from('profiles')
-                .select('id, username, full_name, avatar_url, headline')
-                .in('id', activeIds)
-            collaborators = data || []
+                .select('username, full_name')
+                .eq('id', originalExp.user_id)
+                .single()
+            if (originalProf) {
+                originalExperienceProfile = { ...originalProf, title: originalExp.title }
+            }
         }
     }
 
@@ -142,6 +175,26 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
                     {/* Left Column: Content */}
                     <div className="lg:col-span-8 space-y-12">
+                        {originalExperienceProfile && (
+                            <Link 
+                                href={`/${originalExperienceProfile.username}/experiencias/${experience.original_experience_id}`}
+                                className="block w-full bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 rounded-[2rem] p-6 hover:border-purple-300 transition-colors shadow-sm"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 bg-purple-100/50 text-purple-600 rounded-xl shrink-0 mt-0.5">
+                                        <Award size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs font-mono font-bold text-purple-900 uppercase tracking-widest mb-1.5">
+                                            Experiencia Colaborativa
+                                        </h4>
+                                        <p className="text-base text-purple-800 font-medium">
+                                            Origen: <span className="font-bold">{originalExperienceProfile.title}</span> por {originalExperienceProfile.full_name || originalExperienceProfile.username}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Link>
+                        )}
                         {/* 3. Text Content in Premium Card */}
 
                         <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm space-y-16">
@@ -191,60 +244,39 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                             />
 
                             {/* Collaborators */}
-                            {collaborators.length > 0 && (
-                                <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 space-y-4">
-                                    <h4 className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 text-center">Equipo en Prisma</h4>
-                                    <div className="space-y-3">
-                                        {collaborators.map(collab => (
-                                            <a
-                                                key={collab.id}
-                                                href={`/${collab.username}`}
+                            {/* Unified Team Widget */}
+                            {uniqueTeam.length > 0 && (
+                                <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 space-y-4 shadow-sm">
+                                    <h4 className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400 text-center">Equipo de la Experiencia</h4>
+                                    <div className="space-y-4">
+                                        {uniqueTeam.map(member => (
+                                            <Link
+                                                key={member.id}
+                                                href={`/${member.username}`}
                                                 className="flex items-center gap-3 group hover:bg-slate-50 rounded-xl p-2 transition-colors"
                                             >
-                                                <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden flex-shrink-0">
-                                                    {collab.avatar_url ? (
-                                                        <img src={collab.avatar_url} alt={collab.full_name || ''} className="w-full h-full object-cover" />
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                                                    {member.avatar_url ? (
+                                                        <img src={member.avatar_url} alt={member.full_name || ''} className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-base font-bold text-slate-400">
-                                                            {(collab.full_name || collab.username).charAt(0).toUpperCase()}
+                                                        <div className="w-full h-full flex items-center justify-center text-sm font-bold text-slate-400">
+                                                            {(member.full_name || member.username).charAt(0).toUpperCase()}
                                                         </div>
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-semibold text-sm text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
-                                                        {collab.full_name || collab.username}
+                                                    <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
+                                                        {member.full_name || member.username}
                                                     </p>
-                                                    {collab.headline && (
-                                                        <p className="text-[10px] text-slate-400 truncate">{collab.headline}</p>
+                                                    {member.headline && (
+                                                        <p className="text-[10px] text-slate-400 truncate">{member.headline}</p>
                                                     )}
                                                 </div>
-                                            </a>
+                                            </Link>
                                         ))}
                                     </div>
                                 </div>
                             )}
-
-                            {/* Author Card */}
-                            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center text-center space-y-6">
-                                <div className="space-y-2">
-                                    <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 overflow-hidden mx-auto">
-                                        {profile.avatar_url ? (
-                                            <img src={profile.avatar_url} alt={profile.full_name || ''} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-xl font-bold text-slate-400">
-                                                {(profile.full_name || profile.username).charAt(0).toUpperCase()}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p className="font-semibold text-lg text-slate-900 leading-tight">{profile.full_name || profile.username}</p>
-                                        <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mt-1">Protagonista de la Experiencia</p>
-                                    </div>
-                                </div>
-                                <Link href={`/${profile.username}`} className="w-full py-3 border border-slate-900 text-slate-900 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all">
-                                    Ver Perfil Completo
-                                </Link>
-                            </div>
                         </section>
                     </aside>
                 </div>

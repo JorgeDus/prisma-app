@@ -71,6 +71,7 @@ export const BentoHighlights = ({
 
                 const isProject = itemType === 'project';
                 const isAchievement = itemType === 'achievement';
+                const isCollab = item.isCollaboration || (item.collaborator_ids && item.collaborator_ids.length > 0) || item.original_project_id || item.original_experience_id;
 
                 // Build href based on item type
                 let href: string;
@@ -139,7 +140,7 @@ export const BentoHighlights = ({
                         </div>
 
                         {/* Category Badge - Top Left */}
-                        <div className="absolute top-4 left-4 z-20">
+                        <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2">
                             {isProject ? (
                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-mono font-black tracking-[0.15em] uppercase shadow-lg ${categoryInfo.bg} ${categoryInfo.color}`}>
                                     <CategoryIcon size={11} strokeWidth={2.5} />
@@ -154,6 +155,12 @@ export const BentoHighlights = ({
                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[9px] font-mono font-black tracking-[0.15em] uppercase shadow-lg ${categoryInfo.bg} ${categoryInfo.color} ${categoryInfo.border}`}>
                                     <CategoryIcon size={11} strokeWidth={2.5} />
                                     {categoryInfo.label}
+                                </span>
+                            )}
+                            {isCollab && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[9px] font-mono font-black tracking-[0.15em] uppercase shadow-lg bg-violet-100/90 text-violet-700 border-violet-200 backdrop-blur-sm">
+                                    <Users size={11} strokeWidth={2.5} />
+                                    Collab
                                 </span>
                             )}
                         </div>

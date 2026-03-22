@@ -29,26 +29,37 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
         return notFound()
     }
 
-    // 2b. Fetch collaborator profiles if any
-    let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
-    if (project.collaborator_ids && project.collaborator_ids.length > 0) {
-        // Only fetch profiles that haven't rejected the invite
-        const { data: activeCollabs } = await supabase
-            .from('project_collaborations')
-            .select('collaborator_id')
-            .eq('project_id', project.id)
-            .neq('status', 'rejected')
-
-        const activeIds = activeCollabs?.map(c => c.collaborator_id) || []
-        
-        if (activeIds.length > 0) {
-            const { data } = await supabase
-                .from('profiles')
-                .select('id, username, full_name, avatar_url, headline')
-                .in('id', activeIds)
-            collaborators = data || []
-        }
+    // 2b. Fetch the Unified Team (Root Owner + Accepted Collaborators)
+    const rootProjectId = project.original_project_id || project.id;
+    
+    // a) Get Root Owner
+    const { data: rootProject } = await supabase.from('projects').select('user_id').eq('id', rootProjectId).single();
+    let rootOwnerProfile = null;
+    if (rootProject) {
+        const { data } = await supabase.from('profiles').select('id, username, full_name, avatar_url, headline').eq('id', rootProject.user_id).single();
+        rootOwnerProfile = data;
     }
+    
+    // b) Get Accepted Collaborators of the Root Project
+    const { data: activeCollabs } = await supabase
+        .from('project_collaborations')
+        .select('collaborator_id')
+        .eq('project_id', rootProjectId)
+        .eq('status', 'accepted');
+        
+    const activeIds = activeCollabs?.map(c => c.collaborator_id) || [];
+    let collabProfiles: any[] = [];
+    if (activeIds.length > 0) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url, headline')
+            .in('id', activeIds);
+        collabProfiles = data || [];
+    }
+    
+    // c) Combine and deduplicate
+    const fullTeamRaw = [rootOwnerProfile, ...collabProfiles].filter(Boolean);
+    const uniqueTeam = Array.from(new Map(fullTeamRaw.map(item => [item.id, item])).values());
 
     // 2. Fetch Other Projects for Footer
     const { data: otherProjects } = await supabase
@@ -231,35 +242,35 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                                 </div>
                             )}
 
-                            {/* Collaborators from Prisma */}
-                            {collaborators.length > 0 && (
+                            {/* Unified Team Widget */}
+                            {uniqueTeam.length > 0 && (
                                 <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
                                     <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-4 flex items-center gap-2">
                                         <Users size={14} className="text-indigo-500" />
-                                        Equipo en Prisma
+                                        Equipo del Proyecto
                                     </h3>
-                                    <div className="space-y-2">
-                                        {collaborators.map(collab => (
+                                    <div className="space-y-4">
+                                        {uniqueTeam.map(member => (
                                             <Link
-                                                key={collab.id}
-                                                href={`/${collab.username}`}
+                                                key={member.id}
+                                                href={`/${member.username}`}
                                                 className="flex items-center gap-3 group hover:bg-slate-50 rounded-xl p-2 transition-colors"
                                             >
-                                                <div className="w-9 h-9 rounded-full bg-indigo-50 overflow-hidden flex-shrink-0 border border-slate-100">
-                                                    {collab.avatar_url ? (
-                                                        <img src={collab.avatar_url} alt={collab.full_name || ''} className="w-full h-full object-cover" />
+                                                <div className="w-10 h-10 rounded-full bg-indigo-50 overflow-hidden flex-shrink-0 border border-slate-100 group-hover:scale-105 transition-transform duration-300">
+                                                    {member.avatar_url ? (
+                                                        <img src={member.avatar_url} alt={member.full_name || ''} className="w-full h-full object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-sm font-bold text-indigo-400">
-                                                            {(collab.full_name || collab.username).charAt(0).toUpperCase()}
+                                                            {(member.full_name || member.username).charAt(0).toUpperCase()}
                                                         </div>
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
-                                                        {collab.full_name || collab.username}
+                                                        {member.full_name || member.username}
                                                     </p>
-                                                    {collab.headline && (
-                                                        <p className="text-[10px] text-slate-400 truncate">{collab.headline}</p>
+                                                    {member.headline && (
+                                                        <p className="text-[10px] text-slate-400 truncate">{member.headline}</p>
                                                     )}
                                                 </div>
                                             </Link>
@@ -267,26 +278,6 @@ export default async function PublicProjectDetailPage(props: ProjectPageProps) {
                                     </div>
                                 </div>
                             )}
-
-                            {/* Profile Highlight */}
-                            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center text-center space-y-4">
-                                <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 overflow-hidden">
-                                    {profile.avatar_url ? (
-                                        <img src={profile.avatar_url} alt={profile.full_name || ''} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-xl font-bold text-slate-400">
-                                            {(profile.full_name || profile.username).charAt(0).toUpperCase()}
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-lg text-slate-900">{profile.full_name || profile.username}</p>
-                                    <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">Autor del Proyecto</p>
-                                </div>
-                                <Link href={`/${profile.username}`} className="text-[10px] font-mono font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest transition-colors pt-2">
-                                    Ver Perfil Completo ↗
-                                </Link>
-                            </div>
                         </section>
                     </aside>
                 </div>

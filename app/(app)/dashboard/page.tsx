@@ -69,9 +69,16 @@ export default async function DashboardPage() {
     // 4. Fetch accepted collaborations
     const { projects: collabProjects, experiences: collabExperiences } = await getAcceptedCollaborations(user.id)
 
+    // Filter out collaborations that the user has already cloned
+    const clonedProjectIds = new Set((projects || []).map(p => p.original_project_id).filter(Boolean));
+    const filteredCollabProjects = collabProjects.filter(p => !clonedProjectIds.has(p.id));
+    
+    const clonedExperienceIds = new Set((experiences || []).map(e => e.original_experience_id).filter(Boolean));
+    const filteredCollabExperiences = collabExperiences.filter(e => !clonedExperienceIds.has(e.id));
+
     // Merge collaborations into own projects/experiences
-    const allProjects = [...(projects || []), ...collabProjects] as any[]
-    const allExperiences = [...(experiences || []), ...collabExperiences] as any[]
+    const allProjects = [...(projects || []), ...filteredCollabProjects] as any[]
+    const allExperiences = [...(experiences || []), ...filteredCollabExperiences] as any[]
 
     // --- CONSTRUCCIÓN DE LA TRAYECTORIA UNIFICADA ---
     const hitosUnificados: any[] = []

@@ -59,8 +59,7 @@ supabase/.temp/
 # Env demo
 .env.demo
 
-# Demo assets
-public/logo-universidad-mistral.png
+
 
 # Context
 CONTEXTO_PRISMA.md

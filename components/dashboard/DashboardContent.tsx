@@ -25,7 +25,7 @@ import {
     Star,
     Stethoscope
 } from 'lucide-react'
-import { Lightbulb } from 'lucide-react'
+import { Lightbulb, Rocket } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { DEFAULT_EXP_IMAGES, DEFAULT_PROJECT_IMAGES } from '@/constants/images'
@@ -263,13 +263,28 @@ export default function DashboardContent({
         router.refresh()
     }
 
-    const handleDelete = async (table: 'projects' | 'experiences' | 'achievements' | 'testimonials', id: string) => {
+    const handleDelete = async (table: 'projects' | 'experiences' | 'achievements' | 'testimonials', id: string, originalId?: string) => {
         if (!confirm('¿Estás seguro de eliminar este elemento?')) return
 
         const { error } = await supabase.from(table).delete().eq('id', id)
         if (error) {
             alert('Error al eliminar')
         } else {
+            if (originalId) {
+                const collabTable = table === 'projects' ? 'project_collaborations' : 'experience_collaborations'
+                const parentIdField = table === 'projects' ? 'project_id' : 'experience_id'
+                
+                const { data: collab } = await supabase
+                    .from(collabTable)
+                    .select('id')
+                    .eq(parentIdField, originalId)
+                    .eq('collaborator_id', profile.id)
+                    .single()
+                    
+                if (collab) {
+                    await removeCollaboration(collab.id, table === 'projects' ? 'project' : 'experience').catch(console.error)
+                }
+            }
             router.refresh()
         }
     }
@@ -471,14 +486,14 @@ export default function DashboardContent({
                                                 title={exp.title}
                                                 subtitle={isCollab ? (exp.collaborationRole || exp.organization) : exp.organization}
                                                 overline={
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center flex-wrap gap-2">
                                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${cat.bg} ${cat.color} ${cat.border}`}>
                                                             <Icon size={12} strokeWidth={2.5} />
                                                             {cat.label}
                                                         </span>
-                                                        {isCollab && (
-                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                                                <Users size={10} /> Colaborador
+                                                        {(exp.isCollaboration || (exp.collaborator_ids && exp.collaborator_ids.length > 0) || exp.original_experience_id) && (
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[9px] font-mono font-bold tracking-[0.15em] uppercase shadow-sm bg-violet-100/90 text-violet-700 border-violet-200">
+                                                                <Users size={10} strokeWidth={2.5} /> Collab
                                                             </span>
                                                         )}
                                                     </div>
@@ -490,7 +505,7 @@ export default function DashboardContent({
                                                 href={isCollab && exp.ownerProfile ? `/${exp.ownerProfile.username}/experiencias/${exp.id}` : `/dashboard/experiencias/${exp.id}`}
                                                 isEditable={true}
                                                 onEdit={isCollab ? undefined : () => { setEditingExp(exp); setIsExpModalOpen(true); }}
-                                                onDelete={isCollab ? () => handleRemoveCollaboration(exp.collaborationId, 'experience') : () => handleDelete('experiences', exp.id)}
+                                                onDelete={isCollab ? () => handleRemoveCollaboration(exp.collaborationId, 'experience') : () => handleDelete('experiences', exp.id, exp.original_experience_id)}
                                             >
                                                 {isCollab && exp.collaborationLearnings && (
                                                     <div className="mt-4 pl-3 border-l-2 border-emerald-200">
@@ -541,27 +556,51 @@ export default function DashboardContent({
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {projects?.length ? (
                                     projects.map((proj) => {
-                                        const isCollab = proj.isCollaboration
+                                        const isCollab = proj.isCollaboration || (proj.collaborator_ids && proj.collaborator_ids.length > 0) || proj.original_project_id
+                                        
+                                        const PROJECT_LABELS: Record<string, string> = {
+                                            academic: 'Portafolio Académico',
+                                            startup: 'Emprendimiento',
+                                            personal: 'Innovación Personal'
+                                        }
+                                        const PROJECT_STYLES: Record<string, { bg: string, color: string, border: string, icon: any }> = {
+                                            academic: { bg: 'bg-indigo-50', color: 'text-indigo-600', border: 'border-indigo-100', icon: GraduationCap },
+                                            startup: { bg: 'bg-blue-50', color: 'text-blue-600', border: 'border-blue-100', icon: Rocket },
+                                            personal: { bg: 'bg-emerald-50', color: 'text-emerald-600', border: 'border-emerald-100', icon: Lightbulb }
+                                        }
+                                        
+                                        const pType = proj.type || 'personal'
+                                        const pStyle = PROJECT_STYLES[pType] || PROJECT_STYLES.personal
+                                        const PIcon = pStyle.icon
+
                                         return (
                                             <BaseCard
-                                                key={isCollab ? `collab-proj-${proj.id}` : proj.id}
+                                                key={proj.isCollaboration ? `collab-proj-${proj.id}` : proj.id}
                                                 title={proj.title}
-                                                subtitle={isCollab ? (proj.collaborationRole || 'Colaborador') : (proj.role || proj.type)}
-                                                overline={isCollab ? (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                                        <Users size={10} /> Colaborador
-                                                    </span>
-                                                ) : undefined}
+                                                subtitle={proj.isCollaboration ? (proj.collaborationRole || 'Colaborador') : (proj.role || PROJECT_LABELS[pType] || pType)}
+                                                overline={
+                                                    <div className="flex items-center flex-wrap gap-2">
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${pStyle.bg} ${pStyle.color} ${pStyle.border}`}>
+                                                            <PIcon size={12} strokeWidth={2.5} />
+                                                            {PROJECT_LABELS[pType] || pType}
+                                                        </span>
+                                                        {isCollab && (
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[9px] font-mono font-bold tracking-[0.15em] uppercase shadow-sm bg-violet-100/90 text-violet-700 border-violet-200">
+                                                                <Users size={10} strokeWidth={2.5} /> Collab
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                }
                                                 description={proj.description || ""}
                                                 imageUrl={proj.cover_image || DEFAULT_PROJECT_IMAGES[proj.type] || DEFAULT_PROJECT_IMAGES.personal}
                                                 tags={[...(proj.hard_skills || []), ...(proj.soft_skills || [])]}
                                                 href={isCollab && proj.ownerProfile ? `/${proj.ownerProfile.username}/proyectos/${proj.id}` : `/dashboard/project/${proj.id}`}
                                                 isEditable={true}
                                                 is_learning_artifact={proj.is_startup}
-                                                onEdit={isCollab ? undefined : () => { setEditingProj(proj); setIsProjModalOpen(true); }}
-                                                onDelete={isCollab ? () => handleRemoveCollaboration(proj.collaborationId, 'project') : () => handleDelete('projects', proj.id)}
+                                                onEdit={proj.isCollaboration ? undefined : () => { setEditingProj(proj); setIsProjModalOpen(true); }}
+                                                onDelete={proj.isCollaboration ? () => handleRemoveCollaboration(proj.collaborationId, 'project') : () => handleDelete('projects', proj.id, proj.original_project_id)}
                                             >
-                                                {isCollab && proj.collaborationLearnings && (
+                                                {proj.isCollaboration && proj.collaborationLearnings && (
                                                     <div className="mt-4 pl-3 border-l-2 border-emerald-200">
                                                         <p className="text-[10px] font-mono font-bold text-emerald-600 uppercase tracking-wider mb-1 flex items-center gap-1">
                                                             <Lightbulb size={10} /> Mi aprendizaje

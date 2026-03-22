@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { Experience } from '@/types/database.types'
-import { Calendar, Pencil, Trash2, Loader2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Building2, Clock, Star, Stethoscope } from 'lucide-react'
+import { Calendar, Pencil, Trash2, Loader2, Award, Heart, Zap, Briefcase, GraduationCap, Dumbbell, Palette, HeartPulse, Building2, Clock, Star, Stethoscope, Users } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Link from 'next/link'
 
@@ -130,11 +130,18 @@ export default function ExperienceCard({
                 {/* Content */}
                 <div className="p-6 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-3">
-                        <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider flex items-center gap-1.5 border ${category.bg} ${category.color} ${category.border}`}>
-                            <Icon size={12} />
-                            {category.label}
-                        </span>
-                        <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className={`text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider flex items-center gap-1.5 border ${category.bg} ${category.color} ${category.border}`}>
+                                <Icon size={12} />
+                                {category.label}
+                            </span>
+                            {((experience as any).isCollaboration || (experience.collaborator_ids && experience.collaborator_ids.length > 0) || experience.original_experience_id) && (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[9px] font-mono font-bold tracking-[0.15em] uppercase shadow-sm bg-violet-100/90 text-violet-700 border-violet-200">
+                                    <Users size={10} strokeWidth={2.5} /> Collab
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider whitespace-nowrap">
                             <span>{getDateRange()}</span>
                         </div>
                     </div>

@@ -183,11 +183,11 @@ export async function respondToCollaboration(
     collaborationId: string,
     type: 'project' | 'experience',
     accept: boolean
-) {
+): Promise<{ success: boolean; clonedId?: string }> {
     if (!accept) {
         // If rejecting, completely remove the collaboration and remove from parent array
         await removeCollaboration(collaborationId, type)
-        return
+        return { success: true }
     }
 
     const supabase = await createClient()
@@ -209,6 +209,45 @@ export async function respondToCollaboration(
         .eq('collaborator_id', user.id)
 
     if (error) throw error
+
+    // Perform the clone (Fork) for the collaborator
+    let clonedId: string | undefined = undefined
+
+    if (type === 'project') {
+        const { data: collab } = await supabase.from('project_collaborations').select('project_id').eq('id', collaborationId).single()
+        if (collab && collab.project_id) {
+            const { data: original } = await supabase.from('projects').select('*').eq('id', collab.project_id).single()
+            if (original) {
+                const { id, user_id, original_project_id, created_at, updated_at, ...projectDataToClone } = original
+                const newProjectData = {
+                    ...projectDataToClone,
+                    user_id: user.id,
+                    original_project_id: original.id,
+                    collaborator_ids: [] // We don't copy the collaborators to the clone
+                }
+                const { data: cloned } = await supabase.from('projects').insert(newProjectData).select('id').single()
+                if (cloned) clonedId = cloned.id
+            }
+        }
+    } else {
+        const { data: collab } = await supabase.from('experience_collaborations').select('experience_id').eq('id', collaborationId).single()
+        if (collab && collab.experience_id) {
+            const { data: original } = await supabase.from('experiences').select('*').eq('id', collab.experience_id).single()
+            if (original) {
+                const { id, user_id, original_experience_id, created_at, updated_at, ...experienceDataToClone } = original
+                const newExperienceData = {
+                    ...experienceDataToClone,
+                    user_id: user.id,
+                    original_experience_id: original.id,
+                    collaborator_ids: []
+                }
+                const { data: cloned } = await supabase.from('experiences').insert(newExperienceData).select('id').single()
+                if (cloned) clonedId = cloned.id
+            }
+        }
+    }
+
+    return { success: true, clonedId }
 }
 
 /**

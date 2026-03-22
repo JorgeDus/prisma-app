@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Project } from '@/types/database.types'
-import { Calendar, Github, ExternalLink, Pencil, Trash2, Loader2, Clock } from 'lucide-react'
+import { Calendar, Github, ExternalLink, Pencil, Trash2, Loader2, Clock, Users } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import Modal from '@/components/ui/Modal'
 import Link from 'next/link'
@@ -112,12 +112,19 @@ export default function ProjectCard({
                 {/* Content */}
                 <div className="p-6 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-3">
-                        <span className={`text-xs px-2 py-1 rounded-md font-medium uppercase tracking-wider ${project.type === 'startup' ? 'bg-blue-100 text-blue-700' :
-                            project.type === 'personal' ? 'bg-green-100 text-green-700' :
-                                'bg-purple-100 text-purple-700'
-                            }`}>
-                            {project.type === 'academic' ? 'Académico' : project.type === 'startup' ? 'Emprendimiento' : 'Personal'}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className={`text-[10px] px-2.5 py-1 rounded-md font-mono font-bold uppercase tracking-wider border ${project.type === 'startup' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                                project.type === 'personal' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                    'bg-indigo-50 text-indigo-600 border-indigo-100'
+                                }`}>
+                                {project.type === 'academic' ? 'Portafolio Académico' : project.type === 'startup' ? 'Emprendimiento' : 'Innovación Personal'}
+                            </span>
+                            {( (project as any).isCollaboration || (project.collaborator_ids && project.collaborator_ids.length > 0) || project.original_project_id ) && (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[9px] font-mono font-bold tracking-[0.15em] uppercase shadow-sm bg-violet-100/90 text-violet-700 border-violet-200">
+                                    <Users size={10} strokeWidth={2.5} /> Collab
+                                </span>
+                            )}
+                        </div>
                         <div className="flex items-center gap-1 text-xs text-gray-400">
                             <Calendar size={14} />
                             <span>{formatDate(project.created_at)}</span>

@@ -32,26 +32,34 @@ export default async function ExperienceDetailPage(props: PageProps) {
         return notFound()
     }
 
-    // 3. Fetch collaborator profiles if any
-    let collaborators: { id: string; username: string; full_name: string | null; avatar_url: string | null; headline: string | null }[] = []
-    if (experience.collaborator_ids && experience.collaborator_ids.length > 0) {
-        // Obtenemos solo los que NO han rechazado
-        const { data: activeCollabs } = await supabase
-            .from('experience_collaborations')
-            .select('collaborator_id')
-            .eq('experience_id', experience.id)
-            .neq('status', 'rejected')
-
-        const activeIds = activeCollabs?.map(c => c.collaborator_id) || []
-        
-        if (activeIds.length > 0) {
-            const { data } = await supabase
-                .from('profiles')
-                .select('id, username, full_name, avatar_url, headline')
-                .in('id', activeIds)
-            collaborators = data || []
-        }
+    // 3. Fetch the Unified Team (Root Owner + Accepted Collaborators)
+    const rootExperienceId = experience.original_experience_id || experience.id;
+    
+    let rootOwnerProfile = null;
+    const { data: rootExperience } = await supabase.from('experiences').select('user_id').eq('id', rootExperienceId).single();
+    if (rootExperience) {
+        const { data } = await supabase.from('profiles').select('id, username, full_name, avatar_url, headline').eq('id', rootExperience.user_id).single();
+        rootOwnerProfile = data;
     }
+    
+    const { data: activeCollabs } = await supabase
+        .from('experience_collaborations')
+        .select('collaborator_id')
+        .eq('experience_id', rootExperienceId)
+        .eq('status', 'accepted');
+        
+    const activeIds = activeCollabs?.map(c => c.collaborator_id) || [];
+    let collabProfiles: any[] = [];
+    if (activeIds.length > 0) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url, headline')
+            .in('id', activeIds);
+        collabProfiles = data || [];
+    }
+    
+    const fullTeamRaw = [rootOwnerProfile, ...collabProfiles].filter(Boolean);
+    const uniqueTeam = Array.from(new Map(fullTeamRaw.map(item => [item.id, item])).values());
 
     // Helper para fecha
     const formatDate = (dateString: string) => {
@@ -102,11 +110,16 @@ export default async function ExperienceDetailPage(props: PageProps) {
 
                 {/* 2. Header Information */}
                 <header className="max-w-4xl space-y-8">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
                         <span className={`text-[10px] px-3 py-1 rounded-full font-mono font-bold uppercase tracking-[0.2em] border flex items-center gap-2 ${category.bg} ${category.color} ${category.border}`}>
                             <CategoryIcon size={12} />
                             {category.label}
                         </span>
+                        {((experience as any).isCollaboration || (experience.collaborator_ids && experience.collaborator_ids.length > 0) || experience.original_experience_id) && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-mono font-bold tracking-[0.15em] uppercase shadow-sm bg-violet-100/90 text-violet-700 border-violet-200">
+                                <Users size={12} strokeWidth={2.5} /> Collab
+                            </span>
+                        )}
                         <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 bg-white">
                             <Calendar size={12} className="text-indigo-400" />
                             <span>{getDateRange()}</span>
@@ -181,36 +194,36 @@ export default async function ExperienceDetailPage(props: PageProps) {
                                 softSkills={experience.soft_skills}
                             />
 
-                            {/* Collaborators from Prisma */}
-                            {collaborators.length > 0 && (
+                            {/* Unified Team from Prisma */}
+                            {uniqueTeam.length > 0 && (
                                 <div className="mt-8 pt-8 border-t border-slate-50">
                                     <h3 className="text-[10px] font-mono font-black tracking-[0.2em] uppercase text-slate-500 mb-4 flex items-center gap-2">
                                         <Users size={14} className="text-indigo-500" />
-                                        Equipo en Prisma
+                                        Equipo de la Experiencia
                                     </h3>
                                     <div className="space-y-2">
-                                        {collaborators.map(collab => (
+                                        {uniqueTeam.map(member => (
                                             <Link
-                                                key={collab.id}
-                                                href={`/${collab.username}`}
+                                                key={member.id}
+                                                href={`/${member.username}`}
                                                 target="_blank"
                                                 className="flex items-center gap-3 group hover:bg-slate-50 rounded-xl p-2 transition-colors"
                                             >
                                                 <div className="w-9 h-9 rounded-full bg-indigo-50 overflow-hidden flex-shrink-0 border border-slate-100">
-                                                    {collab.avatar_url ? (
-                                                        <img src={collab.avatar_url} alt={collab.full_name || ''} className="w-full h-full object-cover" />
+                                                    {member.avatar_url ? (
+                                                        <img src={member.avatar_url} alt={member.full_name || ''} className="w-full h-full object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-sm font-bold text-indigo-400">
-                                                            {(collab.full_name || collab.username).charAt(0).toUpperCase()}
+                                                            {(member.full_name || member.username).charAt(0).toUpperCase()}
                                                         </div>
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
-                                                        {collab.full_name || collab.username}
+                                                        {member.full_name || member.username}
                                                     </p>
-                                                    {collab.headline && (
-                                                        <p className="text-[10px] text-slate-400 truncate">{collab.headline}</p>
+                                                    {member.headline && (
+                                                        <p className="text-[10px] text-slate-400 truncate">{member.headline}</p>
                                                     )}
                                                 </div>
                                             </Link>
