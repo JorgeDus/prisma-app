@@ -24,6 +24,17 @@ async function verifyUniversityAccount() {
 }
 
 // ─────────────────────────────────────────────
+// HELPER PARA OBTENER CARRERA (Soporta perfiles reales y de demo)
+// ─────────────────────────────────────────────
+function getPrimaryCareerName(profile: any): string {
+    if (profile.user_careers && profile.user_careers.length > 0) {
+        const primary = profile.user_careers.find((uc: any) => uc.is_primary) || profile.user_careers[0]
+        return primary?.career?.name || primary?.custom_career || 'Sin carrera'
+    }
+    return (profile as any).careers?.name || profile.custom_career || 'Sin carrera'
+}
+
+// ─────────────────────────────────────────────
 // STATS PARA EL DASHBOARD
 // ─────────────────────────────────────────────
 export async function getUniversityStats(universityId: number, filterCareer?: string, filterCohort?: string) {
@@ -47,7 +58,11 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
 
     const { data: profilesQuery } = await adminClient
         .from('profiles')
-        .select('id, username, full_name, avatar_url, headline, created_at, updated_at, gender, career_start_date, careers(name), custom_career')
+        .select(`
+            id, username, full_name, avatar_url, headline, created_at, updated_at, gender, career_start_date,
+            careers(name), custom_career,
+            user_careers(is_primary, custom_career, career:careers(name))
+        `)
         .eq('university_id', universityId)
 
     let profiles = profilesQuery || []
@@ -57,7 +72,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
     const allCohortsSet = new Set<string>()
     
     profiles.forEach(p => {
-        const c = (p as any).careers?.name || p.custom_career || 'Sin carrera'
+        const c = getPrimaryCareerName(p)
         const cohort = p.career_start_date ? p.career_start_date.substring(0, 4) : 'Sin cohorte'
         allCareersSet.add(c)
         allCohortsSet.add(cohort)
@@ -65,7 +80,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
     
     // Filtrar localmente
     if (filterCareer) {
-        profiles = profiles.filter(p => ((p as any).careers?.name || p.custom_career || 'Sin carrera') === filterCareer)
+        profiles = profiles.filter(p => getPrimaryCareerName(p) === filterCareer)
     }
     if (filterCohort) {
         profiles = profiles.filter(p => (p.career_start_date ? p.career_start_date.substring(0, 4) : 'Sin cohorte') === filterCohort)
@@ -137,7 +152,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         // Atributos normalizados
         const gender = p.gender || 'No especificado'
         const cohortMatch = p.career_start_date ? p.career_start_date.substring(0, 4) : 'Sin cohorte'
-        const career = (p as any).careers?.name || p.custom_career || 'Sin carrera'
+        const career = getPrimaryCareerName(p)
 
         userDict[p.id] = { gender, cohort: cohortMatch, career }
 
@@ -251,17 +266,19 @@ export async function getUniversityStudents(universityId: number, careerFilter?:
             avatar_url,
             headline,
             careers(name),
-            custom_career
+            custom_career,
+            user_careers(is_primary, custom_career, career:careers(name))
         `)
         .eq('university_id', universityId)
         .order('full_name', { ascending: true })
 
-    if (careerFilter) {
-        // Filtrar por nombre de carrera via join
-        query = query.eq('careers.name', careerFilter)
-    }
+    const { data: rawProfiles } = await query
 
-    const { data: profiles } = await query
+    let profiles = rawProfiles || []
+    if (careerFilter) {
+        // Filtrar en memoria por la carrera principal para soporte multi-flujo
+        profiles = profiles.filter(p => getPrimaryCareerName(p) === careerFilter)
+    }
 
     if (!profiles || profiles.length === 0) return []
 
@@ -282,7 +299,7 @@ export async function getUniversityStudents(universityId: number, careerFilter?:
         })
         return {
             ...p,
-            careerName: (p as any).careers?.name || p.custom_career || null,
+            careerName: getPrimaryCareerName(p),
             projectCount: projects?.filter(pr => pr.user_id === p.id).length || 0,
             experienceCount: experiences?.filter(e => e.user_id === p.id).length || 0,
             skillCount: allSkills.size,
@@ -298,13 +315,17 @@ export async function getUniversityCareers(universityId: number) {
 
     const { data } = await adminClient
         .from('profiles')
-        .select('careers(name), custom_career')
+        .select(`
+            careers(name),
+            custom_career,
+            user_careers(is_primary, custom_career, career:careers(name))
+        `)
         .eq('university_id', universityId)
 
     const careers = new Set<string>()
     data?.forEach(p => {
-        const name = (p as any).careers?.name || p.custom_career
-        if (name) careers.add(name)
+        const name = getPrimaryCareerName(p)
+        if (name && name !== 'Sin carrera') careers.add(name)
     })
 
     return Array.from(careers).sort()
