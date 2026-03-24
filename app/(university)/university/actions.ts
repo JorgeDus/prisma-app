@@ -182,6 +182,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         byGender: {} as Record<string, number>,
         byCohort: {} as Record<string, number>,
         byCareer: {} as Record<string, number>,
+        byMonth: {} as Record<string, number>,
         items: [] as any[]
     })
 
@@ -201,6 +202,15 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         stats.byGender[u.gender] = (stats.byGender[u.gender] || 0) + 1
         stats.byCohort[u.cohort] = (stats.byCohort[u.cohort] || 0) + 1
         stats.byCareer[u.career] = (stats.byCareer[u.career] || 0) + 1
+        
+        // Desglose mensual
+        const itemDate = item.created_at || item.start_date || item.date
+        if (itemDate) {
+            const date = new Date(itemDate)
+            const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+            const monthLabel = monthNames[date.getMonth()]
+            stats.byMonth[monthLabel] = (stats.byMonth[monthLabel] || 0) + 1
+        }
         
         stats.items.push({
             id: item.id,

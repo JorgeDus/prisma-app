@@ -53,7 +53,7 @@ export default function DataGrid({ data }: { data: any[] }) {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                     <input 
                         type="text" 
-                        placeholder="Buscar carrera, cohorte..." 
+                        placeholder="Buscar carrera, año..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full text-sm pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-slate-700 bg-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
@@ -69,7 +69,7 @@ export default function DataGrid({ data }: { data: any[] }) {
                                 <div className="flex items-center gap-2">Carrera <ArrowUpDown size={12} /></div>
                             </th>
                             <th className="p-4 cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => requestSort('cohort')}>
-                                <div className="flex items-center gap-2">Cohorte <ArrowUpDown size={12} /></div>
+                                <div className="flex items-center gap-2">Año de Ingreso <ArrowUpDown size={12} /></div>
                             </th>
                             <th className="p-4 cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => requestSort('gender')}>
                                 <div className="flex items-center gap-2">Género <ArrowUpDown size={12} /></div>

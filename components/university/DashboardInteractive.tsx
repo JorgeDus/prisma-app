@@ -83,7 +83,7 @@ export default function DashboardInteractive({ university, stats }: any) {
                             value={selectedCohort}
                             onChange={e => handleFilterChange('cohort', e.target.value)}
                         >
-                            <option value="">Todas las Cohortes</option>
+                            <option value="">Todos los Años de Ingreso</option>
                             {stats.filterOptions?.cohorts?.map((c: string) => (
                                 <option key={c} value={c}>{c}</option>
                             ))}

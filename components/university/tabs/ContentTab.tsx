@@ -9,22 +9,28 @@ export default function ContentTab({ stats }: any) {
 
     // Transform data for cohorts Stacked Bar Chart
     const processStackedData = (sourceStat: any) => {
-        // sourceStat.byCohort is { '2023': 15, '2022': 30 } which is just totals.
-        // Wait, the backend currently counts total byCohort and byGender, but NOT a 2D matrix!
-        // The implementation_plan wanted Stacked Bar (Cohort x Gender). 
-        // Our backend returns `projects.byCohort` and `projects.byGender` as separate 1D objects.
-        // We will display a simple Bar chart for Cohorts, and a separate one for Careers.
-        
-        return Object.entries(sourceStat.byCohort || {})
-            .map(([cohort, count]) => ({
+        const cohortKeys = Object.keys(sourceStat.byCohort || {})
+        const isYearFiltered = cohortKeys.length === 1
+
+        if (isYearFiltered) {
+            const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+            return monthNames.map(month => ({
+                name: month,
+                total: sourceStat.byMonth?.[month] || 0
+            }))
+        }
+
+        return cohortKeys
+            .map(cohort => ({
                 name: cohort,
-                total: count
+                total: sourceStat.byCohort[cohort]
             }))
             .sort((a,b) => a.name.localeCompare(b.name)) // Sort by year
     }
 
     const projectsByCohort = processStackedData(stats.projects)
     const experiencesByCohort = processStackedData(stats.experiences)
+    const isYearFiltered = Object.keys(stats.projects?.byCohort || {}).length === 1
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
@@ -70,12 +76,14 @@ export default function ContentTab({ stats }: any) {
                 </div>
             </div>
 
-            {/* Gráficos de Contenido por Cohorte */}
+            {/* Gráficos de Contenido por Año de Ingreso */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
-                {/* Proyectos x Cohorte */}
+                {/* Proyectos x Año de Ingreso */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 mb-6">Proyectos por Cohorte</h2>
+                    <h2 className="text-sm font-bold text-slate-800 mb-6">
+                        {isYearFiltered ? 'Distribución Mensual de Proyectos' : 'Proyectos por Año de Ingreso'}
+                    </h2>
                     <div className="h-64 w-full">
                         {projectsByCohort.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -96,9 +104,11 @@ export default function ContentTab({ stats }: any) {
                     </div>
                 </div>
 
-                {/* Experiencias x Cohorte */}
+                {/* Experiencias x Año de Ingreso */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 mb-6">Experiencias por Cohorte</h2>
+                    <h2 className="text-sm font-bold text-slate-800 mb-6">
+                        {isYearFiltered ? 'Distribución Mensual de Experiencias' : 'Experiencias por Año de Ingreso'}
+                    </h2>
                     <div className="h-64 w-full">
                         {experiencesByCohort.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -134,7 +144,7 @@ export default function ContentTab({ stats }: any) {
                                 }
                             </h2>
                             <p className="text-xs text-slate-500 mt-1">
-                                Creados por la cohorte y/o carrera actualmente seleccionada.
+                                Creados por el año de ingreso y/o carrera actualmente seleccionada.
                             </p>
                         </div>
                         <button 
