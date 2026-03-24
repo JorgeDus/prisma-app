@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Github, Linkedin, Globe, Sparkles, Blocks, GraduationCap, ChevronDown, FolderGit2, Briefcase } from "lucide-react";
+import { Github, Globe, Sparkles, Blocks, GraduationCap, ChevronDown, FolderGit2, Briefcase } from "lucide-react";
+import { Icon } from "@iconify/react";
 import SkillsModal from "@/components/shared/SkillsModal";
 import { createClient } from "@/utils/supabase/client";
 
@@ -242,7 +243,7 @@ export const ImpactHeader = ({
                             <div className="flex items-center gap-4">
                                 {socialLinks?.linkedin && (
                                     <a href={socialLinks.linkedin} target="_blank" className="text-slate-400 hover:text-indigo-600 transition-all hover:scale-110">
-                                        <Linkedin size={22} strokeWidth={1.5} />
+                                        <Icon icon="mdi:linkedin" width="22" />
                                     </a>
                                 )}
                                 {socialLinks?.github && (

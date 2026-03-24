@@ -52,7 +52,9 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
         gallery_images: [] as string[],
         show_in_timeline: true,
         collaborator_ids: [] as string[],
-        internship_area: ''
+        internship_area: '',
+        sector: '',
+        professor_name: ''
     })
 
     // Estado local para los inputs de skills
@@ -79,7 +81,9 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 gallery_images: experienceToEdit.gallery_images || [],
                 show_in_timeline: experienceToEdit.show_in_timeline !== false,
                 collaborator_ids: experienceToEdit.collaborator_ids || [],
-                internship_area: (experienceToEdit as any).internship_area || ''
+                internship_area: (experienceToEdit as any).internship_area || '',
+                sector: (experienceToEdit as any).sector || '',
+                professor_name: (experienceToEdit as any).professor_name || ''
             })
             setImagePreview(experienceToEdit.cover_image || null)
             setGalleryPreviews(experienceToEdit.gallery_images || [])
@@ -105,7 +109,9 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 gallery_images: [],
                 show_in_timeline: true,
                 collaborator_ids: [],
-                internship_area: ''
+                internship_area: '',
+                sector: '',
+                professor_name: ''
             })
             setImagePreview(null)
             setGalleryPreviews([])
@@ -295,6 +301,8 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                 show_in_timeline: formData.show_in_timeline,
                 collaborator_ids: formData.collaborator_ids,
                 internship_area: (formData.type === 'practica' || formData.type === 'empleo_sustento') ? (formData.internship_area || null) : null,
+                sector: (formData.type === 'practica' || formData.type === 'empleo_sustento') ? (formData.sector || null) : null,
+                professor_name: formData.type === 'academico' ? (formData.professor_name || null) : null,
                 updated_at: new Date().toISOString()
             }
 
@@ -391,32 +399,64 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
 
                 {/* 1.5 Área de Práctica (condicional) */}
                 {(formData.type === 'practica' || formData.type === 'empleo_sustento') && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                                <MapPin size={16} className="text-purple-500" /> Área
+                            </label>
+                            <select
+                                value={formData.internship_area}
+                                onChange={(e) => setFormData({ ...formData, internship_area: e.target.value })}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium"
+                            >
+                                <option value="">Seleccionar área (opcional)</option>
+                                <option value="Clínica">Clínica</option>
+                                <option value="Educacional">Educacional</option>
+                                <option value="Laboral / Organizacional">Laboral / Organizacional</option>
+                                <option value="Social / Comunitaria">Social / Comunitaria</option>
+                                <option value="Jurídica / Forense">Jurídica / Forense</option>
+                                <option value="Investigación">Investigación</option>
+                                <option value="Tecnología / Desarrollo">Tecnología / Desarrollo</option>
+                                <option value="Diseño / Creatividad">Diseño / Creatividad</option>
+                                <option value="Salud">Salud</option>
+                                <option value="Finanzas / Contabilidad">Finanzas / Contabilidad</option>
+                                <option value="Marketing / Comunicaciones">Marketing / Comunicaciones</option>
+                                <option value="Operaciones / Logística">Operaciones / Logística</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Legal">Legal</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                                <Building2 size={16} className="text-purple-500" /> Sector
+                            </label>
+                            <select
+                                value={formData.sector}
+                                onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium"
+                            >
+                                <option value="">Seleccionar sector (opcional)</option>
+                                <option value="Público">Público</option>
+                                <option value="Privado">Privado</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+
+                {/* 1.6 Profesor/a (condicional para Ayudantías) */}
+                {formData.type === 'academico' && (
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                            <MapPin size={16} className="text-purple-500" /> Área
+                            <GraduationCap size={16} className="text-purple-500" /> Profesor/a a cargo
                         </label>
-                        <select
-                            value={formData.internship_area}
-                            onChange={(e) => setFormData({ ...formData, internship_area: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium"
-                        >
-                            <option value="">Seleccionar área (opcional)</option>
-                            <option value="Clínica">Clínica</option>
-                            <option value="Educacional">Educacional</option>
-                            <option value="Laboral / Organizacional">Laboral / Organizacional</option>
-                            <option value="Social / Comunitaria">Social / Comunitaria</option>
-                            <option value="Jurídica / Forense">Jurídica / Forense</option>
-                            <option value="Investigación">Investigación</option>
-                            <option value="Tecnología / Desarrollo">Tecnología / Desarrollo</option>
-                            <option value="Diseño / Creatividad">Diseño / Creatividad</option>
-                            <option value="Salud">Salud</option>
-                            <option value="Finanzas / Contabilidad">Finanzas / Contabilidad</option>
-                            <option value="Marketing / Comunicaciones">Marketing / Comunicaciones</option>
-                            <option value="Operaciones / Logística">Operaciones / Logística</option>
-                            <option value="Recursos Humanos">Recursos Humanos</option>
-                            <option value="Legal">Legal</option>
-                            <option value="Otra">Otra</option>
-                        </select>
+                        <input
+                            type="text"
+                            value={formData.professor_name}
+                            onChange={(e) => setFormData({ ...formData, professor_name: e.target.value })}
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
+                            placeholder="Ej: Nombre del docente"
+                        />
                     </div>
                 )}
 

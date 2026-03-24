@@ -8,6 +8,7 @@ import Modal from '@/components/ui/Modal'
 import { Profile, University, Career, UserCareer } from '@/types/database.types'
 import Combobox from '@/components/ui/Combobox'
 import CareersModal from './CareersModal'
+import Cropper from 'react-easy-crop'
 
 interface ProfileEditModalProps {
     profile: Profile
@@ -33,11 +34,9 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
     const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
     // Crop State
-    const [cropSettings, setCropSettings] = useState({
-        zoom: 1,
-        x: 50, // 50% (center)
-        y: 50  // 50% (center)
-    })
+    const [crop, setCrop] = useState({ x: 0, y: 0 })
+    const [zoom, setZoom] = useState(1)
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number, y: number, width: number, height: number } | null>(null)
     const [isAdjusting, setIsAdjusting] = useState(false)
     const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'same' | 'idle'>('idle')
     const [isCareersModalOpen, setIsCareersModalOpen] = useState(false)
@@ -148,46 +147,47 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
             setAvatarPreview(reader.result as string)
             setAvatarFile(file)
             setIsAdjusting(true)
-            setCropSettings({ zoom: 1, x: 50, y: 50 })
+            setCrop({ x: 0, y: 0 })
+            setZoom(1)
         }
         reader.readAsDataURL(file)
     }
 
     const generateCroppedImage = (): Promise<Blob | null> => {
         return new Promise((resolve) => {
+            if (!avatarPreview || !croppedAreaPixels) return resolve(null)
+
             const canvas = canvasRef.current
-            if (!canvas || !avatarPreview) return resolve(null)
+            if (!canvas) return resolve(null)
 
-            const ctx = canvas.getContext('2d')
-            const img = new Image()
-            img.crossOrigin = 'anonymous'
-            img.src = avatarPreview
-            img.onload = () => {
-                const size = 300
-                canvas.width = size
-                canvas.height = size
+            const image = new Image()
+            image.crossOrigin = 'anonymous'
+            image.src = avatarPreview
+            image.onload = () => {
+                const ctx = canvas.getContext('2d')
+                if (!ctx) return resolve(null)
 
-                const imgAspect = img.width / img.height
-                let drawWidth, drawHeight, offsetX, offsetY
+                const finalSize = Math.min(600, croppedAreaPixels.width)
+                canvas.width = finalSize
+                canvas.height = finalSize
 
-                if (imgAspect > 1) {
-                    drawHeight = size * cropSettings.zoom
-                    drawWidth = drawHeight * imgAspect
-                } else {
-                    drawWidth = size * cropSettings.zoom
-                    drawHeight = drawWidth / imgAspect
-                }
-
-                offsetX = (size / 2) - (drawWidth * (cropSettings.x / 100))
-                offsetY = (size / 2) - (drawHeight * (cropSettings.y / 100))
-
-                ctx?.clearRect(0, 0, size, size)
-                ctx?.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
+                ctx.drawImage(
+                    image,
+                    croppedAreaPixels.x,
+                    croppedAreaPixels.y,
+                    croppedAreaPixels.width,
+                    croppedAreaPixels.height,
+                    0,
+                    0,
+                    finalSize,
+                    finalSize
+                )
 
                 canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.9)
             }
         })
     }
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -345,91 +345,84 @@ export default function ProfileEditModal({ profile, isOpen, onClose }: ProfileEd
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center gap-4 pb-6 border-b border-slate-100">
-                    <div className="relative group">
-                        <div className="w-24 h-24 rounded-[2rem] border-2 border-slate-100 shadow-sm overflow-hidden bg-slate-50 flex items-center justify-center relative">
-                            {avatarPreview ? (
-                                <img
-                                    src={avatarPreview}
-                                    alt="Avatar"
-                                    className="w-full h-full object-cover"
-                                    style={{
-                                        transform: isAdjusting ? `scale(${cropSettings.zoom})` : 'none',
-                                        objectPosition: isAdjusting ? `${cropSettings.x}% ${cropSettings.y}%` : 'center'
-                                    }}
+                    {isAdjusting && avatarPreview ? (
+                        <div className="w-full max-w-[320px] space-y-4">
+                            <div className="h-[320px] relative rounded-[2.5rem] overflow-hidden bg-slate-100 border border-slate-200">
+                                <Cropper
+                                    image={avatarPreview}
+                                    crop={crop}
+                                    zoom={zoom}
+                                    aspect={1}
+                                    cropShape="round"
+                                    showGrid={false}
+                                    onCropChange={setCrop}
+                                    onZoomChange={setZoom}
+                                    onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
                                 />
-                            ) : (
-                                <User size={32} className="text-slate-300" />
-                            )}
-
-                            {uploadingAvatar && (
-                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                                    <Loader2 size={24} className="animate-spin text-indigo-600" />
-                                </div>
-                            )}
-                        </div>
-
-                        <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="absolute -bottom-1 -right-1 w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center border-2 border-white hover:bg-slate-700 transition-all shadow-md"
-                        >
-                            <Upload size={14} />
-                        </button>
-
-                        {avatarPreview && (
-                            <button
-                                type="button"
-                                onClick={() => { setAvatarPreview(null); setAvatarFile(null); setIsAdjusting(false); }}
-                                className="absolute -top-1 -right-1 w-6 h-6 bg-white text-slate-400 hover:text-red-500 rounded-full flex items-center justify-center border border-slate-100 shadow-sm transition-colors"
-                            >
-                                <X size={12} />
-                            </button>
-                        )}
-                    </div>
-
-                    {isAdjusting && (
-                        <div className="w-full max-w-[280px] space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                <Move size={10} /> Ajustar Imagen
-                            </p>
-                            <div className="space-y-3">
-                                <div className="space-y-1">
-                                    <div className="flex justify-between text-[9px] font-mono text-slate-400 uppercase">
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => { setAvatarPreview(null); setAvatarFile(null); setIsAdjusting(false); }}
+                                    className="p-2.5 bg-white text-slate-400 hover:text-red-500 rounded-xl border border-slate-200 shadow-sm transition-colors"
+                                    title="Cancelar imagen"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                                <div className="flex-1 space-y-1">
+                                    <div className="flex justify-between text-[9px] font-mono text-slate-400 uppercase font-bold">
                                         <span>Zoom</span>
-                                        <span>{cropSettings.zoom}x</span>
+                                        <span>{zoom.toFixed(1)}x</span>
                                     </div>
                                     <input
-                                        type="range" min="1" max="3" step="0.1"
-                                        value={cropSettings.zoom}
-                                        onChange={(e) => setCropSettings({ ...cropSettings, zoom: parseFloat(e.target.value) })}
-                                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <div className="flex justify-between text-[9px] font-mono text-slate-400 uppercase">
-                                        <span>Horizontal</span>
-                                        <span>{cropSettings.x}%</span>
-                                    </div>
-                                    <input
-                                        type="range" min="0" max="100"
-                                        value={cropSettings.x}
-                                        onChange={(e) => setCropSettings({ ...cropSettings, x: parseInt(e.target.value) })}
-                                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <div className="flex justify-between text-[9px] font-mono text-slate-400 uppercase">
-                                        <span>Vertical</span>
-                                        <span>{cropSettings.y}%</span>
-                                    </div>
-                                    <input
-                                        type="range" min="0" max="100"
-                                        value={cropSettings.y}
-                                        onChange={(e) => setCropSettings({ ...cropSettings, y: parseInt(e.target.value) })}
-                                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                        type="range"
+                                        min={1}
+                                        max={3}
+                                        step={0.1}
+                                        value={zoom}
+                                        onChange={(e) => setZoom(Number(e.target.value))}
+                                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                                     />
                                 </div>
                             </div>
+                        </div>
+                    ) : (
+                        <div className="relative group">
+                            <div className="w-24 h-24 rounded-[2rem] border-2 border-slate-100 shadow-sm overflow-hidden bg-slate-50 flex items-center justify-center relative">
+                                {avatarPreview ? (
+                                    <img
+                                        src={avatarPreview}
+                                        alt="Avatar"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <User size={32} className="text-slate-300" />
+                                )}
+
+                                {uploadingAvatar && (
+                                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                                        <Loader2 size={24} className="animate-spin text-indigo-600" />
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="absolute -bottom-1 -right-1 w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center border-2 border-white hover:bg-slate-700 transition-all shadow-md group-hover:scale-110"
+                            >
+                                <Upload size={14} />
+                            </button>
+
+                            {avatarPreview && (
+                                <button
+                                    type="button"
+                                    onClick={() => { setAvatarPreview(null); setAvatarFile(null); setIsAdjusting(false); }}
+                                    className="absolute -top-1 -right-1 w-6 h-6 bg-white text-slate-400 hover:text-red-500 rounded-full flex items-center justify-center border border-slate-100 shadow-sm transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            )}
                         </div>
                     )}
 

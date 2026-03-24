@@ -3,7 +3,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Mail, Send, CheckCircle2, Loader2, Linkedin, Copy, Check, Lock, UserPlus } from 'lucide-react'
+import { Mail, Send, CheckCircle2, Loader2, Copy, Check, Lock, UserPlus } from 'lucide-react'
+import { Icon } from '@iconify/react'
 
 interface ContactSectionProps {
     profileEmail: string | null
@@ -98,7 +99,7 @@ export default function ContactSection({ profileEmail, profileName, linkedinUrl,
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 text-[10px] font-mono font-bold text-slate-500 hover:text-blue-400 uppercase tracking-widest transition-colors"
                                 >
-                                    <Linkedin size={14} />
+                                    <Icon icon="mdi:linkedin" width="14" />
                                     Ver en LinkedIn
                                 </a>
                             )}

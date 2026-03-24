@@ -139,6 +139,17 @@ export default async function ExperienceDetailPage(props: PageProps) {
                             <div className="flex items-center gap-2 text-xl text-slate-500 font-medium border-l-2 border-slate-200 pl-6 text-left">
                                 <Building2 size={24} className="text-slate-400" />
                                 {experience.organization}
+                                {experience.sector && (
+                                    <span className="ml-2 text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-bold uppercase tracking-wider border border-slate-200">
+                                        Sector {experience.sector}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                        {experience.professor_name && (
+                            <div className="flex items-center gap-2 text-lg text-indigo-500 font-semibold border-l-2 border-indigo-100 pl-6 text-left">
+                                <GraduationCap size={20} className="text-indigo-400" />
+                                Profesor/a: {experience.professor_name}
                             </div>
                         )}
                     </div>

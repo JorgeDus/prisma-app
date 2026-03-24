@@ -410,6 +410,8 @@ export interface Database {
                     show_in_timeline: boolean | null
                     collaborator_ids: string[] | null
                     original_experience_id: string | null
+                    professor_name: string | null
+                    sector: string | null
                     created_at: string
                     updated_at: string
                 }
@@ -435,6 +437,8 @@ export interface Database {
                     show_in_timeline?: boolean | null
                     collaborator_ids?: string[] | null
                     original_experience_id?: string | null
+                    professor_name?: string | null
+                    sector?: string | null
                     created_at?: string
                     updated_at?: string
                 }
@@ -458,6 +462,8 @@ export interface Database {
                     show_in_timeline?: boolean | null
                     collaborator_ids?: string[] | null
                     original_experience_id?: string | null
+                    professor_name?: string | null
+                    sector?: string | null
                     updated_at?: string
                 }
                 Relationships: [

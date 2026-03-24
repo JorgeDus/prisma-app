@@ -1,9 +1,11 @@
-'use client'
-
-import { Brain, Sparkles } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
+import { useState, useMemo } from 'react'
+import { Brain, Sparkles, FolderCode, Briefcase, ExternalLink, ChevronRight } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts'
+import Link from 'next/link'
 
 export default function SkillsTab({ stats }: any) {
+    const [selectedSkill, setSelectedSkill] = useState<string | null>(null)
+
     // Top 10 Hard Skills
     const topHard = stats.skills.hard.top.slice(0, 10).map((s: any) => ({
         name: s.skill,
@@ -16,6 +18,31 @@ export default function SkillsTab({ stats }: any) {
         count: s.count
     }))
 
+    // Filtrar items basados en la competencia seleccionada
+    const filteredContent = useMemo(() => {
+        if (!selectedSkill) return null
+
+        const projects = (stats.projects?.items || []).filter((item: any) => 
+            (item.hard_skills || []).some((s: string) => s.trim().toLowerCase() === selectedSkill.toLowerCase()) ||
+            (item.soft_skills || []).some((s: string) => s.trim().toLowerCase() === selectedSkill.toLowerCase())
+        ).map((item: any) => ({ ...item, type: 'proyecto' }))
+
+        const experiences = (stats.experiences?.items || []).filter((item: any) => 
+            (item.hard_skills || []).some((s: string) => s.trim().toLowerCase() === selectedSkill.toLowerCase()) ||
+            (item.soft_skills || []).some((s: string) => s.trim().toLowerCase() === selectedSkill.toLowerCase())
+        ).map((item: any) => ({ ...item, type: 'experiencia' }))
+
+        return [...projects, ...experiences].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    }, [selectedSkill, stats])
+
+    const handleBarClick = (data: any) => {
+        if (selectedSkill === data.name) {
+            setSelectedSkill(null)
+        } else {
+            setSelectedSkill(data.name)
+        }
+    }
+
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
             {/* KPI Totales de Competencias */}
@@ -25,8 +52,13 @@ export default function SkillsTab({ stats }: any) {
                         <Brain size={24} />
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase">Total Competencias Técnicas</p>
-                        <p className="text-2xl font-extrabold text-slate-900">{stats.skills.hard.total}</p>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">Catálogo de Competencias Técnicas</p>
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-2xl font-extrabold text-slate-900">{stats.skills.hard.total}</p>
+                            <p className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                                {stats.skills.hard.validations} VALORACIONES
+                            </p>
+                        </div>
                     </div>
                 </div>
                 
@@ -35,8 +67,13 @@ export default function SkillsTab({ stats }: any) {
                         <Sparkles size={24} />
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase">Total Competencias Transversales</p>
-                        <p className="text-2xl font-extrabold text-slate-900">{stats.skills.soft.total}</p>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">Catálogo de Competencias Transversales</p>
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-2xl font-extrabold text-slate-900">{stats.skills.soft.total}</p>
+                            <p className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
+                                {stats.skills.soft.validations} VALORACIONES
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -46,7 +83,10 @@ export default function SkillsTab({ stats }: any) {
                 
                 {/* Top Hard Skills */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 mb-6">Top Competencias Técnicas</h2>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-sm font-bold text-slate-800">Top Competencias Técnicas</h2>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Click para filtrar</span>
+                    </div>
                     <div className="h-80 w-full">
                         {topHard.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -58,14 +98,30 @@ export default function SkillsTab({ stats }: any) {
                                         dataKey="name" 
                                         axisLine={false} 
                                         tickLine={false} 
-                                        tick={{ fontSize: 11, fill: '#475569' }} 
+                                        tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }} 
                                         width={110}
                                     />
                                     <RechartsTooltip 
                                         cursor={{ fill: '#f8fafc' }}
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                     />
-                                    <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} name="Frecuencia" />
+                                    <Bar 
+                                        dataKey="count" 
+                                        fill="#6366f1" 
+                                        radius={[0, 4, 4, 0]} 
+                                        barSize={20} 
+                                        name="Frecuencia"
+                                        onClick={handleBarClick}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        {topHard.map((entry: any, index: number) => (
+                                            <Cell 
+                                                key={`cell-${index}`} 
+                                                fill={selectedSkill === entry.name ? '#4338ca' : '#6366f1'}
+                                                className="transition-all duration-300"
+                                            />
+                                        ))}
+                                    </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
@@ -76,7 +132,10 @@ export default function SkillsTab({ stats }: any) {
 
                 {/* Top Soft Skills */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 mb-6">Top Competencias Transversales</h2>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-sm font-bold text-slate-800">Top Competencias Transversales</h2>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Click para filtrar</span>
+                    </div>
                     <div className="h-80 w-full">
                         {topSoft.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -88,14 +147,30 @@ export default function SkillsTab({ stats }: any) {
                                         dataKey="name" 
                                         axisLine={false} 
                                         tickLine={false} 
-                                        tick={{ fontSize: 11, fill: '#475569' }} 
+                                        tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }} 
                                         width={110}
                                     />
                                     <RechartsTooltip 
                                         cursor={{ fill: '#f8fafc' }}
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                     />
-                                    <Bar dataKey="count" fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={20} name="Frecuencia" />
+                                    <Bar 
+                                        dataKey="count" 
+                                        fill="#f59e0b" 
+                                        radius={[0, 4, 4, 0]} 
+                                        barSize={20} 
+                                        name="Frecuencia"
+                                        onClick={handleBarClick}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        {topSoft.map((entry: any, index: number) => (
+                                            <Cell 
+                                                key={`cell-${index}`} 
+                                                fill={selectedSkill === entry.name ? '#b45309' : '#f59e0b'}
+                                                className="transition-all duration-300"
+                                            />
+                                        ))}
+                                    </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
@@ -103,8 +178,72 @@ export default function SkillsTab({ stats }: any) {
                         )}
                     </div>
                 </div>
-
             </div>
+
+            {/* Panel de Detalle por Competencia */}
+            {selectedSkill && (
+                <div className="bg-white rounded-xl border-2 border-indigo-100 p-6 shadow-md animate-in slide-in-from-bottom-4 duration-500 overflow-hidden relative">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                        <Brain size={120} className="text-indigo-600" />
+                    </div>
+
+                    <div className="flex items-center justify-between mb-6 relative">
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <Sparkles size={16} className="text-indigo-500" />
+                                <h3 className="text-lg font-extrabold text-slate-900 leading-none">Contenido con <span className="text-indigo-600">"{selectedSkill}"</span></h3>
+                            </div>
+                            <p className="text-sm text-slate-500 font-medium">Proyectos y experiencias que validan esta competencia en la universidad.</p>
+                        </div>
+                        <button 
+                            onClick={() => setSelectedSkill(null)}
+                            className="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-tighter transition-colors"
+                        >
+                            Cerrar detalle
+                        </button>
+                    </div>
+
+                    {filteredContent && filteredContent.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
+                            {filteredContent.map((item: any) => (
+                                <div key={item.id} className="group flex items-start gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50/30 hover:bg-white hover:shadow-md hover:border-indigo-100 transition-all duration-200">
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                                        item.type === 'proyecto' ? 'bg-indigo-50 text-indigo-500' : 'bg-emerald-50 text-emerald-500'
+                                    }`}>
+                                        {item.type === 'proyecto' ? <FolderCode size={20} /> : <Briefcase size={20} />}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                                                item.type === 'proyecto' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'
+                                            }`}>
+                                                {item.type}
+                                            </span>
+                                            <span className="text-[10px] font-bold text-slate-400">{new Date(item.date).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}</span>
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-800 line-clamp-1 group-hover:text-indigo-600 transition-colors">{item.title}</p>
+                                        <p className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                                            por {item.userName}
+                                        </p>
+                                    </div>
+                                    <Link 
+                                        href={item.type === 'proyecto' ? `/proyectos/${item.id}` : `/experiencias/${item.id}`}
+                                        target="_blank"
+                                        className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 transition-all"
+                                    >
+                                        <ExternalLink size={18} />
+                                    </Link>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-12 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-400">
+                            <Brain size={40} className="mb-3 opacity-20" />
+                            <p className="text-sm font-medium">No se encontró contenido específico para esta competencia.</p>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     )
 }

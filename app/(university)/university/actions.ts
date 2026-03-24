@@ -207,7 +207,9 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
             title: item.title || item.role || 'Sin título',
             userName: u.full_name || u.username || 'Usuario',
             userUsername: u.username,
-            date: item.created_at || item.start_date || item.date
+            date: item.created_at || item.start_date || item.date,
+            hard_skills: item.hard_skills || [],
+            soft_skills: item.soft_skills || []
         })
     }
 
@@ -268,8 +270,16 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         achievements: achStats,
         
         skills: {
-            hard: { total: totalHardSkills, top: formatTop(hardSkillCount, 12) },
-            soft: { total: totalSoftSkills, top: formatTop(softSkillCount, 12) }
+            hard: { 
+                total: Object.keys(hardSkillCount).length, 
+                validations: totalHardSkills,
+                top: formatTop(hardSkillCount, 12) 
+            },
+            soft: { 
+                total: Object.keys(softSkillCount).length, 
+                validations: totalSoftSkills,
+                top: formatTop(softSkillCount, 12) 
+            }
         },
         deepDiveData,
         filterOptions: { careers: Array.from(allCareersSet).sort(), cohorts: Array.from(allCohortsSet).sort() }

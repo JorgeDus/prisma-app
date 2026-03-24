@@ -44,7 +44,7 @@ const TOUR_STEPS = [
         element: '#experiencia',
         popover: {
             title: '✨ Experiencias',
-            description: 'Comparte experiencias significativas: liderazgo, voluntariado, emprendimiento, trabajo, y más.',
+            description: 'Comparte experiencias significativas: voluntariados, emprendimientos, trabajos, y más. <b>Aquí es donde registras tus Prácticas Profesionales y Pasantías</b>',
             side: 'top' as const,
             align: 'start' as const,
         }
