@@ -227,7 +227,7 @@ export default function SkillsTab({ stats }: any) {
                                         </p>
                                     </div>
                                     <Link 
-                                        href={item.type === 'proyecto' ? `/proyectos/${item.id}` : `/experiencias/${item.id}`}
+                                        href={item.type === 'proyecto' ? `/${item.userUsername}/proyectos/${item.id}` : `/${item.userUsername}/experiencias/${item.id}`}
                                         target="_blank"
                                         className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 transition-all"
                                     >
