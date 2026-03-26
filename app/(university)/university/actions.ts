@@ -120,7 +120,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         { data: achievementsData }
     ] = await Promise.all([
         adminClient.from('projects').select('id, user_id, title, created_at, hard_skills, soft_skills').in('user_id', profileIds),
-        adminClient.from('experiences').select('id, user_id, role, start_date, hard_skills, soft_skills').in('user_id', profileIds),
+        adminClient.from('experiences').select('id, user_id, title, role, start_date, hard_skills, soft_skills').in('user_id', profileIds),
         adminClient.from('achievements').select('id, user_id, title, date').in('user_id', profileIds)
     ])
 
