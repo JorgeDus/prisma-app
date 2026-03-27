@@ -1,20 +1,32 @@
 'use client'
 
-import { Users, TrendingUp, UserPlus, FolderGit2, AlertCircle } from 'lucide-react'
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts'
+import { Users, TrendingUp, UserPlus, AlertCircle, BookOpen, Briefcase } from 'lucide-react'
+import {
+    PieChart, Pie, Cell,
+    BarChart, Bar, XAxis, YAxis, CartesianGrid,
+    ResponsiveContainer, Tooltip as RechartsTooltip, Legend
+} from 'recharts'
+import { CustomTooltip, SectionHeader } from '../ChartHelpers'
 
-function StatCard({ label, value, icon: Icon, subtext, color = 'indigo' }: any) {
+function StatCard({ label, value, icon: Icon, subtext, color = 'indigo', prominent = false }: any) {
     const colors: any = {
-        indigo: { bg: 'bg-indigo-50', icon: 'text-indigo-500', border: 'border-indigo-100' },
-        emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-500', border: 'border-emerald-100' },
-        amber: { bg: 'bg-amber-50', icon: 'text-amber-500', border: 'border-amber-100' },
-        rose: { bg: 'bg-rose-50', icon: 'text-rose-500', border: 'border-rose-100' },
-        slate: { bg: 'bg-slate-50', icon: 'text-slate-500', border: 'border-slate-100' },
+        indigo: { bg: 'bg-indigo-50', icon: 'text-indigo-500', border: 'border-indigo-100', accent: 'bg-indigo-500' },
+        emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-500', border: 'border-emerald-100', accent: 'bg-emerald-500' },
+        amber: { bg: 'bg-amber-50', icon: 'text-amber-500', border: 'border-amber-100', accent: 'bg-amber-500' },
+        rose: { bg: 'bg-rose-50', icon: 'text-rose-500', border: 'border-rose-100', accent: 'bg-rose-500' },
+        slate: { bg: 'bg-slate-50', icon: 'text-slate-500', border: 'border-slate-100', accent: 'bg-slate-400' },
     }
     const c = colors[color]
 
     return (
-        <div className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm">
+        <div className={`bg-white rounded-xl border p-5 relative overflow-hidden ${
+            prominent
+                ? 'shadow-md border-slate-200'
+                : 'shadow-sm border-slate-100'
+        }`}>
+            {prominent && (
+                <div className={`absolute bottom-0 left-0 right-0 h-0.5 ${c.accent}`} />
+            )}
             <div className="flex items-start justify-between">
                 <div>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
@@ -34,82 +46,185 @@ function StatCard({ label, value, icon: Icon, subtext, color = 'indigo' }: any) 
 }
 
 export default function GeneralTab({ stats }: any) {
-    // Prep dat for gender pie chart
     const genderData = stats.demographics.gender.map((item: any) => ({
-        name: item.gender.charAt(0).toUpperCase() + item.gender.slice(1),
+        name: item.gender,
         value: item.count
     }))
 
-    const COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#f43f5e', '#64748b']
+    const GENDER_COLORS: any = {
+        'Mujer': '#ec4899',
+        'Hombre': '#3b82f6',
+        'No binario': '#14b8a6',
+        'Prefiero autodescribirme': '#8b5cf6',
+        'Prefiero no decirlo': '#94a3b8'
+    }
 
     // Funnel data logic
     const total = stats.totalStudents
     const completes = total - stats.incompleteProfiles
     const act90 = stats.activeStudentsDetail.last90
     const act30 = stats.activeStudentsDetail.last30
-    const creators = stats.totalProjects > 0 ? act30 : 0 // Simplified creators logic placeholder
+
+    // Creadores: estudiantes con al menos 1 proyecto o experiencia
+    const usersWithContent = new Set([
+        ...(stats.projects?.items || []).map((i: any) => i.userUsername),
+        ...(stats.experiences?.items || []).map((i: any) => i.userUsername),
+    ]).size
 
     const funnelData = [
-        { name: 'Registrados', value: total, fill: '#6366f1' },
-        { name: 'Perfiles Completos', value: completes, fill: '#8b5cf6' },
-        { name: 'Activos (90d)', value: act90, fill: '#14b8a6' },
-        { name: 'Activos (30d)', value: act30, fill: '#f59e0b' },
+        { name: 'Registrados', value: total, fill: '#818cf8' },
+        { name: 'Perfil Completo', value: completes, fill: '#6366f1' },
+        { name: 'Activos (90d)', value: act90, fill: '#34d399' },
+        { name: 'Activos (30d)', value: act30, fill: '#10b981' },
+        { name: 'Creadores de Contenido', value: usersWithContent, fill: '#059669' },
     ]
+
+    // Métricas normalizadas
+    const avgContentPerActiveStudent = act30 > 0
+        ? ((stats.projects.total + stats.experiences.total) / act30).toFixed(1)
+        : '0'
+    const practiceCount = stats.experiences?.items?.filter((i: any) =>
+        i.type === 'practica' || i.type === 'empleo_sustento'
+    ).length ?? 0
+    const pctWithPractice = total > 0 ? Math.round((practiceCount / total) * 100) : 0
+
+    // Gráfico de diversidad: actividad productiva por género y carrera
+    const diversityDataMap = (stats.productionDeepDiveData || []).reduce((acc: any, curr: any) => {
+        const key = curr.career
+        if (!acc[key]) acc[key] = { name: key, Mujer: 0, Hombre: 0, 'No binario': 0, 'Prefiero autodescribirme': 0, 'Prefiero no decirlo': 0 }
+        const genderKey = curr.gender
+        if (genderKey in acc[key]) {
+            acc[key][genderKey] = (acc[key][genderKey] || 0) + curr.count
+        } else {
+            acc[key]['Prefiero no decirlo'] = (acc[key]['Prefiero no decirlo'] || 0) + curr.count
+        }
+        return acc
+    }, {})
+    const diversityData = Object.values(diversityDataMap).sort((a: any, b: any) => a.name.localeCompare(b.name))
+
+    // Solo mostrar el gráfico de diversidad si hay datos de más de un género
+    const distinctGenders = new Set((stats.productionDeepDiveData || []).map((d: any) => d.gender))
+    const showDiversityChart = distinctGenders.size >= 2 && diversityData.length > 0
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
-            {/* KPI Row 1 */}
+            {/* KPI Row 1: Conteos base */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard 
-                    label="Total Estudiantes" 
-                    value={stats.totalStudents} 
-                    icon={Users} 
+                <StatCard
+                    label="Total Estudiantes"
+                    value={stats.totalStudents}
+                    icon={Users}
                     color="indigo"
+                    prominent
                     subtext="En el segmento actual"
                 />
-                <StatCard 
-                    label="Activos Recientes (30d)" 
-                    value={stats.activeStudentsDetail.last30} 
-                    icon={TrendingUp} 
+                <StatCard
+                    label="Activos Recientes (30d)"
+                    value={stats.activeStudentsDetail.last30}
+                    icon={TrendingUp}
                     color="emerald"
-                    subtext={`${Math.round((stats.activeStudentsDetail.last30 / (stats.totalStudents || 1)) * 100)}% de conversión`}
+                    prominent
+                    subtext={`${Math.round((stats.activeStudentsDetail.last30 / (stats.totalStudents || 1)) * 100)}% del total`}
                 />
-                <StatCard 
-                    label="Nuevos este Mes" 
-                    value={stats.newThisMonth} 
-                    icon={UserPlus} 
+                <StatCard
+                    label="Nuevos este Mes"
+                    value={stats.newThisMonth}
+                    icon={UserPlus}
+                    color="indigo"
+                    prominent
+                />
+                <StatCard
+                    label="Perfiles Incompletos"
+                    value={stats.incompleteProfiles}
+                    icon={AlertCircle}
                     color="amber"
-                />
-                <StatCard 
-                    label="Perfiles Incompletos" 
-                    value={stats.incompleteProfiles} 
-                    icon={AlertCircle} 
-                    color="rose"
+                    prominent
                     subtext="Falta foto, bio o género"
                 />
             </div>
+
+            {/* KPI Row 2: Métricas de calidad normalizadas */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <StatCard
+                    label="Contenido por Estudiante Activo"
+                    value={avgContentPerActiveStudent}
+                    icon={BookOpen}
+                    color="indigo"
+                    subtext="Proyectos + experiencias promedio (ult. 30d)"
+                />
+                <StatCard
+                    label="Con Experiencia Profesional"
+                    value={`${pctWithPractice}%`}
+                    icon={Briefcase}
+                    color="emerald"
+                    subtext={`${practiceCount} estudiantes con práctica o pasantía`}
+                />
+                <StatCard
+                    label="Creadores de Contenido"
+                    value={usersWithContent}
+                    icon={Users}
+                    color="slate"
+                    subtext={`${Math.round((usersWithContent / (total || 1)) * 100)}% del total tiene al menos 1 item`}
+                />
+            </div>
+
+            {/* Engagement: Funnel + Género */}
+            <SectionHeader
+                icon={TrendingUp}
+                title="Engagement Estudiantil"
+                subtitle="Activación y retención en el ciclo de vida del alumno"
+                color="indigo"
+            />
 
             {/* Split Row for Visuals */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Funnel de Retención */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 mb-6">Funnel de Engagement Estudiantil</h2>
+                    <h2 className="text-sm font-bold text-slate-800 mb-1">Funnel de Engagement</h2>
+                    <p className="text-xs text-slate-400 mb-5">Evolución desde el registro hasta la producción activa</p>
                     {stats.totalStudents > 0 ? (
-                        <div className="space-y-3">
+                        <div className="flex flex-col items-center gap-0.5">
                             {funnelData.map((step, idx) => {
-                                const percentage = total > 0 ? Math.round((step.value / total) * 100) : 0
+                                const pctOfTotal = total > 0 ? (step.value / total) * 100 : 0
+                                const prevValue = idx > 0 ? funnelData[idx - 1].value : null
+                                const convRate = prevValue && prevValue > 0
+                                    ? Math.round((step.value / prevValue) * 100)
+                                    : null
+                                const barWidth = Math.max(30, pctOfTotal)
                                 return (
-                                    <div key={idx} className="relative">
-                                        <div className="flex justify-between text-xs font-semibold mb-1">
-                                            <span className="text-slate-700">{step.name}</span>
-                                            <span className="text-slate-500">{step.value} ({percentage}%)</span>
-                                        </div>
-                                        <div className="w-full bg-slate-100 rounded-full h-3">
-                                            <div 
-                                                className="h-3 rounded-full transition-all duration-1000" 
-                                                style={{ width: `${percentage}%`, backgroundColor: step.fill }} 
-                                            />
+                                    <div key={idx} className="w-full flex flex-col items-center">
+                                        {convRate !== null && (
+                                            <div className="flex items-center gap-1.5 py-0.5">
+                                                <div className="h-3 w-px bg-slate-200" />
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                                    convRate >= 80 ? 'text-emerald-700 bg-emerald-50' :
+                                                    convRate >= 50 ? 'text-amber-700 bg-amber-50' :
+                                                                     'text-rose-700 bg-rose-50'
+                                                }`}>
+                                                    {convRate}% continúa
+                                                </span>
+                                                <div className="h-3 w-px bg-slate-200" />
+                                            </div>
+                                        )}
+                                        <div
+                                            className="flex items-center justify-between rounded-lg transition-all duration-700"
+                                            style={{
+                                                width: `${barWidth}%`,
+                                                backgroundColor: step.fill + '22',
+                                                borderLeft: `3px solid ${step.fill}`,
+                                                padding: '7px 14px',
+                                            }}
+                                        >
+                                            <span className="text-xs font-semibold text-slate-700 truncate">{step.name}</span>
+                                            <div className="flex items-baseline gap-1.5 shrink-0 ml-2">
+                                                <span className="text-sm font-extrabold" style={{ color: step.fill }}>
+                                                    {step.value.toLocaleString('es-CL')}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-slate-400">
+                                                    {Math.round(pctOfTotal)}%
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 )
@@ -137,7 +252,7 @@ export default function GeneralTab({ stats }: any) {
                                         dataKey="value"
                                     >
                                         {genderData.map((entry: any, index: number) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            <Cell key={`cell-${index}`} fill={GENDER_COLORS[entry.name] || '#cbd5e1'} />
                                         ))}
                                     </Pie>
                                     <RechartsTooltip 
@@ -153,6 +268,48 @@ export default function GeneralTab({ stats }: any) {
                 </div>
 
             </div>
+
+            {/* Gráfico de Actividad por Género y Carrera (solo si hay diversidad de género) */}
+            {showDiversityChart && (
+                <>
+                    <SectionHeader
+                        icon={Users}
+                        title="Distribución Demográfica"
+                        subtitle="Composición de la producción académica por género"
+                        color="slate"
+                    />
+                    <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-sm font-bold text-slate-800">Actividad por Género y Carrera</h2>
+                            <p className="text-xs text-slate-400 mt-0.5">Contenido producido (proyectos + experiencias) por género en cada carrera</p>
+                        </div>
+                    </div>
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={diversityData}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <XAxis
+                                    dataKey="name"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 11, fill: '#64748b' }}
+                                    tickFormatter={(v) => v.length > 14 ? v.substring(0, 13) + '…' : v}
+                                />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+                                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+                                <Bar dataKey="Mujer" stackId="a" fill="#ec4899" />
+                                <Bar dataKey="Hombre" stackId="a" fill="#3b82f6" />
+                                <Bar dataKey="No binario" stackId="a" fill="#14b8a6" />
+                                <Bar dataKey="Prefiero autodescribirme" stackId="a" fill="#8b5cf6" />
+                                <Bar dataKey="Prefiero no decirlo" stackId="a" fill="#94a3b8" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                    </div>
+                </>
+            )}
 
             {/* Estudiantes recientes */}
             {stats.recentStudents?.length > 0 && (

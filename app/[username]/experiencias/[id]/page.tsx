@@ -32,7 +32,7 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
     // 2. Fetch collaborator profiles if any
     // 2b. Fetch the Unified Team (Root Owner + Accepted Collaborators)
     const rootExperienceId = experience.original_experience_id || experience.id;
-    
+
     // a) Get Root Owner
     const { data: rootExp } = await supabase.from('experiences').select('user_id').eq('id', rootExperienceId).single();
     let rootOwnerProfile = null;
@@ -40,14 +40,14 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
         const { data } = await supabase.from('profiles').select('id, username, full_name, avatar_url, headline').eq('id', rootExp.user_id).single();
         rootOwnerProfile = data;
     }
-    
+
     // b) Get Accepted Collaborators of the Root Experience
     const { data: activeCollabs } = await supabase
         .from('experience_collaborations')
         .select('collaborator_id')
         .eq('experience_id', rootExperienceId)
         .eq('status', 'accepted');
-        
+
     const activeIds = activeCollabs?.map(c => c.collaborator_id) || [];
     let collabProfiles: any[] = [];
     if (activeIds.length > 0) {
@@ -57,7 +57,7 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
             .in('id', activeIds);
         collabProfiles = data || [];
     }
-    
+
     // c) Combine and deduplicate
     const fullTeamRaw = [rootOwnerProfile, ...collabProfiles].filter(Boolean);
     const uniqueTeam = Array.from(new Map(fullTeamRaw.map(item => [item.id, item])).values());
@@ -70,7 +70,7 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
             .select('user_id, title')
             .eq('id', experience.original_experience_id)
             .single()
-        
+
         if (originalExp) {
             const { data: originalProf } = await supabase
                 .from('profiles')
@@ -148,6 +148,16 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                             <CategoryIcon size={12} />
                             {category.label}
                         </span>
+                        {experience.sector && (
+                            <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold uppercase tracking-wider border border-slate-200">
+                                Sector {experience.sector}
+                            </span>
+                        )}
+                        {experience.internship_area && (
+                            <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold uppercase tracking-wider border border-slate-200">
+                                Área {experience.internship_area}
+                            </span>
+                        )}
                         <div className="flex items-center gap-2 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 bg-white">
                             <Calendar size={12} className="text-indigo-400" />
                             <span>{getDateRange()}</span>
@@ -167,11 +177,6 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                             <div className="flex items-center gap-2 text-xl text-slate-500 font-medium border-l-2 border-slate-200 pl-6 text-left">
                                 <Building2 size={24} className="text-slate-400" />
                                 {experience.organization}
-                                {experience.sector && (
-                                    <span className="ml-2 text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-bold uppercase tracking-wider border border-slate-200">
-                                        Sector {experience.sector}
-                                    </span>
-                                )}
                             </div>
                         )}
                         {experience.professor_name && (
@@ -187,7 +192,7 @@ export default async function PublicExperienceDetailPage(props: ExperiencePagePr
                     {/* Left Column: Content */}
                     <div className="lg:col-span-8 space-y-12">
                         {originalExperienceProfile && (
-                            <Link 
+                            <Link
                                 href={`/${originalExperienceProfile.username}/experiencias/${experience.original_experience_id}`}
                                 className="block w-full bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 rounded-[2rem] p-6 hover:border-purple-300 transition-colors shadow-sm"
                             >

@@ -34,20 +34,20 @@ export default async function ExperienceDetailPage(props: PageProps) {
 
     // 3. Fetch the Unified Team (Root Owner + Accepted Collaborators)
     const rootExperienceId = experience.original_experience_id || experience.id;
-    
+
     let rootOwnerProfile = null;
     const { data: rootExperience } = await supabase.from('experiences').select('user_id').eq('id', rootExperienceId).single();
     if (rootExperience) {
         const { data } = await supabase.from('profiles').select('id, username, full_name, avatar_url, headline').eq('id', rootExperience.user_id).single();
         rootOwnerProfile = data;
     }
-    
+
     const { data: activeCollabs } = await supabase
         .from('experience_collaborations')
         .select('collaborator_id')
         .eq('experience_id', rootExperienceId)
         .eq('status', 'accepted');
-        
+
     const activeIds = activeCollabs?.map(c => c.collaborator_id) || [];
     let collabProfiles: any[] = [];
     if (activeIds.length > 0) {
@@ -57,7 +57,7 @@ export default async function ExperienceDetailPage(props: PageProps) {
             .in('id', activeIds);
         collabProfiles = data || [];
     }
-    
+
     const fullTeamRaw = [rootOwnerProfile, ...collabProfiles].filter(Boolean);
     const uniqueTeam = Array.from(new Map(fullTeamRaw.map(item => [item.id, item])).values());
 
@@ -115,6 +115,16 @@ export default async function ExperienceDetailPage(props: PageProps) {
                             <CategoryIcon size={12} />
                             {category.label}
                         </span>
+                        {experience.sector && (
+                            <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold uppercase tracking-wider border border-slate-200">
+                                Sector {experience.sector}
+                            </span>
+                        )}
+                        {experience.internship_area && (
+                            <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold uppercase tracking-wider border border-slate-200">
+                                Área {experience.internship_area}
+                            </span>
+                        )}
                         {((experience as any).isCollaboration || (experience.collaborator_ids && experience.collaborator_ids.length > 0) || experience.original_experience_id) && (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-mono font-bold tracking-[0.15em] uppercase shadow-sm bg-violet-100/90 text-violet-700 border-violet-200">
                                 <Users size={12} strokeWidth={2.5} /> Collab
@@ -142,6 +152,11 @@ export default async function ExperienceDetailPage(props: PageProps) {
                                 {experience.sector && (
                                     <span className="ml-2 text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-bold uppercase tracking-wider border border-slate-200">
                                         Sector {experience.sector}
+                                    </span>
+                                )}
+                                {experience.internship_area && (
+                                    <span className="ml-2 text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-bold uppercase tracking-wider border border-slate-200">
+                                        Área {experience.internship_area}
                                     </span>
                                 )}
                             </div>

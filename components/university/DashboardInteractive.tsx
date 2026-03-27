@@ -13,11 +13,13 @@ export default function DashboardInteractive({ university, stats }: any) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
-    const [activeTab, setActiveTab] = useState<'general' | 'content' | 'skills'>('general')
+    const [activeTab, setActiveTab] = useState<'general' | 'content' | 'skills'>(
+        (searchParams.get('tab') as 'general' | 'content' | 'skills') || 'general'
+    )
     const [selectedCareer, setSelectedCareer] = useState<string>(searchParams.get('career') || '')
     const [selectedCohort, setSelectedCohort] = useState<string>(searchParams.get('cohort') || '')
 
-    // Actualiza URL en base a los filtros
+    // Actualiza URL en base a los filtros y tabs
     const handleFilterChange = (type: 'career' | 'cohort', value: string) => {
         const params = new URLSearchParams(searchParams.toString())
 
@@ -27,11 +29,16 @@ export default function DashboardInteractive({ university, stats }: any) {
             params.delete(type)
         }
 
-        // Actualiza el estado local también para evitar desfases
         if (type === 'career') setSelectedCareer(value)
         if (type === 'cohort') setSelectedCohort(value)
 
-        // Navega a la nueva URL (refresh silencioso gracias a Next App Router)
+        router.push(`/university?${params.toString()}`)
+    }
+
+    const handleTabChange = (tab: 'general' | 'content' | 'skills') => {
+        setActiveTab(tab)
+        const params = new URLSearchParams(searchParams.toString())
+        params.set('tab', tab)
         router.push(`/university?${params.toString()}`)
     }
 
@@ -53,7 +60,7 @@ export default function DashboardInteractive({ university, stats }: any) {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">{university?.name || 'Portal Institucional'}</h1>
                     <p className="text-sm text-slate-500">
-                        Centro de Inteligencia y Control de Datos
+                        {university?.description || 'Portal de Inteligencia Estudiantil'}
                     </p>
                 </div>
             </div>
@@ -95,19 +102,19 @@ export default function DashboardInteractive({ university, stats }: any) {
                 <div className="flex border-b border-slate-100 overflow-x-auto no-scrollbar">
                     <TabButton
                         active={activeTab === 'general'}
-                        onClick={() => setActiveTab('general')}
+                        onClick={() => handleTabChange('general')}
                         icon={LayoutDashboard}
                         label="Vista General"
                     />
                     <TabButton
                         active={activeTab === 'content'}
-                        onClick={() => setActiveTab('content')}
+                        onClick={() => handleTabChange('content')}
                         icon={PieChart}
                         label="Producción"
                     />
                     <TabButton
                         active={activeTab === 'skills'}
-                        onClick={() => setActiveTab('skills')}
+                        onClick={() => handleTabChange('skills')}
                         icon={Brain}
                         label="Competencias"
                     />

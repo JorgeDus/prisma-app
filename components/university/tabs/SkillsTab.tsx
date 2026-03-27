@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
-import { Brain, Sparkles, FolderCode, Briefcase, ExternalLink, ChevronRight } from 'lucide-react'
+import { Brain, Sparkles, FolderCode, Briefcase, ExternalLink } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts'
 import Link from 'next/link'
+import { CustomTooltip, CustomYAxisTick, SectionHeader } from '../ChartHelpers'
 
 export default function SkillsTab({ stats }: any) {
     const [selectedSkill, setSelectedSkill] = useState<string | null>(null)
@@ -22,17 +23,17 @@ export default function SkillsTab({ stats }: any) {
     const filteredContent = useMemo(() => {
         if (!selectedSkill) return null
 
-        const projects = (stats.projects?.items || []).filter((item: any) => 
+        const allItems = [
+            ...(stats.projects?.items || []).map((item: any) => ({ ...item, contentType: 'proyecto' })),
+            ...(stats.experiences?.items || []).map((item: any) => ({ ...item, contentType: 'experiencia' }))
+        ]
+
+        const matches = allItems.filter((item: any) =>
             (item.hard_skills || []).some((s: string) => s.trim().toLowerCase() === selectedSkill.toLowerCase()) ||
             (item.soft_skills || []).some((s: string) => s.trim().toLowerCase() === selectedSkill.toLowerCase())
-        ).map((item: any) => ({ ...item, type: 'proyecto' }))
+        ).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-        const experiences = (stats.experiences?.items || []).filter((item: any) => 
-            (item.hard_skills || []).some((s: string) => s.trim().toLowerCase() === selectedSkill.toLowerCase()) ||
-            (item.soft_skills || []).some((s: string) => s.trim().toLowerCase() === selectedSkill.toLowerCase())
-        ).map((item: any) => ({ ...item, type: 'experiencia' }))
-
-        return [...projects, ...experiences].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        return { items: matches, hasData: allItems.length > 0 }
     }, [selectedSkill, stats])
 
     const handleBarClick = (data: any) => {
@@ -47,7 +48,7 @@ export default function SkillsTab({ stats }: any) {
         <div className="space-y-6 animate-in fade-in duration-300">
             {/* KPI Totales de Competencias */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm flex items-center gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-md flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
                         <Brain size={24} />
                     </div>
@@ -56,13 +57,13 @@ export default function SkillsTab({ stats }: any) {
                         <div className="flex items-baseline gap-2">
                             <p className="text-2xl font-extrabold text-slate-900">{stats.skills.hard.total}</p>
                             <p className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
-                                {stats.skills.hard.validations} VALORACIONES
+                                {stats.skills.hard.validations} MENCIONES
                             </p>
                         </div>
                     </div>
                 </div>
                 
-                <div className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm flex items-center gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-md flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
                         <Sparkles size={24} />
                     </div>
@@ -71,7 +72,7 @@ export default function SkillsTab({ stats }: any) {
                         <div className="flex items-baseline gap-2">
                             <p className="text-2xl font-extrabold text-slate-900">{stats.skills.soft.total}</p>
                             <p className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
-                                {stats.skills.soft.validations} VALORACIONES
+                                {stats.skills.soft.validations} MENCIONES
                             </p>
                         </div>
                     </div>
@@ -79,6 +80,12 @@ export default function SkillsTab({ stats }: any) {
             </div>
 
             {/* Gráficos de Contenido por Cohorte */}
+            <SectionHeader
+                icon={Brain}
+                title="Ranking de Competencias"
+                subtitle="Top 10 hard y soft skills declaradas — click en una barra para filtrar el contenido relacionado"
+                color="indigo"
+            />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Top Hard Skills */}
@@ -90,33 +97,33 @@ export default function SkillsTab({ stats }: any) {
                     <div className="h-80 w-full">
                         {topHard.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={topHard} layout="vertical" margin={{ top: 0, right: 0, left: 30, bottom: 0 }}>
+                                <BarChart data={topHard} layout="vertical" margin={{ top: 0, right: 0, left: 10, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" hide />
-                                    <YAxis 
-                                        type="category" 
-                                        dataKey="name" 
-                                        axisLine={false} 
-                                        tickLine={false} 
-                                        tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }} 
-                                        width={110}
+                                    <YAxis
+                                        type="category"
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        width={130}
+                                        tick={(props) => <CustomYAxisTick {...props} maxCharsPerLine={20} fontSize={11} fontWeight={500} fill="#475569" />}
                                     />
-                                    <RechartsTooltip 
+                                    <RechartsTooltip
+                                        content={<CustomTooltip />}
                                         cursor={{ fill: '#f8fafc' }}
-                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                     />
-                                    <Bar 
-                                        dataKey="count" 
-                                        fill="#6366f1" 
-                                        radius={[0, 4, 4, 0]} 
-                                        barSize={20} 
-                                        name="Frecuencia"
+                                    <Bar
+                                        dataKey="count"
+                                        fill="#6366f1"
+                                        radius={[0, 4, 4, 0]}
+                                        barSize={20}
+                                        name="Menciones"
                                         onClick={handleBarClick}
                                         style={{ cursor: 'pointer' }}
                                     >
                                         {topHard.map((entry: any, index: number) => (
-                                            <Cell 
-                                                key={`cell-${index}`} 
+                                            <Cell
+                                                key={`cell-${index}`}
                                                 fill={selectedSkill === entry.name ? '#4338ca' : '#6366f1'}
                                                 className="transition-all duration-300"
                                             />
@@ -139,33 +146,33 @@ export default function SkillsTab({ stats }: any) {
                     <div className="h-80 w-full">
                         {topSoft.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={topSoft} layout="vertical" margin={{ top: 0, right: 0, left: 30, bottom: 0 }}>
+                                <BarChart data={topSoft} layout="vertical" margin={{ top: 0, right: 0, left: 10, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" hide />
-                                    <YAxis 
-                                        type="category" 
-                                        dataKey="name" 
-                                        axisLine={false} 
-                                        tickLine={false} 
-                                        tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }} 
-                                        width={110}
+                                    <YAxis
+                                        type="category"
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        width={130}
+                                        tick={(props) => <CustomYAxisTick {...props} maxCharsPerLine={20} fontSize={11} fontWeight={500} fill="#475569" />}
                                     />
-                                    <RechartsTooltip 
+                                    <RechartsTooltip
+                                        content={<CustomTooltip />}
                                         cursor={{ fill: '#f8fafc' }}
-                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                     />
-                                    <Bar 
-                                        dataKey="count" 
-                                        fill="#f59e0b" 
-                                        radius={[0, 4, 4, 0]} 
-                                        barSize={20} 
-                                        name="Frecuencia"
+                                    <Bar
+                                        dataKey="count"
+                                        fill="#f59e0b"
+                                        radius={[0, 4, 4, 0]}
+                                        barSize={20}
+                                        name="Menciones"
                                         onClick={handleBarClick}
                                         style={{ cursor: 'pointer' }}
                                     >
                                         {topSoft.map((entry: any, index: number) => (
-                                            <Cell 
-                                                key={`cell-${index}`} 
+                                            <Cell
+                                                key={`cell-${index}`}
                                                 fill={selectedSkill === entry.name ? '#b45309' : '#f59e0b'}
                                                 className="transition-all duration-300"
                                             />
@@ -203,21 +210,21 @@ export default function SkillsTab({ stats }: any) {
                         </button>
                     </div>
 
-                    {filteredContent && filteredContent.length > 0 ? (
+                    {filteredContent && filteredContent.items.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
-                            {filteredContent.map((item: any) => (
+                            {filteredContent.items.map((item: any) => (
                                 <div key={item.id} className="group flex items-start gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50/30 hover:bg-white hover:shadow-md hover:border-indigo-100 transition-all duration-200">
                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                                        item.type === 'proyecto' ? 'bg-indigo-50 text-indigo-500' : 'bg-emerald-50 text-emerald-500'
+                                        item.contentType === 'proyecto' ? 'bg-indigo-50 text-indigo-500' : 'bg-emerald-50 text-emerald-500'
                                     }`}>
-                                        {item.type === 'proyecto' ? <FolderCode size={20} /> : <Briefcase size={20} />}
+                                        {item.contentType === 'proyecto' ? <FolderCode size={20} /> : <Briefcase size={20} />}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-0.5">
                                             <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                                                item.type === 'proyecto' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'
+                                                item.contentType === 'proyecto' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'
                                             }`}>
-                                                {item.type}
+                                                {item.contentType}
                                             </span>
                                             <span className="text-[10px] font-bold text-slate-400">{new Date(item.date).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}</span>
                                         </div>
@@ -226,8 +233,8 @@ export default function SkillsTab({ stats }: any) {
                                             por {item.userName}
                                         </p>
                                     </div>
-                                    <Link 
-                                        href={item.type === 'proyecto' ? `/${item.userUsername}/proyectos/${item.id}` : `/${item.userUsername}/experiencias/${item.id}`}
+                                    <Link
+                                        href={item.contentType === 'proyecto' ? `/${item.userUsername}/proyectos/${item.id}` : `/${item.userUsername}/experiencias/${item.id}`}
                                         target="_blank"
                                         className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 transition-all"
                                     >
@@ -239,7 +246,11 @@ export default function SkillsTab({ stats }: any) {
                     ) : (
                         <div className="py-12 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-400">
                             <Brain size={40} className="mb-3 opacity-20" />
-                            <p className="text-sm font-medium">No se encontró contenido específico para esta competencia.</p>
+                            <p className="text-sm font-medium">
+                                {filteredContent?.hasData
+                                    ? 'No hay contenido que declare esta competencia en los filtros actuales.'
+                                    : 'Sin datos de contenido disponibles para filtrar.'}
+                            </p>
                         </div>
                     )}
                 </div>

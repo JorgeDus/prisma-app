@@ -37,7 +37,7 @@ export const HeroSection = () => {
                     </h1>
 
                     <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed max-w-lg mb-10 font-sans">
-                        Prisma no es donde buscas trabajo. Es donde construyes la evidencia de lo que vales, y encuentras a quienes quieres construir contigo.
+                        Prisma es la plataforma donde construyes la evidencia de lo que vales, y encuentras a quienes quieres construir contigo.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">

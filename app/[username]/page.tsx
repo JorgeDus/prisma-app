@@ -502,7 +502,7 @@ export default async function PublicProfilePage(props: PublicProfileProps) {
                     <div className="flex justify-center mt-4">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm">
                             <Image
-                                src={(profile.universities as any).logo_url}
+                                src={(profile.universities as any).logo_url.startsWith('http') ? (profile.universities as any).logo_url : ((profile.universities as any).logo_url.startsWith('/') ? (profile.universities as any).logo_url : `/${(profile.universities as any).logo_url}`)}
                                 alt={(profile.universities as any).name}
                                 width={18}
                                 height={18}

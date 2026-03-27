@@ -99,9 +99,9 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
             topSkills: [] as { skill: string; count: number }[],
             byCareer: [] as { career: string; count: number }[],
             demographics: { gender: [], cohort: [], career: [] },
-            projects: { total: 0, byGender: {}, byCohort: {}, byCareer: {} },
-            experiences: { total: 0, byGender: {}, byCohort: {}, byCareer: {} },
-            achievements: { total: 0, byGender: {}, byCohort: {}, byCareer: {} },
+            projects: { total: 0, byGender: {}, byCohort: {}, byCareer: {}, byMonth: {}, byType: {}, byCohortGender: {}, byMonthGender: {}, collaborativeCount: 0 },
+            experiences: { total: 0, byGender: {}, byCohort: {}, byCareer: {}, byMonth: {}, byType: {}, byCohortGender: {}, byMonthGender: {}, collaborativeCount: 0 },
+            achievements: { total: 0, byGender: {}, byCohort: {}, byCareer: {}, byMonth: {}, byType: {}, byCohortGender: {}, byMonthGender: {}, collaborativeCount: 0 },
             skills: { 
                 hard: { total: 0, top: [] }, 
                 soft: { total: 0, top: [] } 
@@ -119,9 +119,9 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         { data: experiencesData },
         { data: achievementsData }
     ] = await Promise.all([
-        adminClient.from('projects').select('id, user_id, title, created_at, hard_skills, soft_skills').in('user_id', profileIds),
-        adminClient.from('experiences').select('id, user_id, title, role, start_date, hard_skills, soft_skills').in('user_id', profileIds),
-        adminClient.from('achievements').select('id, user_id, title, date').in('user_id', profileIds)
+        adminClient.from('projects').select('id, user_id, title, created_at, hard_skills, soft_skills, type, collaborator_ids').in('user_id', profileIds),
+        adminClient.from('experiences').select('id, user_id, title, role, created_at, start_date, hard_skills, soft_skills, type, collaborator_ids, sector, internship_area').in('user_id', profileIds),
+        adminClient.from('achievements').select('id, user_id, title, date, created_at').in('user_id', profileIds)
     ])
 
     const projects = projectsData || []
@@ -138,7 +138,19 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
     const genderCount: Record<string, number> = {}
     const cohortCount: Record<string, number> = {}
     const careerCount: Record<string, number> = {}
-    const deepDiveMap: Record<string, number> = {}
+    const demographicsDeepDiveMap: Record<string, number> = {}
+    const productionDeepDiveMap: Record<string, number> = {}
+
+    // Función para normalizar etiquetas de género y que coincidan con el frontend
+    const normalizeGender = (g: string | null) => {
+        const trimmed = (g || '').trim().toLowerCase()
+        if (['mujer', 'femenino'].includes(trimmed)) return 'Mujer'
+        if (['hombre', 'masculino'].includes(trimmed)) return 'Hombre'
+        if (['no binario', 'no_binario', 'non-binary'].includes(trimmed)) return 'No binario'
+        if (trimmed === 'otro') return 'Prefiero autodescribirme'
+        if (['prefiero no decirlo', 'prefiero_no_decirlo', 'no_decirlo'].includes(trimmed)) return 'Prefiero no decirlo'
+        return 'Prefiero no decirlo'
+    }
 
     profiles.forEach(p => {
         // Tiempos
@@ -151,7 +163,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         if (!p.avatar_url || !p.headline || !p.gender) incompleteCount++
 
         // Atributos normalizados
-        const gender = p.gender || 'No especificado'
+        const gender = normalizeGender(p.gender)
         const cohortMatch = p.career_start_date ? p.career_start_date.substring(0, 4) : 'Sin cohorte'
         const career = getPrimaryCareerName(p)
 
@@ -168,10 +180,10 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         careerCount[career] = (careerCount[career] || 0) + 1
 
         const deepKey = `${career}|${cohortMatch}|${gender}`
-        deepDiveMap[deepKey] = (deepDiveMap[deepKey] || 0) + 1
+        demographicsDeepDiveMap[deepKey] = (demographicsDeepDiveMap[deepKey] || 0) + 1
     })
 
-    const deepDiveData = Object.entries(deepDiveMap).map(([key, count]) => {
+    const demographicsDeepDiveData = Object.entries(demographicsDeepDiveMap).map(([key, count]) => {
         const [career, cohort, gender] = key.split('|')
         return { career, cohort, gender, count }
     })
@@ -183,6 +195,10 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         byCohort: {} as Record<string, number>,
         byCareer: {} as Record<string, number>,
         byMonth: {} as Record<string, number>,
+        byType: {} as Record<string, number>,
+        byCohortGender: {} as Record<string, Record<string, number>>,
+        byMonthGender: {} as Record<string, Record<string, number>>,
+        collaborativeCount: 0,
         items: [] as any[]
     })
 
@@ -190,10 +206,15 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
     const expStats = createCrossStats()
     const achStats = createCrossStats()
 
-    const hardSkillCount: Record<string, number> = {}
-    const softSkillCount: Record<string, number> = {}
     let totalHardSkills = 0
     let totalSoftSkills = 0
+    const hardSkillCount: Record<string, number> = {}
+    const softSkillCount: Record<string, number> = {}
+
+    const employmentStats = {
+        bySector: {} as Record<string, number>,
+        byArea: {} as Record<string, number>,
+    }
 
     const processItem = (item: any, stats: ReturnType<typeof createCrossStats>) => {
         const u = userDict[item.user_id]
@@ -203,6 +224,22 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
         stats.byCohort[u.cohort] = (stats.byCohort[u.cohort] || 0) + 1
         stats.byCareer[u.career] = (stats.byCareer[u.career] || 0) + 1
         
+        // Registro por Cohorte y Género
+        if (!stats.byCohortGender[u.cohort]) stats.byCohortGender[u.cohort] = {}
+        stats.byCohortGender[u.cohort][u.gender] = (stats.byCohortGender[u.cohort][u.gender] || 0) + 1
+        
+        if (item.type) {
+            stats.byType[item.type] = (stats.byType[item.type] || 0) + 1
+        }
+        
+        if (item.collaborator_ids && item.collaborator_ids.length > 0) {
+            stats.collaborativeCount++
+        }
+        
+        // Registro para el gráfico de diversidad (Producción x Carrera x Género)
+        const prodKey = `${u.career}|${u.gender}`
+        productionDeepDiveMap[prodKey] = (productionDeepDiveMap[prodKey] || 0) + 1
+        
         // Desglose mensual
         const itemDate = item.created_at || item.start_date || item.date
         if (itemDate) {
@@ -210,6 +247,20 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
             const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
             const monthLabel = monthNames[date.getMonth()]
             stats.byMonth[monthLabel] = (stats.byMonth[monthLabel] || 0) + 1
+            
+            // Registro por Mes y Género
+            if (!stats.byMonthGender[monthLabel]) stats.byMonthGender[monthLabel] = {}
+            stats.byMonthGender[monthLabel][u.gender] = (stats.byMonthGender[monthLabel][u.gender] || 0) + 1
+        }
+
+        // Estadísticas de Empleabilidad (Sector y Área)
+        if (item.type === 'practica' || item.type === 'empleo_sustento') {
+            if (item.sector) {
+                employmentStats.bySector[item.sector] = (employmentStats.bySector[item.sector] || 0) + 1
+            }
+            if (item.internship_area) {
+                employmentStats.byArea[item.internship_area] = (employmentStats.byArea[item.internship_area] || 0) + 1
+            }
         }
         
         stats.items.push({
@@ -219,7 +270,8 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
             userUsername: u.username,
             date: item.created_at || item.start_date || item.date,
             hard_skills: item.hard_skills || [],
-            soft_skills: item.soft_skills || []
+            soft_skills: item.soft_skills || [],
+            type: item.type
         })
     }
 
@@ -291,7 +343,18 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
                 top: formatTop(softSkillCount, 12) 
             }
         },
-        deepDiveData,
+        employment: {
+            bySector: Object.entries(employmentStats.bySector).map(([name, value]) => ({ name, value })),
+            byArea: Object.entries(employmentStats.byArea)
+                .sort((a, b) => b[1] - a[1]) // Sort by frequency
+                .slice(0, 10) // Top 10
+                .map(([name, value]) => ({ name, value }))
+        },
+        productionDeepDiveData: Object.entries(productionDeepDiveMap).map(([key, count]) => {
+            const [career, gender] = key.split('|')
+            return { career, gender, count }
+        }),
+        deepDiveData: demographicsDeepDiveData,
         filterOptions: { careers: Array.from(allCareersSet).sort(), cohorts: Array.from(allCohortsSet).sort() }
     }
 }

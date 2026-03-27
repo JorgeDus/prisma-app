@@ -63,12 +63,71 @@ const CAREER_NAMES = [
 ]
 
 // ============================================================
+// TIPOS PARA EL ARRAY DE ESTUDIANTES
+// ============================================================
+type ExperienceType = 'liderazgo' | 'social' | 'emprendimiento' | 'empleo_sustento' | 'academico' | 'deportivo' | 'creativo' | 'cuidado_vida' | 'practica' | 'otro'
+type CareerStatus = 'estudiante_activo' | 'disponible_para_practica' | 'en_practica' | 'buscando_primer_empleo' | 'empleado' | 'empleado_fuera_area' | 'emprendiendo' | 'en_posgrado'
+type Gender = 'mujer' | 'hombre' | 'no_binario' | 'otro' | 'prefiero_no_decirlo'
+
+interface StudentProject {
+    title: string
+    description: string
+    type: 'academic' | 'startup' | 'personal'
+    hard_skills: string[]
+    soft_skills: string[]
+    is_featured: boolean
+    show_in_timeline: boolean
+    role?: string
+    challenges?: string
+    results?: string
+    learnings?: string
+}
+
+interface StudentExperience {
+    title: string
+    organization: string
+    type: ExperienceType
+    description: string
+    hard_skills: string[]
+    soft_skills: string[]
+    is_current: boolean
+    role?: string
+    achievements?: string
+    sector?: string
+    internship_area?: string
+}
+
+interface StudentAchievement {
+    title: string
+    category: 'award' | 'certification' | 'course_chair' | 'academic_role'
+    organization: string
+}
+
+interface Student {
+    username: string
+    full_name: string
+    headline: string
+    about: string
+    career: string
+    interests: string[]
+    email: string
+    password: string
+    completeness: string
+    gender?: Gender
+    career_status?: CareerStatus
+    career_start_date?: string
+    projects: StudentProject[]
+    experiences: StudentExperience[]
+    achievements: StudentAchievement[]
+}
+
+// ============================================================
 // ESTUDIANTES FICTICIOS
 // Distribución: 4 Ing. Informática, 3 Psicología, 3 Diseño,
 //               3 Ing. Comercial, 3 Periodismo, 2 Admin. Pública
 // Variedad: 6 completos, 7 medios, 5 básicos
 // ============================================================
-const STUDENTS = [
+const STUDENTS: Student[] = [
     // --- Ingeniería en Informática (4 estudiantes) ---
     {
         username: 'demo-mistral-matias',
@@ -721,7 +780,878 @@ const STUDENTS = [
         ],
         achievements: [],
     },
+
+    // ============================================================
+    // NUEVOS ESTUDIANTES (20 adicionales)
+    // ============================================================
+
+    // --- Ingeniería en Informática — 4 nuevos ---
+    {
+        username: 'demo-mistral-diego-ac',
+        full_name: 'Diego Acuña Contreras',
+        headline: 'Ingeniería en Informática · Backend · APIs · DevOps',
+        about: 'Estudiante de 3er año especializado en backend y arquitectura de microservicios. Actualmente haciendo mi práctica profesional en una fintech. Me apasiona automatizar procesos y construir APIs robustas.',
+        career: 'Ingeniería en Informática',
+        gender: 'hombre',
+        career_status: 'en_practica',
+        career_start_date: '2023-03-01',
+        interests: ['backend', 'devops', 'ciclismo', 'café'],
+        email: 'demo-mistral-diego-ac@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'high',
+        projects: [
+            {
+                title: 'API de pagos en tiempo real para POS móvil',
+                description: 'API RESTful en Node.js para procesamiento de pagos en tiempo real, con soporte para múltiples medios de pago. Integra notificaciones webhooks y auditoría de transacciones.',
+                type: 'startup' as const,
+                role: 'Backend Developer — Diseño de endpoints, seguridad y despliegue en contenedores',
+                challenges: 'El principal desafío fue garantizar la idempotencia de las transacciones bajo condiciones de red inestable en dispositivos móviles.',
+                results: 'Sistema procesando +500 transacciones/día en producción con 99.8% de uptime en el primer mes.',
+                learnings: 'Profundicé en patrones de retry logic, circuit breakers y manejo de estado en sistemas distribuidos.',
+                hard_skills: ['Node.js', 'PostgreSQL', 'Redis', 'Docker', 'REST APIs'],
+                soft_skills: ['Trabajo en equipo', 'Comunicación técnica', 'Autonomía'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+            {
+                title: 'Pipeline CI/CD para microservicios con GitHub Actions',
+                description: 'Implementación de pipeline de integración y despliegue continuo para un ecosistema de 5 microservicios, incluyendo pruebas automatizadas, análisis estático y despliegue a staging/producción.',
+                type: 'academic' as const,
+                role: 'DevOps Engineer — Diseño e implementación del pipeline completo',
+                challenges: 'Coordinar el orden de despliegue entre servicios con dependencias entre sí sin generar downtime.',
+                results: 'Reducción del tiempo de despliegue de 45 minutos manuales a 8 minutos automatizados.',
+                learnings: 'Aprendí sobre estrategias de deployment (blue-green, canary) y la importancia del rollback automatizado.',
+                hard_skills: ['GitHub Actions', 'Docker', 'Terraform', 'Bash', 'Jest'],
+                soft_skills: ['Planificación', 'Pensamiento sistémico'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Práctica profesional — Backend Developer',
+                organization: 'Paggo Technologies SpA',
+                type: 'practica' as const,
+                sector: 'Privado',
+                internship_area: 'Desarrollo de software',
+                role: 'Desarrollador Backend Jr.',
+                description: 'Desarrollo y mantención de microservicios en Node.js para plataforma de pagos digitales. Participación en code reviews y reuniones de arquitectura.',
+                achievements: 'Reducé el tiempo de respuesta del endpoint de consulta de saldo en 30% mediante caching con Redis.',
+                hard_skills: ['Node.js', 'PostgreSQL', 'Redis', 'Docker'],
+                soft_skills: ['Proactividad', 'Aprendizaje continuo', 'Responsabilidad'],
+                is_current: true,
+            },
+        ],
+        achievements: [
+            { title: 'Mención honrosa — Hackatón Fintech Latam 2025', category: 'award' as const, organization: 'Finnovista' },
+        ],
+    },
+    {
+        username: 'demo-mistral-karla-vp',
+        full_name: 'Karla Valdés Peña',
+        headline: 'Informática · Data Engineering · Machine Learning',
+        about: 'Apasionada por el análisis de datos a gran escala y los modelos de machine learning aplicados a problemas reales. Trabajo en mi tesis sobre predicción de demanda energética con redes neuronales recurrentes.',
+        career: 'Ingeniería en Informática',
+        gender: 'mujer',
+        career_status: 'disponible_para_practica',
+        career_start_date: '2022-03-01',
+        interests: ['machine learning', 'datos', 'fotografía', 'tenis'],
+        email: 'demo-mistral-karla-vp@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'high',
+        projects: [
+            {
+                title: 'Modelo de predicción de demanda eléctrica — Tesis',
+                description: 'Desarrollo de modelo LSTM para predicción horaria de demanda eléctrica en el Sistema Eléctrico Nacional chileno. Entrenado con 5 años de datos históricos del Coordinador Eléctrico Nacional.',
+                type: 'academic' as const,
+                role: 'Investigadora principal — Preprocesamiento de datos, diseño del modelo y evaluación',
+                challenges: 'La alta estacionalidad y la presencia de outliers por eventos climáticos extremos dificultaron la generalización del modelo.',
+                results: 'MAPE de 2.3% en horizonte de predicción de 24 horas, superando el baseline en 40%.',
+                learnings: 'La ingeniería de features fue más determinante que la arquitectura del modelo; aprendí a priorizar el análisis exploratorio antes de modelar.',
+                hard_skills: ['Python', 'TensorFlow', 'Pandas', 'SQL', 'Scikit-learn'],
+                soft_skills: ['Rigor científico', 'Pensamiento analítico', 'Perseverancia'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+            {
+                title: 'Dashboard de visualización de datos climáticos en tiempo real',
+                description: 'Aplicación web que consume APIs de estaciones meteorológicas y presenta visualizaciones interactivas de temperatura, precipitación y viento para 40 comunas de Chile.',
+                type: 'personal' as const,
+                hard_skills: ['Python', 'Dash/Plotly', 'APIs REST', 'PostgreSQL'],
+                soft_skills: ['Autonomía', 'Diseño orientado al usuario'],
+                is_featured: false,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Ayudante de Inteligencia Artificial',
+                organization: 'Universidad Mistral',
+                type: 'academico' as const,
+                role: 'Ayudante docente',
+                description: 'Corrección de trabajos prácticos y apoyo en laboratorios del curso de IA para estudiantes de 4to año.',
+                hard_skills: ['Python', 'Machine Learning', 'Docencia'],
+                soft_skills: ['Comunicación pedagógica', 'Paciencia'],
+                is_current: true,
+            },
+        ],
+        achievements: [
+            { title: 'Premio investigación estudiantil — Congreso JCCALP 2025', category: 'award' as const, organization: 'JCCALP Chile' },
+            { title: 'Google Data Analytics Certificate', category: 'certification' as const, organization: 'Google / Coursera' },
+        ],
+    },
+    {
+        username: 'demo-mistral-franco-es',
+        full_name: 'Franco Espinoza Salas',
+        headline: 'Informática · Ciberseguridad · Redes · Pentesting',
+        about: 'Especializado en seguridad ofensiva y análisis de vulnerabilidades. Certificado en ethical hacking y actualmente haciendo práctica en un banco estatal.',
+        career: 'Ingeniería en Informática',
+        gender: 'hombre',
+        career_status: 'en_practica',
+        career_start_date: '2021-03-01',
+        interests: ['ciberseguridad', 'ctf', 'música electrónica'],
+        email: 'demo-mistral-franco-es@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'medium',
+        projects: [
+            {
+                title: 'Plataforma de entrenamiento CTF para estudiantes',
+                description: 'Plataforma web con desafíos de ciberseguridad categorizados por nivel y área (web, crypto, reverse, forensics). Usada por 80+ estudiantes de la carrera.',
+                type: 'personal' as const,
+                role: 'Creador y mantención — Frontend, backend y diseño de desafíos',
+                results: 'La plataforma fue adoptada por el club de ciberseguridad de la Mistral como herramienta oficial de entrenamiento.',
+                hard_skills: ['Python', 'Flask', 'Linux', 'Docker', 'CTF challenges'],
+                soft_skills: ['Liderazgo', 'Iniciativa', 'Pedagogía'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Práctica profesional — Analista de Seguridad',
+                organization: 'BancoEstado',
+                type: 'practica' as const,
+                sector: 'Público',
+                internship_area: 'Ciberseguridad',
+                role: 'Analista de seguridad Jr.',
+                description: 'Participación en evaluaciones de seguridad de aplicaciones internas (DAST/SAST), gestión de vulnerabilidades y apoyo al equipo de SOC.',
+                achievements: 'Identifiqué 3 vulnerabilidades XSS en portales internos durante auditoría de aplicaciones web, las cuales fueron remediadas antes del cierre de práctica.',
+                hard_skills: ['Burp Suite', 'Nmap', 'OWASP', 'Python scripting', 'SIEM'],
+                soft_skills: ['Discreción', 'Atención al detalle', 'Trabajo bajo presión'],
+                is_current: true,
+            },
+        ],
+        achievements: [
+            { title: 'eJPT Certified (eLearnSecurity Junior Penetration Tester)', category: 'certification' as const, organization: 'eLearnSecurity' },
+        ],
+    },
+    {
+        username: 'demo-mistral-pilar-mo',
+        full_name: 'Pilar Morales Osorio',
+        headline: 'Informática · 2do año · App Development',
+        about: '',
+        career: 'Ingeniería en Informática',
+        gender: 'mujer',
+        career_status: 'estudiante_activo',
+        career_start_date: '2025-03-01',
+        interests: ['apps móviles', 'diseño', 'K-pop'],
+        email: 'demo-mistral-pilar-mo@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'basic',
+        projects: [
+            {
+                title: 'App de hábitos diarios en React Native',
+                description: 'Aplicación móvil para seguimiento de hábitos con notificaciones y estadísticas semanales, desarrollada como proyecto personal de aprendizaje.',
+                type: 'personal' as const,
+                hard_skills: ['React Native', 'JavaScript', 'Expo'],
+                soft_skills: ['Constancia', 'Autodidacta'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [],
+        achievements: [],
+    },
+
+    // --- Psicología — 3 nuevos ---
+    {
+        username: 'demo-mistral-constanza-vr',
+        full_name: 'Constanza Vargas Ríos',
+        headline: 'Psicología Educacional · Evaluación · Neuropsicología',
+        about: 'Estudiante de 4to año con mención en psicología educacional. Me especializo en evaluación psicopedagógica de niños con NEE y dificultades de aprendizaje. Actualmente haciendo práctica en colegio municipal de Santiago.',
+        career: 'Psicología',
+        gender: 'mujer',
+        career_status: 'en_practica',
+        career_start_date: '2022-03-01',
+        interests: ['neuropsicología', 'educación inclusiva', 'cerámica'],
+        email: 'demo-mistral-constanza-vr@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'high',
+        projects: [
+            {
+                title: 'Protocolo de detección temprana de dislexia en 1er ciclo básico',
+                description: 'Diseño y validación de protocolo de screening para detección de riesgo de dislexia en estudiantes de 1ro a 4to básico. Aplicado en muestra piloto de 60 estudiantes de tres colegios.',
+                type: 'academic' as const,
+                role: 'Investigadora y psicóloga evaluadora',
+                challenges: 'Adaptar los instrumentos estandarizados para contextos de alta vulnerabilidad socioeconómica donde los referentes culturales difieren.',
+                results: 'El protocolo mostró sensibilidad del 87% y especificidad del 79% en la muestra piloto.',
+                learnings: 'La evaluación psicopedagógica requiere siempre un enfoque contextual y ecosistémico, nunca reduccionista.',
+                hard_skills: ['Evaluación psicopedagógica', 'WISC-V', 'Cumanin', 'Análisis estadístico'],
+                soft_skills: ['Empatía', 'Rigor científico', 'Comunicación con familias'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+            {
+                title: 'Taller de funciones ejecutivas para estudiantes con TDAH',
+                description: 'Diseño e implementación de programa de 10 sesiones basado en evidencia para fortalecer planificación, memoria de trabajo e inhibición en niños con TDAH de 8-12 años.',
+                type: 'academic' as const,
+                hard_skills: ['Psicología educacional', 'Neuropsicología clínica', 'Diseño de programas'],
+                soft_skills: ['Paciencia', 'Creatividad', 'Manejo de grupos'],
+                is_featured: false,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Práctica profesional — Psicóloga educacional',
+                organization: 'Colegio Municipal Diego Portales, Santiago',
+                type: 'practica' as const,
+                sector: 'Público',
+                internship_area: 'Psicología educacional',
+                role: 'Psicóloga practicante',
+                description: 'Evaluación psicopedagógica de estudiantes con NEE, diseño de adecuaciones curriculares y trabajo con equipos PIE. Atención de casos individuales y trabajo con familias.',
+                achievements: 'Elaboré 14 informes de evaluación psicopedagógica y coordiné 8 reuniones interdisciplinarias con docentes y especialistas.',
+                hard_skills: ['Evaluación psicológica', 'Diagnóstico diferencial', 'Coordinación PIE'],
+                soft_skills: ['Empatía', 'Trabajo interdisciplinario', 'Gestión del tiempo'],
+                is_current: true,
+            },
+        ],
+        achievements: [
+            { title: 'Mejor poster — XII Jornadas de Psicología Educacional', category: 'award' as const, organization: 'SOCHIPE' },
+        ],
+    },
+    {
+        username: 'demo-mistral-emilio-cc',
+        full_name: 'Emilio Castro Carrasco',
+        headline: 'Psicología · Clínica · Psicoanálisis · Masculinidades',
+        about: 'Estudiante de psicología con interés en psicología clínica y perspectiva de género aplicada al trabajo con hombres. Voluntario en programa de prevención de violencia de pareja.',
+        career: 'Psicología',
+        gender: 'hombre',
+        career_status: 'estudiante_activo',
+        career_start_date: '2022-03-01',
+        interests: ['psicoanálisis', 'masculinidades', 'literatura', 'ajedrez'],
+        email: 'demo-mistral-emilio-cc@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'medium',
+        projects: [
+            {
+                title: 'Estudio cualitativo: Identidad masculina y búsqueda de ayuda psicológica',
+                description: 'Investigación con metodología de teoría fundamentada sobre las barreras que enfrentan los hombres para consultar a un psicólogo. 12 entrevistas en profundidad con hombres de 20-35 años.',
+                type: 'academic' as const,
+                role: 'Investigador principal',
+                challenges: 'Generar rapport con participantes que nunca habían hablado con un psicólogo fue el mayor desafío metodológico.',
+                hard_skills: ['Investigación cualitativa', 'Teoría fundamentada', 'Atlas.ti', 'Entrevistas'],
+                soft_skills: ['Empatía', 'Escucha activa', 'Análisis crítico'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Voluntario — Programa de prevención VIF',
+                organization: 'SernamEg',
+                type: 'social' as const,
+                description: 'Facilitación de talleres de prevención de violencia intrafamiliar con grupos de hombres derivados judicialmente.',
+                hard_skills: ['Facilitación grupal', 'Psicoeducación', 'Intervención en violencia'],
+                soft_skills: ['Contención', 'Manejo de conflictos', 'Flexibilidad'],
+                is_current: false,
+            },
+        ],
+        achievements: [],
+    },
+    {
+        username: 'demo-mistral-mariana-lb',
+        full_name: 'Mariana Lagos Bravo',
+        headline: 'Psicología · 1er año',
+        about: '',
+        career: 'Psicología',
+        gender: 'no_binario',
+        career_status: 'estudiante_activo',
+        career_start_date: '2025-03-01',
+        interests: ['arte', 'salud mental', 'música', 'fotografía'],
+        email: 'demo-mistral-mariana-lb@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'basic',
+        projects: [],
+        experiences: [
+            {
+                title: 'Tallerista de mindfulness — Centro Comunitario',
+                organization: 'Junta de Vecinos Villa Esperanza',
+                type: 'social' as const,
+                description: 'Facilitación de talleres introductorios de mindfulness y respiración consciente para adultos mayores.',
+                hard_skills: ['Facilitación', 'Mindfulness'],
+                soft_skills: ['Empatía', 'Comunicación'],
+                is_current: true,
+            },
+        ],
+        achievements: [],
+    },
+
+    // --- Diseño — 3 nuevos ---
+    {
+        username: 'demo-mistral-javiera-sm',
+        full_name: 'Javiera Sobarzo Mansilla',
+        headline: 'Diseño · Diseño de servicio · Innovación social · Experiencia ciudadana',
+        about: 'Diseñadora en 5to año enfocada en diseño de servicios públicos y experiencia ciudadana. He trabajado con municipios y servicios del Estado en proyectos de co-diseño con comunidades.',
+        career: 'Diseño',
+        gender: 'mujer',
+        career_status: 'disponible_para_practica',
+        career_start_date: '2021-03-01',
+        interests: ['diseño de servicios', 'innovación pública', 'tejido', 'permacultura'],
+        email: 'demo-mistral-javiera-sm@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'high',
+        projects: [
+            {
+                title: 'Co-diseño del nuevo sistema de filas en registro civil',
+                description: 'Proyecto de diseño de servicio para rediseñar la experiencia de espera y atención en el Registro Civil de Pudahuel. Incluyó investigación etnográfica, co-diseño con funcionarios y prototipado rápido.',
+                type: 'academic' as const,
+                role: 'Diseñadora de servicio líder — Investigación, facilitación y prototipado',
+                challenges: 'Trabajar con funcionarios públicos resistentes al cambio y lograr que se apropiaran del proceso de diseño participativo.',
+                results: 'Las propuestas fueron adoptadas parcialmente por la dirección regional del SRCeI y se implementaron en 2 sucursales piloto.',
+                learnings: 'El diseño de servicios públicos requiere gestión del cambio organizacional tanto como diseño de touchpoints físicos y digitales.',
+                hard_skills: ['Service Design', 'Investigación etnográfica', 'Figma', 'Miro', 'Facilitación'],
+                soft_skills: ['Escucha activa', 'Gestión de stakeholders', 'Adaptabilidad'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+            {
+                title: 'Sistema de señalética inclusiva para hospital público',
+                description: 'Rediseño del sistema de señalética del Hospital San Borja Arriarán para mejorar orientación de pacientes con baja alfabetización, adultos mayores y personas en situación de discapacidad.',
+                type: 'academic' as const,
+                role: 'Diseñadora principal — Investigación con usuarios, diseño de sistema y prototipado',
+                hard_skills: ['Diseño inclusivo', 'Señalética', 'Tipografía', 'Adobe Illustrator'],
+                soft_skills: ['Empatía', 'Pensamiento sistémico'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Diseñadora junior — Proyecto LABGob',
+                organization: 'Laboratorio de Gobierno, Ministerio de Hacienda',
+                type: 'practica' as const,
+                sector: 'Público',
+                internship_area: 'Diseño de servicios',
+                role: 'Diseñadora de servicios Jr.',
+                description: 'Participación en proyecto de rediseño de proceso de postulación a beneficios sociales. Investigación con usuarios, síntesis de hallazgos y prototipado de soluciones.',
+                achievements: 'El prototipo de nuevo flujo de postulación redujo las consultas de soporte en 35% durante la prueba piloto.',
+                hard_skills: ['Design Thinking', 'Figma', 'Investigación usuaria', 'Facilitación remota'],
+                soft_skills: ['Proactividad', 'Trabajo en equipo', 'Comunicación ejecutiva'],
+                is_current: false,
+            },
+        ],
+        achievements: [
+            { title: '1er lugar — Concurso de Diseño para el Bien Público, Fondart 2025', category: 'award' as const, organization: 'Consejo de la Cultura, Chile' },
+        ],
+    },
+    {
+        username: 'demo-mistral-sebastian-ra',
+        full_name: 'Sebastián Ramos Alvarado',
+        headline: 'Diseño · 3D · Arquitectura de producto · Sustentabilidad',
+        about: 'Diseñador enfocado en diseño de producto físico con criterios de sustentabilidad y economía circular. Trabajo con materiales locales y procesos bajos en carbono.',
+        career: 'Diseño',
+        gender: 'hombre',
+        career_status: 'buscando_primer_empleo',
+        career_start_date: '2021-03-01',
+        interests: ['diseño de producto', 'sustentabilidad', 'senderismo', 'carpintería'],
+        email: 'demo-mistral-sebastian-ra@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'medium',
+        projects: [
+            {
+                title: 'Mobiliario urbano modular con madera recuperada',
+                description: 'Diseño y prototipado de sistema de mobiliario urbano (bancas, luminarias, maceteros) fabricado con madera recuperada de demolición, con uniones sin tornillos para facilitar reparación y reuso.',
+                type: 'personal' as const,
+                role: 'Diseñador industrial — concepto, modelado 3D y prototipo físico',
+                challenges: 'La variabilidad dimensional de la madera recuperada obligó a diseñar tolerancias amplias en las uniones, lo que fue un ejercicio interesante de diseño paramétrico.',
+                results: 'Prototipo instalado en patio central de la Universidad Mistral durante 6 meses como piloto.',
+                hard_skills: ['Rhino 3D', 'SolidWorks', 'Fabricación en madera', 'Adobe Suite'],
+                soft_skills: ['Creatividad', 'Pensamiento circular', 'Resiliencia'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Asistente de diseño — Taller de arquitectura',
+                organization: 'Estudio Brea Arquitectos',
+                type: 'empleo_sustento' as const,
+                description: 'Apoyo en modelado 3D, renders y presentaciones de proyectos de arquitectura residencial.',
+                hard_skills: ['Rhino 3D', 'V-Ray', 'SketchUp', 'AutoCAD'],
+                soft_skills: ['Puntualidad', 'Atención al detalle'],
+                is_current: true,
+            },
+        ],
+        achievements: [],
+    },
+    {
+        username: 'demo-mistral-amparo-df',
+        full_name: 'Amparo Díaz Fuentes',
+        headline: 'Diseño · Fotografía · Dirección de arte',
+        about: '',
+        career: 'Diseño',
+        gender: 'mujer',
+        career_status: 'estudiante_activo',
+        career_start_date: '2024-03-01',
+        interests: ['fotografía', 'moda', 'video'],
+        email: 'demo-mistral-amparo-df@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'basic',
+        projects: [
+            {
+                title: 'Editorial fotográfica — Artesanas del sur de Chile',
+                description: 'Serie fotográfica documental sobre artesanas de Chiloé y sus técnicas textiles ancestrales. Publicada en revista universitaria de artes.',
+                type: 'personal' as const,
+                hard_skills: ['Fotografía', 'Edición en Lightroom', 'Dirección de arte'],
+                soft_skills: ['Sensibilidad cultural', 'Narrativa visual'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [],
+        achievements: [],
+    },
+
+    // --- Ingeniería Comercial — 3 nuevos ---
+    {
+        username: 'demo-mistral-nicolas-hv',
+        full_name: 'Nicolás Herrera Vargas',
+        headline: 'Ingeniería Comercial · Emprendimiento · Economía circular · Agtech',
+        about: 'Fundador de una startup de tecnología agrícola para pequeños agricultores. Ganador del fondo SERCOTEC Capital Semilla 2025. Apasionado por cómo la tecnología puede democratizar el acceso a mercados para el campo chileno.',
+        career: 'Ingeniería Comercial',
+        gender: 'hombre',
+        career_status: 'emprendiendo',
+        career_start_date: '2021-03-01',
+        interests: ['agtech', 'startups', 'agricultura', 'montaña'],
+        email: 'demo-mistral-nicolas-hv@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'high',
+        projects: [
+            {
+                title: 'AgroConecta — Plataforma de conexión entre agricultores y mercados',
+                description: 'Startup que conecta a pequeños agricultores de la Región del Maule con compradores institucionales (hoteles, restaurantes, colegios) eliminando intermediarios. Modelo de suscripción mensual para compradores.',
+                type: 'startup' as const,
+                role: 'Co-fundador y CEO — Estrategia, ventas, fundraising y operaciones',
+                challenges: 'La desconfianza digital de los agricultores mayores requirió un modelo híbrido con agentes de campo que digitalizaban las órdenes en terreno.',
+                results: 'MRR de $4.2M CLP al cabo de 8 meses. 34 agricultores activos y 12 compradores institucionales. Seleccionados para programa de aceleración Startup Chile.',
+                learnings: 'Un marketplace B2B en mercados tradicionales requiere más educación de usuario que tecnología. La confianza se construye de a poco.',
+                hard_skills: ['Business Model Canvas', 'Financial Modeling', 'CRM', 'Pitch Deck'],
+                soft_skills: ['Liderazgo', 'Resilencia', 'Networking', 'Visión estratégica'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+            {
+                title: 'Análisis de cadena de valor del tomate industrial en Chile',
+                description: 'Mapeo y análisis económico de la cadena de valor del tomate industrial en la Región del Maule, identificando márgenes por eslabón y oportunidades de mejora para el agricultor.',
+                type: 'academic' as const,
+                role: 'Investigador y analista económico',
+                hard_skills: ['Análisis de cadenas de valor', 'Excel', 'Investigación de campo', 'Entrevistas'],
+                soft_skills: ['Análisis crítico', 'Trabajo en equipo', 'Redacción'],
+                is_featured: false,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Co-fundador y CEO',
+                organization: 'AgroConecta SpA',
+                type: 'emprendimiento' as const,
+                role: 'CEO',
+                description: 'Liderando todos los aspectos del negocio: operaciones, ventas, relación con inversores y gestión del equipo de 4 personas.',
+                achievements: 'Ganamos el fondo Capital Semilla SERCOTEC $10M CLP y fuimos seleccionados para Startup Chile en la edición 2025.',
+                hard_skills: ['Gestión de startups', 'Ventas B2B', 'Fundraising'],
+                soft_skills: ['Liderazgo', 'Toma de decisiones', 'Visión de largo plazo'],
+                is_current: true,
+            },
+        ],
+        achievements: [
+            { title: 'Capital Semilla SERCOTEC 2025 — $10M CLP', category: 'award' as const, organization: 'SERCOTEC' },
+            { title: 'Seleccionado — Startup Chile S17', category: 'award' as const, organization: 'CORFO / Startup Chile' },
+        ],
+    },
+    {
+        username: 'demo-mistral-barbara-at',
+        full_name: 'Bárbara Arteaga Torres',
+        headline: 'Ingeniería Comercial · Consultoría · Sostenibilidad · ESG',
+        about: 'Me interesa la sostenibilidad corporativa y los reportes ESG. Actualmente en práctica en consultora de sostenibilidad, apoyando a empresas en el diseño de estrategias de impacto.',
+        career: 'Ingeniería Comercial',
+        gender: 'mujer',
+        career_status: 'en_practica',
+        career_start_date: '2022-03-01',
+        interests: ['sostenibilidad', 'esg', 'yoga', 'política climática'],
+        email: 'demo-mistral-barbara-at@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'medium',
+        projects: [
+            {
+                title: 'Reporte de materialidad ESG — Empresa minera mediana',
+                description: 'Diseño y ejecución de proceso de análisis de materialidad doble para empresa minera mediana del norte de Chile, siguiendo estándares GRI 2021. Incluyó encuestas a stakeholders y priorización de temas materiales.',
+                type: 'academic' as const,
+                role: 'Analista ESG — diseño metodológico, recopilación de datos y redacción de informe',
+                hard_skills: ['GRI Standards', 'Análisis de stakeholders', 'Excel', 'Redacción ejecutiva'],
+                soft_skills: ['Organización', 'Comunicación', 'Orientación a resultados'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Práctica profesional — Analista de Sostenibilidad',
+                organization: 'Sustentia Consultoría SpA',
+                type: 'practica' as const,
+                sector: 'Privado',
+                internship_area: 'Consultoría en sostenibilidad y ESG',
+                role: 'Analista de sostenibilidad Jr.',
+                description: 'Apoyo en proyectos de reportes de sostenibilidad GRI y TCFD, gestión de datos de huella de carbono y análisis de brechas para clientes corporativos.',
+                achievements: 'Lideré la recopilación de indicadores de alcance 1 y 2 para cliente del retail, logrando el primer reporte de huella de carbono verificado de la empresa.',
+                hard_skills: ['GRI', 'Huella de carbono', 'TCFD', 'Excel avanzado'],
+                soft_skills: ['Rigor', 'Proactividad', 'Comunicación con clientes'],
+                is_current: true,
+            },
+        ],
+        achievements: [],
+    },
+    {
+        username: 'demo-mistral-cristobal-mn',
+        full_name: 'Cristóbal Muñoz Naranjo',
+        headline: 'Ingeniería Comercial · 3er año · Economía',
+        about: 'Interesado en economía conductual y su aplicación en políticas públicas. Participo en el equipo de debate universitario.',
+        career: 'Ingeniería Comercial',
+        gender: 'prefiero_no_decirlo',
+        career_status: 'estudiante_activo',
+        career_start_date: '2023-03-01',
+        interests: ['economía conductual', 'debate', 'podcasts', 'running'],
+        email: 'demo-mistral-cristobal-mn@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'basic',
+        projects: [
+            {
+                title: 'Experimento de economía conductual en ahorro universitario',
+                description: 'Experimento de campo con 200 estudiantes para evaluar el efecto de nudges en el comportamiento de ahorro. Diseñado para el curso de Economía del Comportamiento.',
+                type: 'academic' as const,
+                hard_skills: ['Diseño experimental', 'Stata', 'Econometría'],
+                soft_skills: ['Rigor científico', 'Análisis cuantitativo'],
+                is_featured: true,
+                show_in_timeline: false,
+            },
+        ],
+        experiences: [],
+        achievements: [],
+    },
+
+    // --- Periodismo — 3 nuevos ---
+    {
+        username: 'demo-mistral-valentina-cm',
+        full_name: 'Valentina Castro Molina',
+        headline: 'Periodismo · Comunicación estratégica · Relaciones públicas',
+        about: 'Periodista en formación con foco en comunicación corporativa y relaciones públicas. He trabajado en el área de comunicaciones de un ministerio y en una agencia de RRPP privada.',
+        career: 'Periodismo',
+        gender: 'mujer',
+        career_status: 'buscando_primer_empleo',
+        career_start_date: '2021-03-01',
+        interests: ['comunicación estratégica', 'marketing', 'viajes', 'idiomas'],
+        email: 'demo-mistral-valentina-cm@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'high',
+        projects: [
+            {
+                title: 'Plan de comunicación de crisis — Simulación empresa farmacéutica',
+                description: 'Diseño de plan integral de comunicación de crisis para escenario simulado de alerta sanitaria en empresa farmacéutica. Incluye protocolo de vocería, mensajes clave, matriz de stakeholders y hoja de ruta por etapas.',
+                type: 'academic' as const,
+                role: 'Gestora de comunicaciones — diseño del plan, redacción y presentación ejecutiva',
+                results: 'El plan fue evaluado con nota máxima y presentado en clase magistral como caso de estudio para cursos futuros.',
+                hard_skills: ['Comunicación de crisis', 'Relaciones públicas', 'Redacción', 'PowerPoint'],
+                soft_skills: ['Pensamiento estratégico', 'Comunicación bajo presión', 'Liderazgo'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+            {
+                title: 'Podcast "Habla con Ella" — Mujeres en ciencia y tecnología',
+                description: 'Podcast de entrevistas a mujeres chilenas destacadas en STEM. 6 episodios publicados con promedio de 800 reproducciones por episodio.',
+                type: 'personal' as const,
+                role: 'Conductora, productora y editora',
+                hard_skills: ['Producción de audio', 'Entrevistas', 'Edición en Audacity', 'Distribución de podcasts'],
+                soft_skills: ['Comunicación', 'Curiosidad', 'Gestión de proyectos'],
+                is_featured: false,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Práctica profesional — Comunicaciones institucionales',
+                organization: 'Ministerio de Ciencia, Tecnología, Conocimiento e Innovación',
+                type: 'practica' as const,
+                sector: 'Público',
+                internship_area: 'Comunicaciones',
+                role: 'Periodista practicante',
+                description: 'Redacción de comunicados de prensa, coordinación de entrevistas con medios, apoyo en redes sociales institucionales y cobertura de eventos del sector.',
+                achievements: 'Redacté 12 comunicados de prensa distribuidos a medios nacionales y gestioné la cobertura de 3 lanzamientos de programas del ministerio.',
+                hard_skills: ['Redacción periodística', 'Gestión de redes sociales', 'Edición fotográfica', 'Atención a medios'],
+                soft_skills: ['Organización', 'Trabajo en equipo', 'Proactividad'],
+                is_current: false,
+            },
+            {
+                title: 'Ejecutiva de cuentas Jr.',
+                organization: 'Agencia Nada Comunicaciones',
+                type: 'empleo_sustento' as const,
+                description: 'Gestión de relaciones con medios de comunicación, elaboración de dossiers de prensa y seguimiento de publicaciones para clientes corporativos.',
+                hard_skills: ['RRPP', 'Clipping de medios', 'Redacción', 'CRM'],
+                soft_skills: ['Multitasking', 'Orientación al cliente', 'Comunicación'],
+                is_current: true,
+            },
+        ],
+        achievements: [
+            { title: '2do lugar — Concurso Universitario de Comunicación Estratégica 2025', category: 'award' as const, organization: 'Universidad Diego Portales' },
+        ],
+    },
+    {
+        username: 'demo-mistral-mateo-gb',
+        full_name: 'Mateo González Bustos',
+        headline: 'Periodismo · Deportivo · Transmisión en vivo · Narración',
+        about: 'Fanático del deporte y la narración deportiva. Trabajo como comentarista voluntario en radio universitaria y coordino la cobertura periodística de competencias atléticas.',
+        career: 'Periodismo',
+        gender: 'hombre',
+        career_status: 'estudiante_activo',
+        career_start_date: '2023-03-01',
+        interests: ['fútbol', 'atletismo', 'narración', 'radio'],
+        email: 'demo-mistral-mateo-gb@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'medium',
+        projects: [
+            {
+                title: 'Cobertura en vivo — Campeonato Universitario de Atletismo 2025',
+                description: 'Producción y transmisión en vivo del Campeonato Universitario de Atletismo de la ANUF. Narración de 12 horas de competencia distribuidas por streaming y radio.',
+                type: 'personal' as const,
+                role: 'Narrador principal y coordinador de producción',
+                hard_skills: ['Narración deportiva', 'Producción de radio', 'Streaming', 'OBS Studio'],
+                soft_skills: ['Comunicación en tiempo real', 'Manejo de imprevistos', 'Trabajo en equipo'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Comentarista — Radio Mistral FM',
+                organization: 'Universidad Mistral',
+                type: 'liderazgo' as const,
+                role: 'Comentarista y conductor',
+                description: 'Conducción del programa deportivo semanal "La Última Jugada" y cobertura en directo de eventos deportivos universitarios.',
+                hard_skills: ['Locución', 'Edición de audio', 'Producción radial'],
+                soft_skills: ['Comunicación', 'Espontaneidad', 'Responsabilidad'],
+                is_current: true,
+            },
+        ],
+        achievements: [],
+    },
+    {
+        username: 'demo-mistral-antonia-re',
+        full_name: 'Antonia Reyes Espinoza',
+        headline: 'Periodismo · 2do año · Escritura creativa',
+        about: '',
+        career: 'Periodismo',
+        gender: 'mujer',
+        career_status: 'estudiante_activo',
+        career_start_date: '2025-03-01',
+        interests: ['escritura', 'cine', 'feminismo'],
+        email: 'demo-mistral-antonia-re@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'basic',
+        projects: [],
+        experiences: [
+            {
+                title: 'Editora — Revista estudiantil "Umbral"',
+                organization: 'Universidad Mistral',
+                type: 'liderazgo' as const,
+                description: 'Edición de textos y coordinación de la revista literaria estudiantil de la facultad de humanidades.',
+                hard_skills: ['Edición de textos', 'Redacción'],
+                soft_skills: ['Atención al detalle', 'Criterio estético'],
+                is_current: true,
+            },
+        ],
+        achievements: [],
+    },
+
+    // --- Administración Pública — 4 nuevos ---
+    {
+        username: 'demo-mistral-daniela-fp',
+        full_name: 'Daniela Flores Pereira',
+        headline: 'Administración Pública · Gestión municipal · Participación ciudadana',
+        about: 'Apasionada por la gestión pública local y los mecanismos de participación ciudadana. Mi tesis analiza la implementación de presupuestos participativos en municipios rurales de la Araucanía.',
+        career: 'Administración Pública',
+        gender: 'mujer',
+        career_status: 'en_practica',
+        career_start_date: '2022-03-01',
+        interests: ['gestión municipal', 'participación ciudadana', 'pueblos originarios', 'cerámica'],
+        email: 'demo-mistral-daniela-fp@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'high',
+        projects: [
+            {
+                title: 'Tesis: Presupuestos participativos en municipios mapuche-rurales',
+                description: 'Investigación comparada de la implementación de presupuestos participativos en 4 municipios con alta población mapuche en la Araucanía. Análisis de representación, participación diferenciada y pertinencia cultural.',
+                type: 'academic' as const,
+                role: 'Investigadora principal',
+                challenges: 'El acceso a datos cualitativos en comunidades rurales con desconfianza hacia instituciones académicas externas requirió un largo proceso de construcción de confianza y respeto de protocolos culturales.',
+                results: 'Resultados presentados en Congreso Chileno de Ciencia Política 2025 y en proceso de publicación en revista indexada.',
+                learnings: 'La gestión pública intercultural exige metodologías de investigación que incorporen los valores y la cosmovisión de las comunidades, no solo sus demandas.',
+                hard_skills: ['Investigación cualitativa', 'Políticas públicas', 'Análisis documental', 'Entrevistas'],
+                soft_skills: ['Sensibilidad intercultural', 'Rigor académico', 'Empatía'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Práctica profesional — Gestión y participación ciudadana',
+                organization: 'Municipalidad de Padre Las Casas',
+                type: 'practica' as const,
+                sector: 'Público',
+                internship_area: 'Gestión pública y participación ciudadana',
+                role: 'Profesional practicante DIDECO',
+                description: 'Apoyo en el diseño y ejecución del proceso de consulta ciudadana para el Plan de Desarrollo Comunal. Coordinación de talleres participativos en juntas de vecinos y comunidades indígenas.',
+                achievements: 'Coordiné 6 talleres de participación con más de 200 vecinos y elaboré el informe de sistematización de propuestas que fue presentado al Concejo Municipal.',
+                hard_skills: ['Gestión pública', 'Facilitación participativa', 'Redacción de informes', 'Diagnóstico territorial'],
+                soft_skills: ['Empatía intercultural', 'Trabajo en terreno', 'Organización'],
+                is_current: true,
+            },
+        ],
+        achievements: [
+            { title: 'Seleccionada — Programa de Liderazgo Público ANEF 2025', category: 'award' as const, organization: 'ANEF Chile' },
+        ],
+    },
+    {
+        username: 'demo-mistral-rodrigo-pa',
+        full_name: 'Rodrigo Pizarro Araya',
+        headline: 'Administración Pública · Regulación · Competencia · Derecho económico',
+        about: 'Interesado en la regulación económica y el derecho de la competencia. Hice una pasantía en la Fiscalía Nacional Económica y actualmente soy ayudante ad-honorem de Economía Pública en la Mistral.',
+        career: 'Administración Pública',
+        gender: 'hombre',
+        career_status: 'disponible_para_practica',
+        career_start_date: '2022-03-01',
+        interests: ['regulación', 'derecho económico', 'hockey', 'cocina'],
+        email: 'demo-mistral-rodrigo-pa@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'high',
+        projects: [
+            {
+                title: 'Análisis de concentración de mercado en el sector retail farmacéutico chileno',
+                description: 'Estudio de concentración y conductas anticompetitivas en el mercado farmacéutico chileno post-fusión Cruz Verde-Salcobrand. Análisis con índices HHI y revisión de resoluciones de la FNE.',
+                type: 'academic' as const,
+                role: 'Investigador principal',
+                challenges: 'La asimetría de información pública disponible sobre participación de mercado requirió triangular fuentes de distintos organismos reguladores.',
+                results: 'El estudio fue citado en un seminario de regulación organizado por la FNE y el TDLC.',
+                hard_skills: ['Análisis económico', 'Derecho de la competencia', 'Stata', 'Análisis documental'],
+                soft_skills: ['Rigor analítico', 'Redacción técnica', 'Curiosidad intelectual'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Pasante — División de Estudios Económicos',
+                organization: 'Fiscalía Nacional Económica (FNE)',
+                type: 'practica' as const,
+                sector: 'Público',
+                internship_area: 'Regulación económica y libre competencia',
+                role: 'Pasante de investigación económica',
+                description: 'Apoyo en el análisis de expedientes de investigación por conductas anticompetitivas. Revisión de literatura económica, elaboración de memorandos y asistencia a audiencias ante el TDLC.',
+                achievements: 'Elaboré un análisis de la estructura del mercado de los combustibles que fue incorporado a un informe sectorial publicado por la FNE.',
+                hard_skills: ['Análisis de mercados', 'Economía industrial', 'Redacción de informes', 'Stata'],
+                soft_skills: ['Discreción', 'Rigor', 'Trabajo en equipo'],
+                is_current: false,
+            },
+            {
+                title: 'Ayudante de Economía Pública',
+                organization: 'Universidad Mistral',
+                type: 'academico' as const,
+                role: 'Ayudante ad-honorem',
+                description: 'Apoyo en clases y corrección de evaluaciones del curso de Economía Pública para alumnos de 3er año.',
+                hard_skills: ['Economía pública', 'Bienes públicos', 'Externalidades'],
+                soft_skills: ['Comunicación pedagógica', 'Responsabilidad'],
+                is_current: true,
+            },
+        ],
+        achievements: [
+            { title: 'Premio Excelencia Académica — Facultad de Gobierno', category: 'award' as const, organization: 'Universidad Mistral' },
+        ],
+    },
+    {
+        username: 'demo-mistral-tamara-so',
+        full_name: 'Tamara Soto Ortega',
+        headline: 'Administración Pública · 3er año · Políticas de equidad',
+        about: 'Me interesa el diseño de políticas públicas orientadas a la equidad de género y la inclusión.',
+        career: 'Administración Pública',
+        gender: 'no_binario',
+        career_status: 'estudiante_activo',
+        career_start_date: '2023-03-01',
+        interests: ['políticas de género', 'inclusión', 'danza', 'teatro'],
+        email: 'demo-mistral-tamara-so@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'medium',
+        projects: [
+            {
+                title: 'Propuesta de política pública de cuidados para trabajadoras informales',
+                description: 'Diseño de propuesta de política pública de subsidio a cuidados para mujeres en situación de informalidad laboral, con análisis de viabilidad fiscal y comparación de experiencias internacionales.',
+                type: 'academic' as const,
+                hard_skills: ['Diseño de políticas públicas', 'Análisis presupuestario', 'Investigación documental'],
+                soft_skills: ['Perspectiva de género', 'Redacción académica', 'Análisis crítico'],
+                is_featured: true,
+                show_in_timeline: true,
+            },
+        ],
+        experiences: [
+            {
+                title: 'Monitora — Programa de Inclusión Estudiantil',
+                organization: 'Universidad Mistral',
+                type: 'social' as const,
+                description: 'Acompañamiento y tutoría a estudiantes de primer año provenientes de colegios municipalizados en proceso de adaptación universitaria.',
+                hard_skills: ['Acompañamiento estudiantil', 'Gestión de grupos'],
+                soft_skills: ['Empatía', 'Escucha activa', 'Liderazgo pedagógico'],
+                is_current: true,
+            },
+        ],
+        achievements: [],
+    },
+    {
+        username: 'demo-mistral-sebastian-lc',
+        full_name: 'Sebastián Leiva Campos',
+        headline: 'Administración Pública · 1er año',
+        about: '',
+        career: 'Administración Pública',
+        gender: 'hombre',
+        career_status: 'estudiante_activo',
+        career_start_date: '2025-03-01',
+        interests: ['política', 'historia', 'videojuegos'],
+        email: 'demo-mistral-sebastian-lc@prisma-demo.com',
+        password: 'Demo2026!',
+        completeness: 'basic',
+        projects: [],
+        experiences: [
+            {
+                title: 'Delegado de carrera — Administración Pública',
+                organization: 'Universidad Mistral',
+                type: 'liderazgo' as const,
+                description: 'Representante de los estudiantes de primer año ante el Centro de Estudiantes de la carrera.',
+                hard_skills: ['Representación estudiantil'],
+                soft_skills: ['Comunicación', 'Iniciativa'],
+                is_current: true,
+            },
+        ],
+        achievements: [],
+    },
 ]
+
 
 // ============================================================
 // FUNCIONES AUXILIARES
@@ -817,7 +1747,10 @@ async function seedStudent(student: typeof STUDENTS[0], universityId: number, ca
             university_id: universityId,
             career_id: careerId || null,
             interests: student.interests,
-            hidden_from_explore: true, // Perfiles demo no aparecen en Explorar
+            hidden_from_explore: true,
+            ...(student.gender ? { gender: student.gender } : {}),
+            ...(student.career_status ? { career_status: student.career_status } : {}),
+            ...(student.career_start_date ? { career_start_date: student.career_start_date } : {}),
         })
         .eq('id', userId)
 
@@ -837,6 +1770,10 @@ async function seedStudent(student: typeof STUDENTS[0], universityId: number, ca
                 is_featured: project.is_featured,
                 show_in_timeline: project.show_in_timeline,
                 is_startup: project.type === 'startup',
+                ...(project.role ? { role: project.role } : {}),
+                ...(project.challenges ? { challenges: project.challenges } : {}),
+                ...(project.results ? { results: project.results } : {}),
+                ...(project.learnings ? { learnings: project.learnings } : {}),
             })
         if (error) console.warn(`    ⚠️  Error en proyecto "${project.title}": ${error.message}`)
     }
@@ -857,6 +1794,10 @@ async function seedStudent(student: typeof STUDENTS[0], universityId: number, ca
                 start_date: exp.is_current ? '2024-03-01' : '2023-03-01',
                 end_date: exp.is_current ? null : '2024-12-31',
                 show_in_timeline: true,
+                ...(exp.role ? { role: exp.role } : {}),
+                ...(exp.achievements ? { achievements: exp.achievements } : {}),
+                ...(exp.sector ? { sector: exp.sector } : {}),
+                ...(exp.internship_area ? { internship_area: exp.internship_area } : {}),
             })
         if (error) console.warn(`    ⚠️  Error en experiencia "${exp.title}": ${error.message}`)
     }
@@ -926,7 +1867,7 @@ async function cleanup() {
 
     // Borrar usuarios de auth (el CASCADE se encarga de profiles y datos relacionados)
     const { data: { users } } = await supabase.auth.admin.listUsers()
-    const demoUsers = users.filter(u => demoEmails.includes(u.email ?? ''))
+    const demoUsers = (users as any[]).filter((u: any) => demoEmails.includes(u.email ?? ''))
 
     for (const user of demoUsers) {
         const { error } = await supabase.auth.admin.deleteUser(user.id)

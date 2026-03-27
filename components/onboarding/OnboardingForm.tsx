@@ -240,7 +240,6 @@ export default function OnboardingForm({ universities, careers, userProfile }: O
                         <option value="empleado">Empleado (en el área)</option>
                         <option value="empleado_fuera_area">Empleado (fuera del área)</option>
                         <option value="emprendiendo">Emprendiendo</option>
-                        <option value="en_posgrado">En Posgrado</option>
                     </select>
                 </div>
 

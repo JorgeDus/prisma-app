@@ -404,28 +404,13 @@ export default function ExperienceFormModal({ isOpen, onClose, userId, experienc
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
                                 <MapPin size={16} className="text-purple-500" /> Área
                             </label>
-                            <select
+                            <input
+                                type="text"
                                 value={formData.internship_area}
                                 onChange={(e) => setFormData({ ...formData, internship_area: e.target.value })}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium"
-                            >
-                                <option value="">Seleccionar área (opcional)</option>
-                                <option value="Clínica">Clínica</option>
-                                <option value="Educacional">Educacional</option>
-                                <option value="Laboral / Organizacional">Laboral / Organizacional</option>
-                                <option value="Social / Comunitaria">Social / Comunitaria</option>
-                                <option value="Jurídica / Forense">Jurídica / Forense</option>
-                                <option value="Investigación">Investigación</option>
-                                <option value="Tecnología / Desarrollo">Tecnología / Desarrollo</option>
-                                <option value="Diseño / Creatividad">Diseño / Creatividad</option>
-                                <option value="Salud">Salud</option>
-                                <option value="Finanzas / Contabilidad">Finanzas / Contabilidad</option>
-                                <option value="Marketing / Comunicaciones">Marketing / Comunicaciones</option>
-                                <option value="Operaciones / Logística">Operaciones / Logística</option>
-                                <option value="Recursos Humanos">Recursos Humanos</option>
-                                <option value="Legal">Legal</option>
-                                <option value="Otra">Otra</option>
-                            </select>
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 font-medium placeholder-gray-400"
+                                placeholder="Ej: Clínica, Operaciones, Marketing..."
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
