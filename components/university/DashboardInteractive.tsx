@@ -7,7 +7,6 @@ import { Filter, LayoutDashboard, Brain, PieChart } from 'lucide-react'
 import GeneralTab from './tabs/GeneralTab'
 import ContentTab from './tabs/ContentTab'
 import SkillsTab from './tabs/SkillsTab'
-import DataGrid from './DataGrid'
 
 export default function DashboardInteractive({ university, stats }: any) {
     const router = useRouter()
@@ -124,16 +123,10 @@ export default function DashboardInteractive({ university, stats }: any) {
             {/* Tab Content */}
             <div className="pt-2">
                 {activeTab === 'general' && <GeneralTab stats={stats} />}
-                {activeTab === 'content' && <ContentTab stats={stats} />}
+                {activeTab === 'content' && <ContentTab stats={stats} onFilterChange={handleFilterChange} />}
                 {activeTab === 'skills' && <SkillsTab stats={stats} />}
             </div>
 
-            {/* DataGrid interactiva cruzada */}
-            {stats.deepDiveData && stats.deepDiveData.length > 0 && (
-                <div className="pt-8">
-                    <DataGrid data={stats.deepDiveData} />
-                </div>
-            )}
         </div>
     )
 }

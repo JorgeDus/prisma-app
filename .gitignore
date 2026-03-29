@@ -63,3 +63,7 @@ supabase/.temp/
 
 # Context
 CONTEXTO_PRISMA.md
+
+# Scripts
+scripts/seed-university-prod.ts
+scripts/seed-demo.ts

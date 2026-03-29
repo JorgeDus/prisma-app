@@ -7,6 +7,8 @@ import {
     ResponsiveContainer, Tooltip as RechartsTooltip, Legend
 } from 'recharts'
 import { CustomTooltip, SectionHeader } from '../ChartHelpers'
+import DataGrid from '../DataGrid'
+import { useState, useMemo } from 'react'
 
 function StatCard({ label, value, icon: Icon, subtext, color = 'indigo', prominent = false }: any) {
     const colors: any = {
@@ -19,11 +21,10 @@ function StatCard({ label, value, icon: Icon, subtext, color = 'indigo', promine
     const c = colors[color]
 
     return (
-        <div className={`bg-white rounded-xl border p-5 relative overflow-hidden ${
-            prominent
+        <div className={`bg-white rounded-xl border p-5 relative overflow-hidden ${prominent
                 ? 'shadow-md border-slate-200'
                 : 'shadow-sm border-slate-100'
-        }`}>
+            }`}>
             {prominent && (
                 <div className={`absolute bottom-0 left-0 right-0 h-0.5 ${c.accent}`} />
             )}
@@ -46,6 +47,8 @@ function StatCard({ label, value, icon: Icon, subtext, color = 'indigo', promine
 }
 
 export default function GeneralTab({ stats }: any) {
+    const [showUniqueUsers, setShowUniqueUsers] = useState(false)
+
     const genderData = stats.demographics.gender.map((item: any) => ({
         name: item.gender,
         value: item.count
@@ -87,24 +90,56 @@ export default function GeneralTab({ stats }: any) {
         i.type === 'practica' || i.type === 'empleo_sustento'
     ).length ?? 0
     const pctWithPractice = total > 0 ? Math.round((practiceCount / total) * 100) : 0
+    // Gráfico de diversidad: puede mostrar "Contenido" (default) o "Personas únicas"
+    const diversityData = useMemo(() => {
+        // 1. Mapear usuarios únicos por Carrera|Género (Denominador para el promedio)
+        const usersMap = (stats.deepDiveData || []).reduce((acc: any, curr: any) => {
+            const key = `${curr.career}|${curr.gender}`
+            acc[key] = (acc[key] || 0) + curr.count
+            return acc
+        }, {})
 
-    // Gráfico de diversidad: actividad productiva por género y carrera
-    const diversityDataMap = (stats.productionDeepDiveData || []).reduce((acc: any, curr: any) => {
-        const key = curr.career
-        if (!acc[key]) acc[key] = { name: key, Mujer: 0, Hombre: 0, 'No binario': 0, 'Prefiero autodescribirme': 0, 'Prefiero no decirlo': 0 }
-        const genderKey = curr.gender
-        if (genderKey in acc[key]) {
-            acc[key][genderKey] = (acc[key][genderKey] || 0) + curr.count
-        } else {
-            acc[key]['Prefiero no decirlo'] = (acc[key]['Prefiero no decirlo'] || 0) + curr.count
-        }
-        return acc
-    }, {})
-    const diversityData = Object.values(diversityDataMap).sort((a: any, b: any) => a.name.localeCompare(b.name))
+        const sourceData = showUniqueUsers ? (stats.deepDiveData || []) : (stats.productionDeepDiveData || [])
 
-    // Solo mostrar el gráfico de diversidad si hay datos de más de un género
-    const distinctGenders = new Set((stats.productionDeepDiveData || []).map((d: any) => d.gender))
-    const showDiversityChart = distinctGenders.size >= 2 && diversityData.length > 0
+        const map = sourceData.reduce((acc: any, curr: any) => {
+            const key = curr.career
+            if (!acc[key]) acc[key] = {
+                name: key,
+                Mujer: 0,
+                Hombre: 0,
+                'No binario': 0,
+                'Prefiero autodescribirme': 0,
+                'Prefiero no decirlo': 0
+            }
+
+            const genderKey = curr.gender
+            let value = curr.count
+
+            // Si estamos en modo Producción, calculamos el PROMEDIO
+            if (!showUniqueUsers) {
+                const userKey = `${curr.career}|${curr.gender}`
+                const totalUsers = usersMap[userKey] || 0
+                value = totalUsers > 0 ? Number((value / totalUsers).toFixed(1)) : 0
+            }
+
+            if (genderKey in acc[key]) {
+                acc[key][genderKey] = (acc[key][genderKey] || 0) + value
+            } else {
+                acc[key]['Prefiero no decirlo'] = (acc[key]['Prefiero no decirlo'] || 0) + value
+            }
+            return acc
+        }, {})
+
+        return Object.values(map).sort((a: any, b: any) => {
+            const sumA: number = (a.Mujer || 0) + (a.Hombre || 0) + (a['No binario'] || 0) + (a['Prefiero autodescribirme'] || 0) + (a['Prefiero no decirlo'] || 0)
+            const sumB: number = (b.Mujer || 0) + (b.Hombre || 0) + (b['No binario'] || 0) + (b['Prefiero autodescribirme'] || 0) + (b['Prefiero no decirlo'] || 0)
+            return sumB - sumA
+        }).slice(0, 15) // Top 15 carreras
+    }, [stats, showUniqueUsers])
+
+    const showDiversityChart = diversityData.length > 0 && diversityData.some((c: any) => {
+        return (c.Mujer || 0) + (c.Hombre || 0) + (c['No binario'] || 0) + (c['Prefiero autodescribirme'] || 0) + (c['Prefiero no decirlo'] || 0) > 0
+    })
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
@@ -178,7 +213,7 @@ export default function GeneralTab({ stats }: any) {
 
             {/* Split Row for Visuals */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
+
                 {/* Funnel de Retención */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
                     <h2 className="text-sm font-bold text-slate-800 mb-1">Funnel de Engagement</h2>
@@ -197,11 +232,10 @@ export default function GeneralTab({ stats }: any) {
                                         {convRate !== null && (
                                             <div className="flex items-center gap-1.5 py-0.5">
                                                 <div className="h-3 w-px bg-slate-200" />
-                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                                                    convRate >= 80 ? 'text-emerald-700 bg-emerald-50' :
-                                                    convRate >= 50 ? 'text-amber-700 bg-amber-50' :
-                                                                     'text-rose-700 bg-rose-50'
-                                                }`}>
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${convRate >= 80 ? 'text-emerald-700 bg-emerald-50' :
+                                                        convRate >= 50 ? 'text-amber-700 bg-amber-50' :
+                                                            'text-rose-700 bg-rose-50'
+                                                    }`}>
                                                     {convRate}% continúa
                                                 </span>
                                                 <div className="h-3 w-px bg-slate-200" />
@@ -255,7 +289,7 @@ export default function GeneralTab({ stats }: any) {
                                             <Cell key={`cell-${index}`} fill={GENDER_COLORS[entry.name] || '#cbd5e1'} />
                                         ))}
                                     </Pie>
-                                    <RechartsTooltip 
+                                    <RechartsTooltip
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                     />
                                     <Legend iconType="circle" />
@@ -272,41 +306,61 @@ export default function GeneralTab({ stats }: any) {
             {/* Gráfico de Actividad por Género y Carrera (solo si hay diversidad de género) */}
             {showDiversityChart && (
                 <>
-                    <SectionHeader
-                        icon={Users}
-                        title="Distribución Demográfica"
-                        subtitle="Composición de la producción académica por género"
-                        color="slate"
-                    />
-                    <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-sm font-bold text-slate-800">Actividad por Género y Carrera</h2>
-                            <p className="text-xs text-slate-400 mt-0.5">Contenido producido (proyectos + experiencias) por género en cada carrera</p>
+                    <div className="flex flex-wrap items-end justify-between gap-4">
+                        <SectionHeader
+                            icon={Users}
+                            title="Distribución Demográfica"
+                            subtitle={showUniqueUsers ? "Estudiantes únicos con participación en cada carrera" : "Promedio de items producidos por estudiante según género"}
+                            color="slate"
+                        />
+                        <div className="bg-slate-100 p-1 rounded-lg flex items-center mb-1">
+                            <button
+                                onClick={() => setShowUniqueUsers(false)}
+                                className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${!showUniqueUsers ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                PROMEDIO (PROD.)
+                            </button>
+                            <button
+                                onClick={() => setShowUniqueUsers(true)}
+                                className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${showUniqueUsers ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                PARTICIPACIÓN (PERSONAS)
+                            </button>
                         </div>
                     </div>
-                    <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={diversityData}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                <XAxis
-                                    dataKey="name"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fontSize: 11, fill: '#64748b' }}
-                                    tickFormatter={(v) => v.length > 14 ? v.substring(0, 13) + '…' : v}
-                                />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
-                                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
-                                <Bar dataKey="Mujer" stackId="a" fill="#ec4899" />
-                                <Bar dataKey="Hombre" stackId="a" fill="#3b82f6" />
-                                <Bar dataKey="No binario" stackId="a" fill="#14b8a6" />
-                                <Bar dataKey="Prefiero autodescribirme" stackId="a" fill="#8b5cf6" />
-                                <Bar dataKey="Prefiero no decirlo" stackId="a" fill="#94a3b8" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
+                    <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 className="text-sm font-bold text-slate-800">
+                                    {showUniqueUsers ? 'Participación por Género y Carrera' : 'Intensidad de Producción por Género'}
+                                </h2>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    {showUniqueUsers ? 'Conteo de estudiantes únicos por género' : 'Promedio de contenido (proyectos + experiencias) por cada estudiante de ese grupo'}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="h-64 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={diversityData}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fontSize: 11, fill: '#64748b' }}
+                                        tickFormatter={(v) => v.length > 14 ? v.substring(0, 13) + '…' : v}
+                                    />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+                                    <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+                                    <Bar dataKey="Mujer" stackId="a" fill="#ec4899" />
+                                    <Bar dataKey="Hombre" stackId="a" fill="#3b82f6" />
+                                    <Bar dataKey="No binario" stackId="a" fill="#14b8a6" />
+                                    <Bar dataKey="Prefiero autodescribirme" stackId="a" fill="#8b5cf6" />
+                                    <Bar dataKey="Prefiero no decirlo" stackId="a" fill="#94a3b8" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
                 </>
             )}
@@ -340,6 +394,13 @@ export default function GeneralTab({ stats }: any) {
                             </div>
                         ))}
                     </div>
+                </div>
+            )}
+
+            {/* DataGrid interactiva cruzada (Deep-Dive) */}
+            {stats.deepDiveData && stats.deepDiveData.length > 0 && (
+                <div className="pt-8 mb-4">
+                    <DataGrid data={stats.deepDiveData} />
                 </div>
             )}
         </div>

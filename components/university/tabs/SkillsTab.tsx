@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Brain, Sparkles, FolderCode, Briefcase, ExternalLink } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts'
 import Link from 'next/link'
@@ -6,6 +6,18 @@ import { CustomTooltip, CustomYAxisTick, SectionHeader } from '../ChartHelpers'
 
 export default function SkillsTab({ stats }: any) {
     const [selectedSkill, setSelectedSkill] = useState<string | null>(null)
+    
+    // Scroll automático al detalle cuando se selecciona una competencia
+    useEffect(() => {
+        if (selectedSkill) {
+            setTimeout(() => {
+                const element = document.getElementById('skill-detail-section')
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+            }, 100)
+        }
+    }, [selectedSkill])
 
     // Top 10 Hard Skills
     const topHard = stats.skills.hard.top.slice(0, 10).map((s: any) => ({
@@ -46,38 +58,40 @@ export default function SkillsTab({ stats }: any) {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
-            {/* KPI Totales de Competencias */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-md flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
-                        <Brain size={24} />
+            {/* KPI Totales de Competencias (Oculto temporalmente) */}
+            {false && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-md flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
+                            <Brain size={24} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">Catálogo de Competencias Técnicas</p>
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-2xl font-extrabold text-slate-900">{stats.skills.hard.total}</p>
+                                <p className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                                    {stats.skills.hard.validations} MENCIONES
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">Catálogo de Competencias Técnicas</p>
-                        <div className="flex items-baseline gap-2">
-                            <p className="text-2xl font-extrabold text-slate-900">{stats.skills.hard.total}</p>
-                            <p className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
-                                {stats.skills.hard.validations} MENCIONES
-                            </p>
+                    
+                    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-md flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
+                            <Sparkles size={24} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">Catálogo de Competencias Transversales</p>
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-2xl font-extrabold text-slate-900">{stats.skills.soft.total}</p>
+                                <p className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
+                                    {stats.skills.soft.validations} MENCIONES
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-md flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
-                        <Sparkles size={24} />
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">Catálogo de Competencias Transversales</p>
-                        <div className="flex items-baseline gap-2">
-                            <p className="text-2xl font-extrabold text-slate-900">{stats.skills.soft.total}</p>
-                            <p className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
-                                {stats.skills.soft.validations} MENCIONES
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            )}
 
             {/* Gráficos de Contenido por Cohorte */}
             <SectionHeader
@@ -189,7 +203,7 @@ export default function SkillsTab({ stats }: any) {
 
             {/* Panel de Detalle por Competencia */}
             {selectedSkill && (
-                <div className="bg-white rounded-xl border-2 border-indigo-100 p-6 shadow-md animate-in slide-in-from-bottom-4 duration-500 overflow-hidden relative">
+                <div id="skill-detail-section" className="bg-white rounded-xl border-2 border-indigo-100 p-6 shadow-md animate-in slide-in-from-bottom-4 duration-500 overflow-hidden relative">
                     <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
                         <Brain size={120} className="text-indigo-600" />
                     </div>

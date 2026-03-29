@@ -1,13 +1,36 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { FolderGit2, Briefcase, Award, X, Users, BarChart2, TrendingUp } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts'
 import { CustomTooltip, CustomYAxisTick, SectionHeader } from '../ChartHelpers'
 
-export default function ContentTab({ stats }: any) {
+export default function ContentTab({ stats, onFilterChange }: any) {
     const [selectedDetail, setSelectedDetail] = useState<'projects' | 'experiences' | 'achievements' | null>(null)
     const [showGenderBreakdown, setShowGenderBreakdown] = useState(false)
+    const [detailCohortFilter, setDetailCohortFilter] = useState<string | null>(null)
+
+    // Handler para click en barras de volumen — filtrado LOCAL, sin re-fetch
+    const handleVolumeClick = (type: 'projects' | 'experiences', data: any) => {
+        if (!data || !data.name) return
+        // Si ya no es vista mensual, guardamos el año para filtrar el listado localmente
+        const clickedYear = !isYearFiltered ? data.name : null
+        setDetailCohortFilter(clickedYear)
+        setSelectedDetail(type)
+    }
+
+    // Scroll automático al detalle cuando se selecciona
+    useEffect(() => {
+        if (selectedDetail) {
+            // Un pequeño delay asegura que el elemento esté renderizado y la animación haya comenzado
+            setTimeout(() => {
+                const element = document.getElementById('detail-section')
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+            }, 100)
+        }
+    }, [selectedDetail])
 
     // Datos simples por cohorte/mes (total, sin desagregar)
     const processSimpleData = (sourceStat: any) => {
@@ -64,9 +87,9 @@ export default function ContentTab({ stats }: any) {
     }
     const PROJECT_COLORS: Record<string, string> = {
         academic: '#6366f1',  // indigo-500  (primario)
-        startup:  '#4f46e5',  // indigo-700  (más oscuro)
+        startup: '#4f46e5',  // indigo-700  (más oscuro)
         personal: '#818cf8',  // indigo-400  (más claro)
-        otro:     '#94a3b8'   // slate-400
+        otro: '#94a3b8'   // slate-400
     }
 
     const EXP_LABELS: Record<string, string> = {
@@ -82,16 +105,16 @@ export default function ContentTab({ stats }: any) {
         otro: 'Otro'
     }
     const EXP_COLORS: Record<string, string> = {
-        practica:        '#047857',  // emerald-700  (más profesional)
-        liderazgo:       '#059669',  // emerald-600
-        academico:       '#10b981',  // emerald-500
-        social:          '#34d399',  // emerald-400
-        deportivo:       '#6ee7b7',  // emerald-300
-        emprendimiento:  '#f59e0b',  // amber-500    (excepción semántica)
+        practica: '#047857',  // emerald-700  (más profesional)
+        liderazgo: '#059669',  // emerald-600
+        academico: '#10b981',  // emerald-500
+        social: '#34d399',  // emerald-400
+        deportivo: '#6ee7b7',  // emerald-300
+        emprendimiento: '#f59e0b',  // amber-500    (excepción semántica)
         empleo_sustento: '#3b82f6',  // blue-500     (excepción: empleo formal)
-        creativo:        '#818cf8',  // indigo-400   (cercano a proyectos)
-        cuidado_vida:    '#94a3b8',  // slate-400
-        otro:            '#64748b'   // slate-500
+        creativo: '#818cf8',  // indigo-400   (cercano a proyectos)
+        cuidado_vida: '#94a3b8',  // slate-400
+        otro: '#64748b'   // slate-500
     }
 
     // Preparar datos para Mix (Combinando tipos) mapeados a español y colores definidos
@@ -278,14 +301,14 @@ export default function ContentTab({ stats }: any) {
                                     {showGenderBreakdown ? (
                                         <>
                                             <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                                            <Bar dataKey="Mujer" stackId="a" fill="#ec4899" />
-                                            <Bar dataKey="Hombre" stackId="a" fill="#3b82f6" />
-                                            <Bar dataKey="No binario" stackId="a" fill="#14b8a6" />
-                                            <Bar dataKey="Prefiero autodescribirme" stackId="a" fill="#8b5cf6" />
-                                            <Bar dataKey="Prefiero no decirlo" stackId="a" fill="#94a3b8" />
+                                            <Bar dataKey="Mujer" stackId="a" fill="#ec4899" onClick={(data) => handleVolumeClick('projects', data)} style={{ cursor: 'pointer' }} />
+                                            <Bar dataKey="Hombre" stackId="a" fill="#3b82f6" onClick={(data) => handleVolumeClick('projects', data)} style={{ cursor: 'pointer' }} />
+                                            <Bar dataKey="No binario" stackId="a" fill="#14b8a6" onClick={(data) => handleVolumeClick('projects', data)} style={{ cursor: 'pointer' }} />
+                                            <Bar dataKey="Prefiero autodescribirme" stackId="a" fill="#8b5cf6" onClick={(data) => handleVolumeClick('projects', data)} style={{ cursor: 'pointer' }} />
+                                            <Bar dataKey="Prefiero no decirlo" stackId="a" fill="#94a3b8" onClick={(data) => handleVolumeClick('projects', data)} style={{ cursor: 'pointer' }} />
                                         </>
                                     ) : (
-                                        <Bar dataKey="Total" fill="#6366f1" radius={[4, 4, 0, 0]} name="Proyectos" />
+                                        <Bar dataKey="Total" fill="#6366f1" radius={[4, 4, 0, 0]} name="Proyectos" onClick={(data) => handleVolumeClick('projects', data)} style={{ cursor: 'pointer' }} />
                                     )}
                                 </BarChart>
                             </ResponsiveContainer>
@@ -311,14 +334,14 @@ export default function ContentTab({ stats }: any) {
                                     {showGenderBreakdown ? (
                                         <>
                                             <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                                            <Bar dataKey="Mujer" stackId="a" fill="#ec4899" />
-                                            <Bar dataKey="Hombre" stackId="a" fill="#3b82f6" />
-                                            <Bar dataKey="No binario" stackId="a" fill="#14b8a6" />
-                                            <Bar dataKey="Prefiero autodescribirme" stackId="a" fill="#8b5cf6" />
-                                            <Bar dataKey="Prefiero no decirlo" stackId="a" fill="#94a3b8" />
+                                            <Bar dataKey="Mujer" stackId="a" fill="#ec4899" onClick={(data) => handleVolumeClick('experiences', data)} style={{ cursor: 'pointer' }} />
+                                            <Bar dataKey="Hombre" stackId="a" fill="#3b82f6" onClick={(data) => handleVolumeClick('experiences', data)} style={{ cursor: 'pointer' }} />
+                                            <Bar dataKey="No binario" stackId="a" fill="#14b8a6" onClick={(data) => handleVolumeClick('experiences', data)} style={{ cursor: 'pointer' }} />
+                                            <Bar dataKey="Prefiero autodescribirme" stackId="a" fill="#8b5cf6" onClick={(data) => handleVolumeClick('experiences', data)} style={{ cursor: 'pointer' }} />
+                                            <Bar dataKey="Prefiero no decirlo" stackId="a" fill="#94a3b8" onClick={(data) => handleVolumeClick('experiences', data)} style={{ cursor: 'pointer' }} />
                                         </>
                                     ) : (
-                                        <Bar dataKey="Total" fill="#10b981" radius={[4, 4, 0, 0]} name="Experiencias" />
+                                        <Bar dataKey="Total" fill="#10b981" radius={[4, 4, 0, 0]} name="Experiencias" onClick={(data) => handleVolumeClick('experiences', data)} style={{ cursor: 'pointer' }} />
                                     )}
                                 </BarChart>
                             </ResponsiveContainer>
@@ -448,7 +471,7 @@ export default function ContentTab({ stats }: any) {
                     </div>
                     <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-50">
                         <p className="text-[11px] text-slate-400">
-                            ⚠️ Las generaciones recientes muestran ratios menores por llevar menos tiempo activas. Compara años con antigüedad similar para conclusiones justas.
+                            ⚠️ Las generaciones recientes muestran ratios menores por llevar menos tiempo activas. Compara años con antigüedad similar para conclusiones adecuadas.
                         </p>
                     </div>
                 </div>
@@ -462,161 +485,193 @@ export default function ContentTab({ stats }: any) {
                 color="blue"
             />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Mix de Sector */}
-                    <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                        <h2 className="text-sm font-bold text-slate-800 mb-6">Distribución por Sector</h2>
-                        <div className="h-64 w-full">
-                            {stats.employment?.bySector?.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={stats.employment.bySector}
-                                            cx="50%" cy="45%"
-                                            innerRadius={40} outerRadius={70}
-                                            paddingAngle={5} dataKey="value"
-                                        >
-                                            {stats.employment.bySector.map((entry: any, index: number) => (
-                                                <Cell
-                                                    key={`cell-${index}`}
-                                                    fill={entry.name === 'Privado' ? '#10b981' : (entry.name === 'Público' ? '#6366f1' : '#94a3b8')}
-                                                />
-                                            ))}
-                                        </Pie>
-                                        <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                                        <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            ) : (
-                                <div className="flex h-full items-center justify-center text-slate-400 text-sm italic">Sin datos de sector registrados</div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Top Áreas de Práctica */}
-                    <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                        <h2 className="text-sm font-bold text-slate-800 mb-6">Áreas de Desempeño más Frecuentes</h2>
-                        <div className="h-64 w-full">
-                            {stats.employment?.byArea?.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart
-                                        data={stats.employment.byArea}
-                                        layout="vertical"
-                                        margin={{ top: 0, right: 30, left: 10, bottom: 0 }}
+                {/* Mix de Sector */}
+                <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
+                    <h2 className="text-sm font-bold text-slate-800 mb-6">Distribución por Sector</h2>
+                    <div className="h-64 w-full">
+                        {stats.employment?.bySector?.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={stats.employment.bySector}
+                                        cx="50%" cy="45%"
+                                        innerRadius={40} outerRadius={70}
+                                        paddingAngle={5} dataKey="value"
                                     >
-                                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                                        <XAxis type="number" hide />
-                                        <YAxis
-                                            type="category"
-                                            dataKey="name"
-                                            axisLine={false}
-                                            tickLine={false}
-                                            width={130}
-                                            tick={(props) => <CustomYAxisTick {...props} maxCharsPerLine={20} fontSize={10} fontWeight={600} />}
-                                        />
-                                        <RechartsTooltip
-                                            content={<CustomTooltip />}
-                                            cursor={{ fill: '#f8fafc' }}
-                                        />
-                                        <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={18} name="Cantidad" />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            ) : (
-                                <div className="flex h-full items-center justify-center text-slate-400 text-sm italic">Sin áreas registradas</div>
-                            )}
-                        </div>
+                                        {stats.employment.bySector.map((entry: any, index: number) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={entry.name === 'Privado' ? '#10b981' : (entry.name === 'Público' ? '#6366f1' : '#94a3b8')}
+                                            />
+                                        ))}
+                                    </Pie>
+                                    <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                                    <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex h-full items-center justify-center text-slate-400 text-sm italic">Sin datos de sector registrados</div>
+                        )}
                     </div>
+                </div>
+
+                {/* Top Áreas de Práctica */}
+                <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
+                    <h2 className="text-sm font-bold text-slate-800 mb-6">Áreas de Desempeño más Frecuentes</h2>
+                    <div className="h-64 w-full">
+                        {stats.employment?.byArea?.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={stats.employment.byArea}
+                                    layout="vertical"
+                                    margin={{ top: 0, right: 30, left: 10, bottom: 0 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                                    <XAxis type="number" hide />
+                                    <YAxis
+                                        type="category"
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        width={130}
+                                        tick={(props) => <CustomYAxisTick {...props} maxCharsPerLine={20} fontSize={10} fontWeight={600} />}
+                                    />
+                                    <RechartsTooltip
+                                        content={<CustomTooltip />}
+                                        cursor={{ fill: '#f8fafc' }}
+                                    />
+                                    <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={18} name="Cantidad" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex h-full items-center justify-center text-slate-400 text-sm italic">Sin áreas registradas</div>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Detalle Seleccionado */}
-            {selectedDetail && stats[selectedDetail]?.items && (
-                <div id="detail-section" className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm mt-8 animate-in slide-in-from-bottom-4 fade-in duration-300">
-                    <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-4">
-                        <div>
-                            <h2 className="text-lg font-bold text-slate-800">
-                                Detalle de {
-                                    selectedDetail === 'projects' ? 'Proyectos' :
-                                        selectedDetail === 'experiences' ? 'Experiencias' :
-                                            'Logros'
-                                }
-                            </h2>
-                            <p className="text-xs text-slate-500 mt-1">
-                                Creados por el año de ingreso y/o carrera actualmente seleccionada.
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => setSelectedDetail(null)}
-                            className="text-sm flex items-center gap-1 px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium transition-colors"
-                        >
-                            <X size={16} /> Cerrar
-                        </button>
-                    </div>
+            {selectedDetail && stats[selectedDetail]?.items && (() => {
+                // Filtrado local por año: solo aplica cuando viene de clic en barra de volumen
+                const allItems: any[] = stats[selectedDetail].items
+                const displayItems = detailCohortFilter
+                    ? allItems.filter((i: any) => i.cohort === detailCohortFilter)
+                    : allItems
+                const detailLabel = selectedDetail === 'projects' ? 'Proyectos' : selectedDetail === 'experiences' ? 'Experiencias' : 'Logros'
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[600px]">
-                            <thead>
-                                <tr className="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                                    <th className="p-3">Título / Rol</th>
-                                    {selectedDetail !== 'achievements' && <th className="p-3">Categoría</th>}
-                                    <th className="p-3">Estudiante</th>
-                                    <th className="p-3">Fecha de Creación</th>
-                                    <th className="p-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {stats[selectedDetail].items.length > 0 ? stats[selectedDetail].items.map((item: any) => (
-                                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="p-3 text-sm font-semibold text-slate-800">
-                                            {item.title}
-                                        </td>
-                                        {selectedDetail !== 'achievements' && (
-                                            <td className="p-3">
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${selectedDetail === 'projects'
-                                                    ? 'bg-indigo-50 text-indigo-700 border-indigo-100'
-                                                    : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                                    }`}>
-                                                    {selectedDetail === 'projects'
-                                                        ? (PROJECT_LABELS[item.type] || item.type || '---')
-                                                        : (EXP_LABELS[item.type] || item.type || '---')
-                                                    }
-                                                </span>
-                                            </td>
-                                        )}
-                                        <td className="p-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-[10px] flex justify-center items-center shrink-0">
-                                                    {(item.userName || '?').charAt(0).toUpperCase()}
-                                                </div>
-                                                <span className="text-xs font-medium text-slate-600 truncate max-w-[150px]">{item.userName}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-500 font-medium">
-                                            {item.date ? new Date(item.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' }) : '---'}
-                                        </td>
-                                        <td className="p-3 text-right">
-                                            {item.userUsername && (
-                                                <a
-                                                    href={`/${item.userUsername}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="inline-flex items-center justify-center px-4 py-1.5 bg-white border border-slate-200 shadow-sm rounded-lg text-[11px] font-bold uppercase tracking-wider text-slate-600 lg:opacity-0 lg:group-hover:opacity-100 transition-all hover:border-indigo-200 hover:text-indigo-600"
-                                                >
-                                                    Ver Perfil
-                                                </a>
-                                            )}
-                                        </td>
-                                    </tr>
-                                )) : (
-                                    <tr>
-                                        <td colSpan={selectedDetail === 'achievements' ? 4 : 5} className="p-8 text-center text-slate-400 text-sm">
-                                            No hay elementos para mostrar
-                                        </td>
-                                    </tr>
+                return (
+                    <div id="detail-section" className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm mt-8 animate-in slide-in-from-bottom-4 fade-in duration-300">
+                        {/* Header del panel de detalle */}
+                        <div className="flex flex-wrap items-center justify-between mb-4 border-b border-slate-50 pb-4 gap-3">
+                            <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h2 className="text-lg font-bold text-slate-800">Detalle de {detailLabel}</h2>
+                                    {detailCohortFilter && (
+                                        <span className="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                            Ingreso {detailCohortFilter}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    {detailCohortFilter
+                                        ? `${displayItems.length} item${displayItems.length !== 1 ? 's' : ''} del año de ingreso ${detailCohortFilter} — filtro local, no afecta el resto del dashboard`
+                                        : 'Resultados según los filtros globales activos'
+                                    }
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {detailCohortFilter && onFilterChange && (
+                                    <button
+                                        onClick={() => onFilterChange('cohort', detailCohortFilter)}
+                                        className="text-xs font-bold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                                    >
+                                        Aplicar filtro global
+                                    </button>
                                 )}
-                            </tbody>
-                        </table>
+                                {detailCohortFilter && (
+                                    <button
+                                        onClick={() => setDetailCohortFilter(null)}
+                                        className="text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                                    >
+                                        Ver todos
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => { setSelectedDetail(null); setDetailCohortFilter(null) }}
+                                    className="text-sm flex items-center gap-1 px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium transition-colors"
+                                >
+                                    <X size={16} /> Cerrar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                    <tr className="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                        <th className="p-3">Título / Rol</th>
+                                        {selectedDetail !== 'achievements' && <th className="p-3">Categoría</th>}
+                                        <th className="p-3">Estudiante</th>
+                                        <th className="p-3">Fecha de Creación</th>
+                                        <th className="p-3"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {displayItems.length > 0 ? displayItems.map((item: any) => (
+                                        <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="p-3 text-sm font-semibold text-slate-800">
+                                                {item.title}
+                                            </td>
+                                            {selectedDetail !== 'achievements' && (
+                                                <td className="p-3">
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${selectedDetail === 'projects'
+                                                        ? 'bg-indigo-50 text-indigo-700 border-indigo-100'
+                                                        : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                                        }`}>
+                                                        {selectedDetail === 'projects'
+                                                            ? (PROJECT_LABELS[item.type] || item.type || '---')
+                                                            : (EXP_LABELS[item.type] || item.type || '---')
+                                                        }
+                                                    </span>
+                                                </td>
+                                            )}
+                                            <td className="p-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-[10px] flex justify-center items-center shrink-0">
+                                                        {(item.userName || '?').charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <span className="text-xs font-medium text-slate-600 truncate max-w-[150px]">{item.userName}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-3 text-xs text-slate-500 font-medium">
+                                                {item.date ? new Date(item.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' }) : '---'}
+                                            </td>
+                                            <td className="p-3 text-right">
+                                                {item.userUsername && (
+                                                    <a
+                                                        href={`/${item.userUsername}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center justify-center px-4 py-1.5 bg-white border border-slate-200 shadow-sm rounded-lg text-[11px] font-bold uppercase tracking-wider text-slate-600 lg:opacity-0 lg:group-hover:opacity-100 transition-all hover:border-indigo-200 hover:text-indigo-600"
+                                                    >
+                                                        Ver Perfil
+                                                    </a>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={selectedDetail === 'achievements' ? 4 : 5} className="p-8 text-center text-slate-400 text-sm">
+                                                No hay elementos para mostrar
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            })()}
         </div>
     )
 }

@@ -268,6 +268,7 @@ export async function getUniversityStats(universityId: number, filterCareer?: st
             title: item.title || item.role || 'Sin título',
             userName: u.full_name || u.username || 'Usuario',
             userUsername: u.username,
+            cohort: u.cohort,
             date: item.created_at || item.start_date || item.date,
             hard_skills: item.hard_skills || [],
             soft_skills: item.soft_skills || [],
