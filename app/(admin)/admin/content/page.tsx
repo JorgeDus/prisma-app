@@ -8,12 +8,12 @@ const experienceTypeLabels: Record<string, string> = {
     liderazgo: 'Liderazgo',
     social: 'Social',
     emprendimiento: 'Emprendimiento',
-    empleo_sustento: 'Empleo / Sustento',
+    empleo_sustento: 'Empleo',
     academico: 'Académico',
     deportivo: 'Deportivo',
     creativo: 'Creativo',
     cuidado_vida: 'Cuidado de Vida',
-    practica: 'Práctica Profesional',
+    practica: 'Práctica Profesional y Pasantías',
     otro: 'Otro',
 }
 

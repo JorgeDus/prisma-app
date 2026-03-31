@@ -22,8 +22,8 @@ function StatCard({ label, value, icon: Icon, subtext, color = 'indigo', promine
 
     return (
         <div className={`bg-white rounded-xl border p-5 relative overflow-hidden ${prominent
-                ? 'shadow-md border-slate-200'
-                : 'shadow-sm border-slate-100'
+            ? 'shadow-md border-slate-200'
+            : 'shadow-sm border-slate-100'
             }`}>
             {prominent && (
                 <div className={`absolute bottom-0 left-0 right-0 h-0.5 ${c.accent}`} />
@@ -65,31 +65,47 @@ export default function GeneralTab({ stats }: any) {
     // Funnel data logic
     const total = stats.totalStudents
     const completes = total - stats.incompleteProfiles
-    const act90 = stats.activeStudentsDetail.last90
     const act30 = stats.activeStudentsDetail.last30
 
-    // Creadores: estudiantes con al menos 1 proyecto o experiencia
+    // Paso 3 — Con Contenido: al menos 1 proyecto o experiencia
     const usersWithContent = new Set([
         ...(stats.projects?.items || []).map((i: any) => i.userUsername),
         ...(stats.experiences?.items || []).map((i: any) => i.userUsername),
     ]).size
 
+    // Paso 4 — Portafolio Sólido: ≥ 2 proyectos O 1 experiencia profesional
+    const projectCountByUser: Record<string, number> = {}
+        ; (stats.projects?.items || []).forEach((i: any) => {
+            projectCountByUser[i.userUsername] = (projectCountByUser[i.userUsername] || 0) + 1
+        })
+    const usersWithProfExp = new Set(
+        (stats.experiences?.items || [])
+            .filter((i: any) => i.type === 'practica' || i.type === 'empleo_sustento')
+            .map((i: any) => i.userUsername)
+    )
+    const solidPortfolioUsers = new Set([
+        ...Object.entries(projectCountByUser)
+            .filter(([, count]) => count >= 2)
+            .map(([user]) => user),
+        ...Array.from(usersWithProfExp),
+    ]).size
+
+    // Paso 5 — Con Experiencia Profesional: práctica o empleo de sustento
+    const withProfExp = usersWithProfExp.size
+
+    // skipConv: true = no mostrar % entre este paso y el anterior (dimensiones ortogonales)
     const funnelData = [
-        { name: 'Registrados', value: total, fill: '#818cf8' },
-        { name: 'Perfil Completo', value: completes, fill: '#6366f1' },
-        { name: 'Activos (90d)', value: act90, fill: '#34d399' },
-        { name: 'Activos (30d)', value: act30, fill: '#10b981' },
-        { name: 'Creadores de Contenido', value: usersWithContent, fill: '#059669' },
+        { name: 'Registrados', value: total, fill: '#818cf8', skipConv: false },
+        { name: 'Perfil Completo', value: completes, fill: '#6366f1', skipConv: false },
+        { name: 'Con Contenido', value: usersWithContent, fill: '#a78bfa', skipConv: true },
+        { name: 'Portafolio Sólido', value: solidPortfolioUsers, fill: '#34d399', skipConv: false },
+        { name: 'Con Exp. Profesional', value: withProfExp, fill: '#059669', skipConv: false },
     ]
 
     // Métricas normalizadas
     const avgContentPerActiveStudent = act30 > 0
         ? ((stats.projects.total + stats.experiences.total) / act30).toFixed(1)
         : '0'
-    const practiceCount = stats.experiences?.items?.filter((i: any) =>
-        i.type === 'practica' || i.type === 'empleo_sustento'
-    ).length ?? 0
-    const pctWithPractice = total > 0 ? Math.round((practiceCount / total) * 100) : 0
     // Gráfico de diversidad: puede mostrar "Contenido" (default) o "Personas únicas"
     const diversityData = useMemo(() => {
         // 1. Mapear usuarios únicos por Carrera|Género (Denominador para el promedio)
@@ -182,32 +198,32 @@ export default function GeneralTab({ stats }: any) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <StatCard
                     label="Contenido por Estudiante Activo"
-                    value={avgContentPerActiveStudent}
+                    value={act30 > 0 ? ((stats.projects.total + stats.experiences.total) / act30).toFixed(1) : '0'}
                     icon={BookOpen}
                     color="indigo"
                     subtext="Proyectos + experiencias promedio (ult. 30d)"
                 />
                 <StatCard
                     label="Con Experiencia Profesional"
-                    value={`${pctWithPractice}%`}
+                    value={`${total > 0 ? Math.round((usersWithProfExp.size / total) * 100) : 0}%`}
                     icon={Briefcase}
                     color="emerald"
-                    subtext={`${practiceCount} estudiantes con práctica o pasantía`}
+                    subtext={`${usersWithProfExp.size} estudiantes con práctica o empleo`}
                 />
                 <StatCard
                     label="Creadores de Contenido"
                     value={usersWithContent}
                     icon={Users}
                     color="slate"
-                    subtext={`${Math.round((usersWithContent / (total || 1)) * 100)}% del total tiene al menos 1 item`}
+                    subtext={`${Math.round((usersWithContent / (total || 1)) * 100)}% del total tiene al menos 1 ítem`}
                 />
             </div>
 
             {/* Engagement: Funnel + Género */}
             <SectionHeader
                 icon={TrendingUp}
-                title="Engagement Estudiantil"
-                subtitle="Activación y retención en el ciclo de vida del alumno"
+                title="Evolución de Portafolio"
+                subtitle="Evolución del alumno desde el registro hasta un portafolio con experiencia real"
                 color="indigo"
             />
 
@@ -216,25 +232,34 @@ export default function GeneralTab({ stats }: any) {
 
                 {/* Funnel de Retención */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 mb-1">Funnel de Engagement</h2>
-                    <p className="text-xs text-slate-400 mb-5">Evolución desde el registro hasta la producción activa</p>
+                    <h2 className="text-sm font-bold text-slate-800 mb-1">Funnel de Evolución</h2>
+                    <p className="text-xs text-slate-400 mb-5">¿Qué tan completo es el portafolio de nuestros estudiantes?</p>
                     {stats.totalStudents > 0 ? (
                         <div className="flex flex-col items-center gap-0.5">
                             {funnelData.map((step, idx) => {
                                 const pctOfTotal = total > 0 ? (step.value / total) * 100 : 0
                                 const prevValue = idx > 0 ? funnelData[idx - 1].value : null
-                                const convRate = prevValue && prevValue > 0
+                                const convRate = prevValue && prevValue > 0 && !step.skipConv
                                     ? Math.round((step.value / prevValue) * 100)
                                     : null
                                 const barWidth = Math.max(30, pctOfTotal)
                                 return (
                                     <div key={idx} className="w-full flex flex-col items-center">
+                                        {idx > 0 && step.skipConv && (
+                                            <div className="flex items-center gap-2 py-1 w-full justify-center">
+                                                <div className="flex-1 border-t border-dashed border-slate-200" />
+                                                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-300 px-1">
+                                                    medido sobre total
+                                                </span>
+                                                <div className="flex-1 border-t border-dashed border-slate-200" />
+                                            </div>
+                                        )}
                                         {convRate !== null && (
                                             <div className="flex items-center gap-1.5 py-0.5">
                                                 <div className="h-3 w-px bg-slate-200" />
                                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${convRate >= 80 ? 'text-emerald-700 bg-emerald-50' :
-                                                        convRate >= 50 ? 'text-amber-700 bg-amber-50' :
-                                                            'text-rose-700 bg-rose-50'
+                                                    convRate >= 50 ? 'text-amber-700 bg-amber-50' :
+                                                        'text-rose-700 bg-rose-50'
                                                     }`}>
                                                     {convRate}% continúa
                                                 </span>

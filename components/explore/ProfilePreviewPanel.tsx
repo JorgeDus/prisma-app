@@ -71,12 +71,12 @@ const EXP_CATEGORY_MAP: Record<string, { label: string; icon: any; color: string
     liderazgo: { label: 'Liderazgo', icon: Award, color: 'text-amber-600', bg: 'bg-amber-50' },
     social: { label: 'Social', icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50' },
     emprendimiento: { label: 'Emprendimiento', icon: Zap, color: 'text-purple-600', bg: 'bg-purple-50' },
-    empleo_sustento: { label: 'Trayectoria', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50' },
+    empleo_sustento: { label: 'Empleo', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50' },
     academico: { label: 'Académico', icon: GraduationCap, color: 'text-indigo-600', bg: 'bg-indigo-50' },
     deportivo: { label: 'Deportivo', icon: Dumbbell, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     creativo: { label: 'Creativo', icon: Palette, color: 'text-pink-600', bg: 'bg-pink-50' },
     cuidado_vida: { label: 'Cuidado y Vida', icon: HeartPulse, color: 'text-teal-600', bg: 'bg-teal-50' },
-    practica: { label: 'Práctica Profesional', icon: Stethoscope, color: 'text-cyan-600', bg: 'bg-cyan-50' },
+    practica: { label: 'Práctica Profesional y Pasantías', icon: Stethoscope, color: 'text-cyan-600', bg: 'bg-cyan-50' },
     otro: { label: 'Otro', icon: Star, color: 'text-slate-600', bg: 'bg-slate-50' },
 };
 

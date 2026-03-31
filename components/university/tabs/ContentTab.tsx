@@ -9,14 +9,23 @@ export default function ContentTab({ stats, onFilterChange }: any) {
     const [selectedDetail, setSelectedDetail] = useState<'projects' | 'experiences' | 'achievements' | null>(null)
     const [showGenderBreakdown, setShowGenderBreakdown] = useState(false)
     const [detailCohortFilter, setDetailCohortFilter] = useState<string | null>(null)
+    const [detailTypeFilter, setDetailTypeFilter] = useState<string | null>(null)
 
-    // Handler para click en barras de volumen — filtrado LOCAL, sin re-fetch
+    // Handler para click en barras de volumen — filtrado LOCAL por año/mes
     const handleVolumeClick = (type: 'projects' | 'experiences', data: any) => {
         if (!data || !data.name) return
-        // Si ya no es vista mensual, guardamos el año para filtrar el listado localmente
         const clickedYear = !isYearFiltered ? data.name : null
         setDetailCohortFilter(clickedYear)
+        setDetailTypeFilter(null)  // limpiar filtro de tipo al filtrar por cohorte
         setSelectedDetail(type)
+    }
+
+    // Handler para click en sectores del Pie de tipología — filtrado LOCAL por tipo
+    const handleTypeClick = (type: 'projects' | 'experiences', data: any) => {
+        if (!data || !data.typeKey) return
+        setSelectedDetail(type)
+        setDetailTypeFilter(data.typeKey)
+        setDetailCohortFilter(null)  // limpiar filtro de cohorte al filtrar por tipo
     }
 
     // Scroll automático al detalle cuando se selecciona
@@ -96,12 +105,12 @@ export default function ContentTab({ stats, onFilterChange }: any) {
         liderazgo: 'Liderazgo',
         social: 'Social / Voluntariado',
         emprendimiento: 'Emprendimiento',
-        empleo_sustento: 'Empleo / Pasantía',
+        empleo_sustento: 'Empleo',
         academico: 'Académico',
         deportivo: 'Deportivo',
         creativo: 'Creativo',
         cuidado_vida: 'Cuidado y Vida',
-        practica: 'Práctica Profesional',
+        practica: 'Práctica Profesional y Pasantías',
         otro: 'Otro'
     }
     const EXP_COLORS: Record<string, string> = {
@@ -118,9 +127,11 @@ export default function ContentTab({ stats, onFilterChange }: any) {
     }
 
     // Preparar datos para Mix (Combinando tipos) mapeados a español y colores definidos
+    // typeKey conserva la clave original para filtrado del detalle
     const projectMixData = Object.entries(stats.projects?.byType || {})
         .map(([type, count]) => ({
             name: PROJECT_LABELS[type] || 'Desconocido',
+            typeKey: type,
             value: count,
             fill: PROJECT_COLORS[type] || '#94a3b8'
         }))
@@ -128,6 +139,7 @@ export default function ContentTab({ stats, onFilterChange }: any) {
     const experienceMixData = Object.entries(stats.experiences?.byType || {})
         .map(([type, count]) => ({
             name: EXP_LABELS[type] || 'Desconocido',
+            typeKey: type,
             value: count,
             fill: EXP_COLORS[type] || '#64748b'
         }))
@@ -364,15 +376,44 @@ export default function ContentTab({ stats, onFilterChange }: any) {
             {/* Segunda Fila de Gráficos: Tipología */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                {/* Mix de Proyectos */}
+                {/* Mix de Proyectos — clickeable como filtro */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 mb-6">Tipología de Proyectos</h2>
-                    <div className="h-64 w-full">
+                    <div className="flex items-start justify-between mb-1">
+                        <h2 className="text-sm font-bold text-slate-800">Tipología de Proyectos</h2>
+                        {selectedDetail === 'projects' && detailTypeFilter && (
+                            <button
+                                onClick={() => setDetailTypeFilter(null)}
+                                className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-2"
+                            >
+                                Ver todos
+                            </button>
+                        )}
+                    </div>
+                    <p className="text-[11px] text-slate-400 mb-4">Click en una categoría para filtrar el detalle</p>
+                    <div className="h-56 w-full">
                         {projectMixData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
-                                    <Pie data={projectMixData} cx="50%" cy="45%" innerRadius={40} outerRadius={70} paddingAngle={2} dataKey="value">
-                                        {projectMixData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+                                    <Pie
+                                        data={projectMixData}
+                                        cx="50%" cy="45%"
+                                        innerRadius={40} outerRadius={70}
+                                        paddingAngle={2} dataKey="value"
+                                        onClick={(data) => handleTypeClick('projects', data)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        {projectMixData.map((entry, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={entry.fill}
+                                                opacity={
+                                                    selectedDetail === 'projects' && detailTypeFilter && detailTypeFilter !== entry.typeKey
+                                                        ? 0.3 : 1
+                                                }
+                                                stroke={selectedDetail === 'projects' && detailTypeFilter === entry.typeKey ? '#fff' : 'none'}
+                                                strokeWidth={3}
+                                            />
+                                        ))}
                                     </Pie>
                                     <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                                     <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
@@ -384,15 +425,44 @@ export default function ContentTab({ stats, onFilterChange }: any) {
                     </div>
                 </div>
 
-                {/* Mix de Experiencias */}
+                {/* Mix de Experiencias — clickeable como filtro */}
                 <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 mb-6">Tipología de Experiencias</h2>
-                    <div className="h-64 w-full">
+                    <div className="flex items-start justify-between mb-1">
+                        <h2 className="text-sm font-bold text-slate-800">Tipología de Experiencias</h2>
+                        {selectedDetail === 'experiences' && detailTypeFilter && (
+                            <button
+                                onClick={() => setDetailTypeFilter(null)}
+                                className="text-[10px] font-bold text-emerald-600 hover:text-emerald-800 underline underline-offset-2"
+                            >
+                                Ver todas
+                            </button>
+                        )}
+                    </div>
+                    <p className="text-[11px] text-slate-400 mb-4">Click en una categoría para filtrar el detalle</p>
+                    <div className="h-56 w-full">
                         {experienceMixData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
-                                    <Pie data={experienceMixData} cx="50%" cy="45%" innerRadius={40} outerRadius={70} paddingAngle={2} dataKey="value">
-                                        {experienceMixData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+                                    <Pie
+                                        data={experienceMixData}
+                                        cx="50%" cy="45%"
+                                        innerRadius={40} outerRadius={70}
+                                        paddingAngle={2} dataKey="value"
+                                        onClick={(data) => handleTypeClick('experiences', data)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        {experienceMixData.map((entry, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={entry.fill}
+                                                opacity={
+                                                    selectedDetail === 'experiences' && detailTypeFilter && detailTypeFilter !== entry.typeKey
+                                                        ? 0.3 : 1
+                                                }
+                                                stroke={selectedDetail === 'experiences' && detailTypeFilter === entry.typeKey ? '#fff' : 'none'}
+                                                strokeWidth={3}
+                                            />
+                                        ))}
                                     </Pie>
                                     <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                                     <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
@@ -552,12 +622,17 @@ export default function ContentTab({ stats, onFilterChange }: any) {
 
             {/* Detalle Seleccionado */}
             {selectedDetail && stats[selectedDetail]?.items && (() => {
-                // Filtrado local por año: solo aplica cuando viene de clic en barra de volumen
                 const allItems: any[] = stats[selectedDetail].items
-                const displayItems = detailCohortFilter
-                    ? allItems.filter((i: any) => i.cohort === detailCohortFilter)
-                    : allItems
+                // Aplicar filtros locales encadenables: cohorte y/o tipo
+                let displayItems = allItems
+                if (detailCohortFilter) displayItems = displayItems.filter((i: any) => i.cohort === detailCohortFilter)
+                if (detailTypeFilter) displayItems = displayItems.filter((i: any) => i.type === detailTypeFilter)
+
                 const detailLabel = selectedDetail === 'projects' ? 'Proyectos' : selectedDetail === 'experiences' ? 'Experiencias' : 'Logros'
+                const typeLabel = detailTypeFilter
+                    ? ((selectedDetail === 'projects' ? PROJECT_LABELS : EXP_LABELS)[detailTypeFilter] ?? detailTypeFilter)
+                    : null
+                const hasLocalFilters = !!detailCohortFilter || !!detailTypeFilter
 
                 return (
                     <div id="detail-section" className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm mt-8 animate-in slide-in-from-bottom-4 fade-in duration-300">
@@ -567,16 +642,25 @@ export default function ContentTab({ stats, onFilterChange }: any) {
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <h2 className="text-lg font-bold text-slate-800">Detalle de {detailLabel}</h2>
                                     {detailCohortFilter && (
-                                        <span className="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                            Ingreso {detailCohortFilter}
-                                        </span>
+                                        <button
+                                            onClick={() => setDetailCohortFilter(null)}
+                                            className="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 hover:bg-indigo-200 transition-colors"
+                                        >
+                                            Ingreso {detailCohortFilter} ×
+                                        </button>
+                                    )}
+                                    {typeLabel && (
+                                        <button
+                                            onClick={() => setDetailTypeFilter(null)}
+                                            className="bg-violet-100 text-violet-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 hover:bg-violet-200 transition-colors"
+                                        >
+                                            {typeLabel} ×
+                                        </button>
                                     )}
                                 </div>
                                 <p className="text-xs text-slate-400 mt-0.5">
-                                    {detailCohortFilter
-                                        ? `${displayItems.length} item${displayItems.length !== 1 ? 's' : ''} del año de ingreso ${detailCohortFilter} — filtro local, no afecta el resto del dashboard`
-                                        : 'Resultados según los filtros globales activos'
-                                    }
+                                    {displayItems.length} ítem{displayItems.length !== 1 ? 's' : ''}
+                                    {hasLocalFilters ? ' con los filtros activos — no afecta el resto del dashboard' : ' · resultados según filtros globales'}
                                 </p>
                             </div>
                             <div className="flex items-center gap-2">
@@ -588,16 +672,8 @@ export default function ContentTab({ stats, onFilterChange }: any) {
                                         Aplicar filtro global
                                     </button>
                                 )}
-                                {detailCohortFilter && (
-                                    <button
-                                        onClick={() => setDetailCohortFilter(null)}
-                                        className="text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
-                                    >
-                                        Ver todos
-                                    </button>
-                                )}
                                 <button
-                                    onClick={() => { setSelectedDetail(null); setDetailCohortFilter(null) }}
+                                    onClick={() => { setSelectedDetail(null); setDetailCohortFilter(null); setDetailTypeFilter(null) }}
                                     className="text-sm flex items-center gap-1 px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium transition-colors"
                                 >
                                     <X size={16} /> Cerrar
