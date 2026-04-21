@@ -38,7 +38,7 @@ export const UniversityHero = () => {
                     </h1>
 
                     <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed max-w-lg mb-10 font-sans">
-                        Un dashboard institucional que transforma la actividad de tus estudiantes en datos accionables: competencias, empleabilidad, producción y diversidad — todo en un solo lugar.
+                        Un dashboard institucional que transforma la actividad de tus estudiantes en datos accionables: competencias, producción y diversidad — todo en un solo lugar.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">

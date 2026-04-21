@@ -6,7 +6,7 @@ import { Icon } from '@iconify/react'
 const benefits = [
     {
         icon: 'solar:filter-linear',
-        title: 'Filtros por carrera y cohorte',
+        title: 'Filtros por carrera y generación',
         description: 'Segmenta toda la data por carrera y año de ingreso. Los filtros son globales: se aplican a todas las vistas simultáneamente.',
         color: 'indigo'
     },
@@ -30,7 +30,7 @@ const benefits = [
     },
     {
         icon: 'solar:chart-2-linear',
-        title: 'Benchmark por cohorte',
+        title: 'Benchmark por generación',
         description: 'Compara la producción normalizada (contenido por alumno) entre distintas generaciones para detectar diferencias de engagement.',
         color: 'emerald'
     },

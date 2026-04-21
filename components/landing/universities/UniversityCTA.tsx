@@ -10,7 +10,7 @@ export const UniversityCTA = () => {
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 mb-8">
                     <Icon icon="solar:calendar-linear" width="14" className="text-indigo-600" />
                     <span className="text-[10px] sm:text-xs font-mono font-bold text-indigo-700 uppercase tracking-widest px-1">
-                        Demo personalizada
+                        Demo
                     </span>
                 </div>
 

@@ -6,23 +6,23 @@ import { Icon } from '@iconify/react'
 const painPoints = [
     {
         icon: 'solar:eye-closed-linear',
-        title: 'Cero visibilidad extracurricular',
-        description: 'No sabes qué hacen tus estudiantes fuera del aula: voluntariados, liderazgos, emprendimientos, proyectos personales. Esa información simplemente no existe en tu sistema.'
+        title: 'Poca visibilidad extracurricular',
+        description: 'Voluntariados, liderazgos, emprendimientos, proyectos personales — experiencias que definen a tus estudiantes pero que hoy no quedan registradas en ningún sistema.'
     },
     {
         icon: 'solar:chart-square-linear',
         title: 'Datos de empleabilidad fragmentados',
-        description: 'Las encuestas de egreso llegan tarde, con baja respuesta y sin contexto. No tienes una radiografía real de dónde trabajan tus estudiantes, en qué sectores ni con qué competencias.'
+        description: 'Las encuestas de egreso llegan tarde y con baja respuesta. Es difícil tener una radiografía clara de dónde trabajan tus egresados, en qué sectores y con qué competencias.'
     },
     {
         icon: 'solar:clipboard-remove-linear',
         title: 'Impacto difícil de medir',
-        description: '¿Cómo demuestras que tus programas de formación integral funcionan? Sin datos longitudinales de actividad estudiantil, el impacto queda en lo anecdótico.'
+        description: 'Demostrar que tus programas de formación integral funcionan requiere datos longitudinales de actividad estudiantil. Sin ellos, el impacto queda en lo anecdótico.'
     },
     {
         icon: 'solar:document-text-linear',
         title: 'Reportes estáticos, decisiones lentas',
-        description: 'Los informes semestrales son fotografías del pasado. Necesitas datos dinámicos, filtrables y cruzados para tomar decisiones en el momento correcto.'
+        description: 'Los informes semestrales son una fotografía del pasado. Datos dinámicos, filtrables y cruzados permiten tomar decisiones en el momento correcto.'
     }
 ]
 
@@ -36,7 +36,7 @@ export const UniversityPainPoints = () => {
                         de tus estudiantes?
                     </h2>
                     <p className="text-slate-500 text-lg md:text-xl font-light leading-relaxed font-sans">
-                        Las instituciones educativas enfrentan un vacío crítico de información sobre la trayectoria real de sus estudiantes. <strong className="font-semibold text-slate-600">Prisma lo resuelve con datos vivos, construidos por los propios alumnos.</strong>
+                        La trayectoria real de un estudiante rara vez queda registrada. Prisma lo cambia: <strong className="font-semibold text-slate-600">datos construidos por los propios alumnos, que revelan lo que los sistemas tradicionales no ven.</strong>
                     </p>
                 </div>
 

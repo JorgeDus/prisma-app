@@ -6,10 +6,8 @@ import Image from 'next/image'
 import { UniversityHero } from '@/components/landing/universities/UniversityHero'
 import { UniversityPainPoints } from '@/components/landing/universities/UniversityPainPoints'
 import { DashboardShowcase } from '@/components/landing/universities/DashboardShowcase'
-import { UniversityBenefits } from '@/components/landing/universities/UniversityBenefits'
 import { UniversityAdvantages } from '@/components/landing/universities/UniversityAdvantages'
-import { UniversityCTA } from '@/components/landing/universities/UniversityCTA'
-import { LandingFooter } from '@/components/landing/LandingFooter'
+import { UniversityFooter } from '@/components/landing/universities/UniversityFooter'
 
 export default function UniversidadesPage() {
   const mainRef = useRef<HTMLDivElement>(null)
@@ -78,12 +76,10 @@ export default function UniversidadesPage() {
         <UniversityHero />
         <UniversityPainPoints />
         <DashboardShowcase />
-        <UniversityBenefits />
         <UniversityAdvantages />
-        <UniversityCTA />
       </main>
 
-      <LandingFooter />
+      <UniversityFooter />
     </div>
   )
 }
