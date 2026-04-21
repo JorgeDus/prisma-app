@@ -3,15 +3,15 @@
 import React, { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { HeroSection } from '@/components/landing/HeroSection'
-import { FeatureGrid } from '@/components/landing/FeatureGrid'
-import { ServiceShowcase } from '@/components/landing/ServiceShowcase'
-import { ProcessTimeline } from '@/components/landing/ProcessTimeline'
-import { ManifestoBreak } from '@/components/landing/ManifestoBreak'
-import { LandingFAQ } from '@/components/landing/LandingFAQ'
+import { UniversityHero } from '@/components/landing/universities/UniversityHero'
+import { UniversityPainPoints } from '@/components/landing/universities/UniversityPainPoints'
+import { DashboardShowcase } from '@/components/landing/universities/DashboardShowcase'
+import { UniversityBenefits } from '@/components/landing/universities/UniversityBenefits'
+import { UniversityAdvantages } from '@/components/landing/universities/UniversityAdvantages'
+import { UniversityCTA } from '@/components/landing/universities/UniversityCTA'
 import { LandingFooter } from '@/components/landing/LandingFooter'
 
-export default function Home() {
+export default function UniversidadesPage() {
   const mainRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -64,25 +64,23 @@ export default function Home() {
             </Link>
           </div>
           <div className="hidden md:flex items-center gap-8 text-[14px] font-mono font-bold uppercase tracking-widest text-slate-400">
-            <a href="#home" className="hover:text-indigo-600 transition-colors">Home</a>
-            <a href="#vision" className="hover:text-indigo-600 transition-colors">Visión</a>
-            <a href="#process" className="hover:text-indigo-600 transition-colors">Cómo Funciona</a>
-            <a href="#faq" className="hover:text-indigo-600 transition-colors">FAQ</a>
-            <Link href="/universidades" className="text-indigo-600 hover:text-indigo-700 transition-colors">Universidades</Link>
+            <Link href="/" className="hover:text-indigo-600 transition-colors">Home</Link>
+            <Link href="/universidades" className="text-indigo-600 transition-colors">Universidades</Link>
+            <a href="#dashboard" className="hover:text-indigo-600 transition-colors">Dashboard</a>
           </div>
-          <a href="/login" className="px-6 py-2.5 bg-indigo-600 text-white text-xs font-mono font-bold uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100/50 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0">
-            Acceder
+          <a href="mailto:contacto@tuprisma.com?subject=Demo%20Dashboard%20Institucional" className="px-6 py-2.5 bg-indigo-600 text-white text-xs font-mono font-bold uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100/50 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0">
+            Contactar
           </a>
         </div>
       </nav>
 
       <main>
-        <HeroSection />
-        <FeatureGrid />
-        <ServiceShowcase />
-        <ManifestoBreak />
-        <ProcessTimeline />
-        <LandingFAQ />
+        <UniversityHero />
+        <UniversityPainPoints />
+        <DashboardShowcase />
+        <UniversityBenefits />
+        <UniversityAdvantages />
+        <UniversityCTA />
       </main>
 
       <LandingFooter />

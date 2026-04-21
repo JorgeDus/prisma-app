@@ -1,0 +1,6 @@
+export { UniversityHero } from './UniversityHero'
+export { UniversityPainPoints } from './UniversityPainPoints'
+export { DashboardShowcase } from './DashboardShowcase'
+export { UniversityBenefits } from './UniversityBenefits'
+export { UniversityAdvantages } from './UniversityAdvantages'
+export { UniversityCTA } from './UniversityCTA'
