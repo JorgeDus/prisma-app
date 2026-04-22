@@ -22,7 +22,7 @@ const painPoints = [
     {
         icon: 'solar:document-text-linear',
         title: 'Reportes estáticos, decisiones lentas',
-        description: 'Los informes semestrales son una fotografía del pasado. Datos dinámicos, filtrables y cruzados permiten tomar decisiones en el momento correcto.'
+        description: 'Datos dinámicos, filtrables y cruzados permiten tomar decisiones en el momento correcto.'
     }
 ]
 
