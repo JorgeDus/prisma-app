@@ -38,7 +38,7 @@ export const UniversityHero = () => {
                     </h1>
 
                     <p className="text-lg md:text-xl text-slate-500 font-light leading-relaxed max-w-lg mb-10 font-sans">
-                        Un dashboard institucional que transforma la actividad de tus estudiantes en datos accionables: competencias, producción y diversidad — todo en un solo lugar.
+                        Un dashboard institucional que transforma la actividad de tus estudiantes en datos accionables: competencias, empleabilidad, producción y diversidad — todo en un solo lugar.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -54,26 +54,19 @@ export const UniversityHero = () => {
 
                 {/* Visual — Dashboard Placeholder */}
                 <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-2xl shadow-slate-200/50 fade-enter delay-200 bg-gradient-to-br from-slate-50 to-slate-100">
-                    {/* Placeholder badge */}
-                    <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-200 shadow-sm flex items-center gap-2">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                        </span>
-                        <span className="text-[10px] font-mono font-bold text-slate-600 uppercase tracking-widest">Dashboard institucional</span>
-                    </div>
-
-                    {/* Placeholder content */}
-                    <div className="flex flex-col items-center justify-center min-h-[320px] md:min-h-[420px] p-12">
-                        <div className="w-20 h-20 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center mb-6">
-                            <Icon icon="solar:chart-square-linear" width="40" className="text-indigo-400" />
-                        </div>
-                        <p className="text-sm font-bold text-slate-400 font-mono uppercase tracking-widest mb-2">
-                            Captura del dashboard
-                        </p>
-                        <p className="text-xs text-slate-300 font-sans font-light text-center max-w-xs">
-                            Aquí irá una imagen real del portal de inteligencia estudiantil
-                        </p>
+                    {/* Video Content */}
+                    <div className="relative aspect-video w-full bg-slate-100">
+                        <video
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="auto"
+                        >
+                            <source src="/dashboard-2.mp4" type="video/mp4" />
+                            Tu navegador no soporta el tag de video.
+                        </video>
                     </div>
 
                     {/* Bottom label */}

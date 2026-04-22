@@ -352,7 +352,7 @@ export const DashboardShowcase = () => {
 
                 {/* Active Tab — Features left, Image right */}
                 <div className={`rounded-3xl border p-8 md:p-12 transition-all duration-500 ${colors.activeBg} ${colors.activeBorder}`}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
                         {/* Left: Description + Feature List */}
                         <div>
